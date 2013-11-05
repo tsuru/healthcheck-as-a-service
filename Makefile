@@ -5,4 +5,4 @@ clean:
 	@find . -name "*.pyc" -delete
 
 test: deps clean
-	@py.test .
+	@PYTHONPATH=. py.test .
