@@ -9,6 +9,7 @@ clean:
 
 test: test-deps clean
 	@PYTHONPATH=. py.test .
+	@flake8 .
 
 run: deps
 	@honcho start
