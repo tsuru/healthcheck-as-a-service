@@ -1,5 +1,4 @@
 Flask==0.10.1
 gunicorn==18.0
 honcho==0.4.2
-requests==2.0.1
 pyzabbix==0.6
