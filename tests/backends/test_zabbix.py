@@ -27,4 +27,21 @@ class ZabbixTest(TestCase):
 
     def test_add_url(self):
         url = "http://mysite.com"
+        name = "healthcheck for {}".format(url)
         self.backend.add_url(url)
+        self.backend.zapi.httptest.create.assert_called_with(
+            name=name,
+            steps=[{
+                "name": name,
+                "url": url,
+                "status_codes": 200,
+                "no": 1,
+            }],
+            hostid="1",
+        )
+        expression = "{{Zabbix Server:web.test.rspcode[{},{}].last()}}#200"
+        self.backend.zapi.trigger.create.assert_called_with(
+            description="trigger for url ".format(url),
+            expression=expression.format(name, name),
+            priority=5,
+        )
