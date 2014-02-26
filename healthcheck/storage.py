@@ -1,6 +1,11 @@
 import os
 
 
+class Item(object):
+    def __init__(self, url):
+        self.url = url
+
+
 class MongoStorage(object):
 
     def conn(self):

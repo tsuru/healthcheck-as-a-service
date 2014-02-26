@@ -2,6 +2,15 @@ import unittest
 import mock
 import os
 
+from healthcheck.storage import Item
+
+
+class ItemTest(unittest.TestCase):
+
+    def test_item(self):
+        item = Item("http://teste.com")
+        self.assertEqual(item.url, "http://teste.com")
+
 
 class MongoStorageTest(unittest.TestCase):
 
