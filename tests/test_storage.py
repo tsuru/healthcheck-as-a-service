@@ -11,6 +11,10 @@ class ItemTest(unittest.TestCase):
         item = Item("http://teste.com")
         self.assertEqual(item.url, "http://teste.com")
 
+    def test_to_json(self):
+        item = Item("http://teste.com")
+        self.assertDictEqual(item.to_json(), {"url": "http://teste.com"})
+
 
 class MongoStorageTest(unittest.TestCase):
 

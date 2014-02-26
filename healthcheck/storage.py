@@ -2,8 +2,14 @@ import os
 
 
 class Item(object):
+
     def __init__(self, url):
         self.url = url
+
+    def to_json(self):
+        return {
+            "url": self.url,
+        }
 
 
 class MongoStorage(object):
