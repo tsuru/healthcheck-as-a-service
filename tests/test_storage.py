@@ -47,3 +47,13 @@ class MongoStorageTest(unittest.TestCase):
         storage = MongoStorage()
         storage.conn()
         mongo_mock.assert_called_with(host='localhost', port=3333)
+
+    def test_add_instance(self):
+        from healthcheck.storage import MongoStorage
+        storage = MongoStorage()
+        url = "http://myurl.com"
+        item = Item(url)
+        storage.add_item(item)
+        result = storage.conn()['hcapi']['items'].find_one({"url": url})
+        self.assertEqual(result["url"], url)
+        storage.conn()['hcapi']['items'].remove({"url": url})

@@ -20,3 +20,6 @@ class MongoStorage(object):
 
         from pymongo import MongoClient
         return MongoClient(host=mongodb_host, port=mongodb_port)
+
+    def add_item(self, item):
+        self.conn()['hcapi']['items'].insert(item.to_json())
