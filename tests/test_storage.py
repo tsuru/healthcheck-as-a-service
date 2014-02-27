@@ -67,3 +67,15 @@ class MongoStorageTest(unittest.TestCase):
         result = storage.find_item_by_url(item.url)
         self.assertEqual(result.url, url)
         storage.conn()['hcapi']['items'].remove({"url": url})
+
+    def test_remove_item(self):
+        from healthcheck.storage import MongoStorage
+        storage = MongoStorage()
+        url = "http://myurl.com"
+        item = Item(url)
+        storage.add_item(item)
+        result = storage.find_item_by_url(item.url)
+        self.assertEqual(result.url, url)
+        storage.remove_item(item)
+        length = storage.conn()['hcapi']['items'].find({"url": url}).count()
+        self.assertEqual(length, 0)

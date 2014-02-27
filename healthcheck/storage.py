@@ -27,3 +27,6 @@ class MongoStorage(object):
     def find_item_by_url(self, url):
         result = self.conn()['hcapi']['items'].find_one({"url": url})
         return Item(result["url"])
+
+    def remove_item(self, item):
+        self.conn()['hcapi']['items'].remove({"url": item.url})
