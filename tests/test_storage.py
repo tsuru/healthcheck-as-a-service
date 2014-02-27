@@ -2,7 +2,7 @@ import unittest
 import mock
 import os
 
-from healthcheck.storage import Item
+from healthcheck.storage import Item, MongoStorage
 
 
 class ItemTest(unittest.TestCase):
@@ -22,11 +22,14 @@ class MongoStorageTest(unittest.TestCase):
         if env in os.environ:
             del os.environ[env]
 
+    def setUp(self):
+        self.storage = MongoStorage()
+        self.url = "http://myurl.com"
+        self.item = Item(self.url)
+
     @mock.patch("pymongo.MongoClient")
     def test_mongodb_host_environ(self, mongo_mock):
-        from healthcheck.storage import MongoStorage
-        storage = MongoStorage()
-        storage.conn()
+        self.storage.conn()
         mongo_mock.assert_called_with(host="localhost", port=27017)
 
         os.environ["MONGODB_HOST"] = "0.0.0.0"
@@ -37,9 +40,7 @@ class MongoStorageTest(unittest.TestCase):
 
     @mock.patch("pymongo.MongoClient")
     def test_mongodb_port_environ(self, mongo_mock):
-        from healthcheck.storage import MongoStorage
-        storage = MongoStorage()
-        storage.conn()
+        self.storage.conn()
         mongo_mock.assert_called_with(host='localhost', port=27017)
 
         os.environ["MONGODB_PORT"] = "3333"
@@ -49,33 +50,22 @@ class MongoStorageTest(unittest.TestCase):
         mongo_mock.assert_called_with(host='localhost', port=3333)
 
     def test_add_item(self):
-        from healthcheck.storage import MongoStorage
-        storage = MongoStorage()
-        url = "http://myurl.com"
-        item = Item(url)
-        storage.add_item(item)
-        result = storage.find_item_by_url(url)
-        self.assertEqual(result.url, url)
-        storage.remove_item(item)
+        self.storage.add_item(self.item)
+        result = self.storage.find_item_by_url(self.url)
+        self.assertEqual(result.url, self.url)
+        self.storage.remove_item(self.item)
 
     def test_find_item_by_url(self):
-        from healthcheck.storage import MongoStorage
-        storage = MongoStorage()
-        url = "http://myurl.com"
-        item = Item(url)
-        storage.add_item(item)
-        result = storage.find_item_by_url(item.url)
-        self.assertEqual(result.url, url)
-        storage.remove_item(item)
+        self.storage.add_item(self.item)
+        result = self.storage.find_item_by_url(self.item.url)
+        self.assertEqual(result.url, self.url)
+        self.storage.remove_item(self.item)
 
     def test_remove_item(self):
-        from healthcheck.storage import MongoStorage
-        storage = MongoStorage()
-        url = "http://myurl.com"
-        item = Item(url)
-        storage.add_item(item)
-        result = storage.find_item_by_url(item.url)
-        self.assertEqual(result.url, url)
-        storage.remove_item(item)
-        length = storage.conn()['hcapi']['items'].find({"url": url}).count()
+        self.storage.add_item(self.item)
+        result = self.storage.find_item_by_url(self.item.url)
+        self.assertEqual(result.url, self.url)
+        self.storage.remove_item(self.item)
+        length = self.storage.conn()['hcapi']['items'].find(
+            {"url": self.url}).count()
         self.assertEqual(length, 0)
