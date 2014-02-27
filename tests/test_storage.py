@@ -54,8 +54,8 @@ class MongoStorageTest(unittest.TestCase):
         url = "http://myurl.com"
         item = Item(url)
         storage.add_item(item)
-        result = storage.conn()['hcapi']['items'].find_one({"url": url})
-        self.assertEqual(result["url"], url)
+        result = storage.find_item_by_url(url)
+        self.assertEqual(result.url, url)
         storage.conn()['hcapi']['items'].remove({"url": url})
 
     def test_find_item_by_url(self):
