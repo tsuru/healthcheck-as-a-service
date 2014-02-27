@@ -23,3 +23,7 @@ class MongoStorage(object):
 
     def add_item(self, item):
         self.conn()['hcapi']['items'].insert(item.to_json())
+
+    def find_item_by_url(self, url):
+        result = self.conn()['hcapi']['items'].find_one({"url": url})
+        return Item(result["url"])
