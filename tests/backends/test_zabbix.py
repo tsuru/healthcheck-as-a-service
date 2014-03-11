@@ -9,8 +9,9 @@ class ZabbixTest(TestCase):
         if env in os.environ:
             del os.environ[env]
 
+    @mock.patch("healthcheck.storage.MongoStorage")
     @mock.patch("pyzabbix.ZabbixAPI")
-    def setUp(self, zabbix_mock):
+    def setUp(self, zabbix_mock, mongo_mock):
         url = "http://zbx.com"
         user = "user"
         password = "pass"
@@ -21,11 +22,16 @@ class ZabbixTest(TestCase):
         zapi_mock = mock.Mock()
         zabbix_mock.return_value = zapi_mock
 
+        instance_mock = mock.Mock()
+        mongo_mock.return_value = instance_mock
+
         from healthcheck.backends import Zabbix
         self.backend = Zabbix()
         zabbix_mock.assert_called_with(url)
         zapi_mock.login.assert_called_with(user, password)
 
+        mongo_mock.assert_called_with()
+        instance_mock.conn.assert_called_with()
         self.backend.storage = mock.Mock()
 
     def test_add_url(self):
