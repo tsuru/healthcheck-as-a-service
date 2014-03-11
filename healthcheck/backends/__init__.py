@@ -1,4 +1,5 @@
 import os
+from healthcheck.storage import Item
 
 
 def get_value(key):
@@ -17,9 +18,14 @@ class Zabbix(object):
         user = get_value("ZABBIX_USER")
         password = get_value("ZABBIX_PASSWORD")
         self.host_id = get_value("ZABBIX_HOST")
+
         from pyzabbix import ZabbixAPI
         self.zapi = ZabbixAPI(url)
         self.zapi.login(user, password)
+
+        from healthcheck.storage import MongoStorage
+        self.storage = MongoStorage()
+        self.storage.conn()
 
     def add_url(self, url):
         name = "healthcheck for {}".format(url)
@@ -39,3 +45,4 @@ class Zabbix(object):
             expression=expression.format(name, name),
             priority=5,
         )
+        self.storage.add_item(Item(url))

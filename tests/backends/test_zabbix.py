@@ -20,10 +20,13 @@ class ZabbixTest(TestCase):
         os.environ["ZABBIX_HOST"] = "1"
         zapi_mock = mock.Mock()
         zabbix_mock.return_value = zapi_mock
+
         from healthcheck.backends import Zabbix
         self.backend = Zabbix()
         zabbix_mock.assert_called_with(url)
         zapi_mock.login.assert_called_with(user, password)
+
+        self.backend.storage = mock.Mock()
 
     def test_add_url(self):
         url = "http://mysite.com"
@@ -45,3 +48,4 @@ class ZabbixTest(TestCase):
             expression=expression.format(name, name),
             priority=5,
         )
+        self.backend.storage.add_item.assert_called()
