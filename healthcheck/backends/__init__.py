@@ -30,7 +30,7 @@ class Zabbix(object):
 
     def add_url(self, url):
         name = "healthcheck for {}".format(url)
-        self.zapi.httptest.create(
+        item_result = self.zapi.httptest.create(
             name=name,
             steps=[{
                 "name": name,
@@ -41,12 +41,17 @@ class Zabbix(object):
             hostid=self.host_id,
         )
         expression = "{{Zabbix Server:web.test.rspcode[{},{}].last()}}#200"
-        self.zapi.trigger.create(
+        trigger_result = self.zapi.trigger.create(
             description="trigger for url ".format(url),
             expression=expression.format(name, name),
             priority=5,
         )
-        self.storage.add_item(Item(url))
+        item = Item(
+            url,
+            item_id=item_result['itemids'][0],
+            trigger_id=trigger_result['triggerids'][0]
+        )
+        self.storage.add_item(item)
 
     def delete_url(self, url):
         item = self.storage.find_item_by_url(url)
