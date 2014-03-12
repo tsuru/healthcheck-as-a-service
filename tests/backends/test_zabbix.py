@@ -1,4 +1,5 @@
 from unittest import TestCase
+from healthcheck.storage import Item
 
 import mock
 import os
@@ -60,7 +61,10 @@ class ZabbixTest(TestCase):
 
     def test_delete_url(self):
         url = "http://mysite.com"
-        name = "healthcheck for {}".format(url)
+        item_id = 1
+        trigger_id = 1
+        item = Item(url, item_id=item_id, trigger_id=trigger_id)
+        self.backend.storage.find_item_by_url.return_value = item
         self.backend.delete_url(url)
-        self.backend.zapi.httptest.delete.assert_called_with([1])
-        self.backend.zapi.trigger.delete.assert_called_with([1])
+        self.backend.zapi.httptest.delete.assert_called_with([item_id])
+        self.backend.zapi.trigger.delete.assert_called_with([trigger_id])

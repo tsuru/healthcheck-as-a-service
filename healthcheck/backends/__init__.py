@@ -55,5 +55,5 @@ class Zabbix(object):
 
     def delete_url(self, url):
         item = self.storage.find_item_by_url(url)
-        self.zapi.httptest.delete(id)
-        self.zapi.trigger.delete(id)
+        self.zapi.httptest.delete([item.item_id])
+        self.zapi.trigger.delete([item.trigger_id])
