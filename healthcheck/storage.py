@@ -3,13 +3,13 @@ import os
 
 class Item(object):
 
-    def __init__(self, url):
+    def __init__(self, url, **kwargs):
         self.url = url
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     def to_json(self):
-        return {
-            "url": self.url,
-        }
+        return self.__dict__
 
 
 class MongoStorage(object):

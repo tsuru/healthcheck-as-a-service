@@ -8,12 +8,13 @@ from healthcheck.storage import Item, MongoStorage
 class ItemTest(unittest.TestCase):
 
     def test_item(self):
-        item = Item("http://teste.com")
+        item = Item("http://teste.com", item_id=1)
         self.assertEqual(item.url, "http://teste.com")
+        self.assertEqual(item.item_id, 1)
 
     def test_to_json(self):
-        item = Item("http://teste.com")
-        self.assertDictEqual(item.to_json(), {"url": "http://teste.com"})
+        item = Item("http://teste.com", id=1)
+        self.assertDictEqual(item.to_json(), {"url": "http://teste.com", "id": 1})
 
 
 class MongoStorageTest(unittest.TestCase):
