@@ -14,7 +14,8 @@ class ItemTest(unittest.TestCase):
 
     def test_to_json(self):
         item = Item("http://teste.com", id=1)
-        self.assertDictEqual(item.to_json(), {"url": "http://teste.com", "id": 1})
+        self.assertDictEqual(
+            item.to_json(), {"url": "http://teste.com", "id": 1})
 
 
 class MongoStorageTest(unittest.TestCase):
