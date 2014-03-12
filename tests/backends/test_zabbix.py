@@ -55,3 +55,10 @@ class ZabbixTest(TestCase):
             priority=5,
         )
         self.backend.storage.add_item.assert_called()
+
+    def test_delete_url(self):
+        url = "http://mysite.com"
+        name = "healthcheck for {}".format(url)
+        self.backend.delete_url(url)
+        self.backend.zapi.httptest.delete.assert_called_with([1])
+        self.backend.zapi.trigger.delete.assert_called_with([1])

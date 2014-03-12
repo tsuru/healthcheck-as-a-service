@@ -1,4 +1,5 @@
 import os
+
 from healthcheck.storage import Item
 
 
@@ -46,3 +47,8 @@ class Zabbix(object):
             priority=5,
         )
         self.storage.add_item(Item(url))
+
+    def delete_url(self, url):
+        item = self.storage.find_item_by_url(url)
+        self.zapi.httptest.delete(id)
+        self.zapi.trigger.delete(id)
