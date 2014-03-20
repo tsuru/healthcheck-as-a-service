@@ -72,3 +72,11 @@ class ZabbixTest(TestCase):
     def test_add_watcher(self):
         email = "andrews@corp.globo.com"
         self.backend.add_watcher(email)
+
+    def test_add_action(self):
+        self.backend.add_action("url")
+        self.backend.zapi.action.create.assert_called_with(
+            name="action for url url",
+            conditions=[],
+            operations=[],
+        )

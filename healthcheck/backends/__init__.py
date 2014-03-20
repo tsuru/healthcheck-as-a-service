@@ -58,5 +58,12 @@ class Zabbix(object):
         self.zapi.httptest.delete([item.item_id])
         self.zapi.trigger.delete([item.trigger_id])
 
+    def add_action(self, url):
+        self.zapi.action.create(
+            name="action for url {}".format(url),
+            conditions=[],
+            operations=[],
+        )
+
     def add_watcher(self, email):
         pass
