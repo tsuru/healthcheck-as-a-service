@@ -53,7 +53,7 @@ class ZabbixTest(TestCase):
         )
         expression = "{{Zabbix Server:web.test.rspcode[{},{}].last()}}#200"
         self.backend.zapi.trigger.create.assert_called_with(
-            description="trigger for url ".format(url),
+            description="trigger for url {}".format(url),
             expression=expression.format(name, name),
             priority=5,
         )

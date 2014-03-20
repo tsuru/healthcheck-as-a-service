@@ -42,7 +42,7 @@ class Zabbix(object):
         )
         expression = "{{Zabbix Server:web.test.rspcode[{},{}].last()}}#200"
         trigger_result = self.zapi.trigger.create(
-            description="trigger for url ".format(url),
+            description="trigger for url {}".format(url),
             expression=expression.format(name, name),
             priority=5,
         )
