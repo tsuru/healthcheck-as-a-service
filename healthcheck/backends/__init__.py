@@ -57,3 +57,6 @@ class Zabbix(object):
         item = self.storage.find_item_by_url(url)
         self.zapi.httptest.delete([item.item_id])
         self.zapi.trigger.delete([item.trigger_id])
+
+    def add_watcher(self, email):
+        pass

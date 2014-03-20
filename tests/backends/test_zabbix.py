@@ -68,3 +68,7 @@ class ZabbixTest(TestCase):
         self.backend.delete_url(url)
         self.backend.zapi.httptest.delete.assert_called_with([item_id])
         self.backend.zapi.trigger.delete.assert_called_with([trigger_id])
+
+    def test_add_watcher(self):
+        email = "andrews@corp.globo.com"
+        self.backend.add_watcher(email)
