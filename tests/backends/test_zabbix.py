@@ -77,6 +77,7 @@ class ZabbixTest(TestCase):
         self.backend.add_action("url")
         self.backend.zapi.action.create.assert_called_with(
             name="action for url url",
+            recovery_msg=1,
             conditions=[],
             operations=[],
         )

@@ -61,6 +61,7 @@ class Zabbix(object):
     def add_action(self, url):
         self.zapi.action.create(
             name="action for url {}".format(url),
+            recovery_msg=1,
             conditions=[],
             operations=[],
         )
