@@ -63,7 +63,15 @@ class Zabbix(object):
             name="action for url {}".format(url),
             recovery_msg=1,
             conditions=[],
-            operations=[],
+            operations=[
+                {
+                    "operationtype": 0,
+                    "opmessage_grp": [{"usrgrpid": "7"}],
+                    "opmessage": {
+                        "mediatypeid": "1"
+                    }
+                }
+            ],
         )
 
     def add_watcher(self, email):

@@ -79,5 +79,13 @@ class ZabbixTest(TestCase):
             name="action for url url",
             recovery_msg=1,
             conditions=[],
-            operations=[],
+            operations=[
+                {
+                    "operationtype": 0,
+                    "opmessage_grp": [{"usrgrpid": "7"}],
+                    "opmessage": {
+                        "mediatypeid": "1"
+                    }
+                }
+            ],
         )
