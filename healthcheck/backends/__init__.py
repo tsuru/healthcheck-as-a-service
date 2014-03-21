@@ -82,10 +82,11 @@ class Zabbix(object):
         )
 
     def add_group(self, name):
-        self.zapi.usergroup.create(
+        result = self.zapi.usergroup.create(
             name=name,
             rights={"permission": 2, "id": self.host_id},
         )
+        return result["usrgrpids"][0]
 
     def add_watcher(self, email):
         pass

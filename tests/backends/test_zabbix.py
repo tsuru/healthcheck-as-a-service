@@ -96,6 +96,7 @@ class ZabbixTest(TestCase):
 
     def test_add_group(self):
         name = "group name"
+        self.backend.zapi.usergroup.create.return_value = {"usrgrpids": [2]}
         self.backend.add_group(name)
         self.backend.zapi.usergroup.create.assert_called_with(
             name=name,
