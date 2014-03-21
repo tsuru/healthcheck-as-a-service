@@ -62,7 +62,14 @@ class Zabbix(object):
         self.zapi.action.create(
             name="action for url {}".format(url),
             recovery_msg=1,
-            conditions=[],
+            conditions=[
+                #Maintenance status not in maintenance
+                {"conditiontype": 16, "value": "", "operator": 7},
+                # Trigger value = PROBLEM
+                {"conditiontype": 5, "value": "1"},
+                # Trigger = trigger id
+                {"conditiontype": 2, "value": "1"},
+            ],
             operations=[
                 {
                     "operationtype": 0,

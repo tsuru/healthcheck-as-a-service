@@ -78,7 +78,11 @@ class ZabbixTest(TestCase):
         self.backend.zapi.action.create.assert_called_with(
             name="action for url url",
             recovery_msg=1,
-            conditions=[],
+            conditions=[
+                {"conditiontype": 16, "value": "", "operator": 7},
+                {"conditiontype": 5, "value": "1"},
+                {"conditiontype": 2, "value": "1"},
+            ],
             operations=[
                 {
                     "operationtype": 0,
