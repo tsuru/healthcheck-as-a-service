@@ -2,7 +2,14 @@ import unittest
 import mock
 import os
 
-from healthcheck.storage import Item, MongoStorage
+from healthcheck.storage import Item, MongoStorage, Group
+
+
+class GroupTest(unittest.TestCase):
+
+    def test_group(self):
+        group = Group("name")
+        self.assertEqual(group.name, "name")
 
 
 class ItemTest(unittest.TestCase):
