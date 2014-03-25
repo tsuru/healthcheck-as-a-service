@@ -8,12 +8,13 @@ from healthcheck.storage import Item, MongoStorage, Group
 class GroupTest(unittest.TestCase):
 
     def test_group(self):
-        group = Group("name")
+        group = Group(name="name", id="xpto")
         self.assertEqual(group.name, "name")
+        self.assertEqual(group.id, "xpto")
 
     def test_to_json(self):
-        group = Group("name")
-        self.assertDictEqual(group.to_json(), {"name": "name"})
+        group = Group(name="name", id="xpto")
+        self.assertDictEqual(group.to_json(), {"name": "name", "id": "xpto"})
 
 
 class ItemTest(unittest.TestCase):
@@ -39,7 +40,7 @@ class MongoStorageTest(unittest.TestCase):
         self.storage = MongoStorage()
         self.url = "http://myurl.com"
         self.item = Item(self.url)
-        self.group = Group("name")
+        self.group = Group("name", "id")
 
     @mock.patch("pymongo.MongoClient")
     def test_mongodb_host_environ(self, mongo_mock):

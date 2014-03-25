@@ -3,8 +3,9 @@ import os
 
 class Group(object):
 
-    def __init__(self, name):
+    def __init__(self, name, id):
         self.name = name
+        self.id = id
 
     def to_json(self):
         return self.__dict__
@@ -45,7 +46,7 @@ class MongoStorage(object):
 
     def find_group_by_name(self, name):
         result = self.conn()['hcapi']['groups'].find_one({"name": name})
-        return Group(result["name"])
+        return Group(result["name"], result["id"])
 
     def remove_group(self, group):
         self.conn()['hcapi']['groups'].remove({"name": group.name})
