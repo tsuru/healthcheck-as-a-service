@@ -6,6 +6,9 @@ class Group(object):
     def __init__(self, name):
         self.name = name
 
+    def to_json(self):
+        return self.__dict__
+
 
 class Item(object):
 

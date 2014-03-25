@@ -11,6 +11,10 @@ class GroupTest(unittest.TestCase):
         group = Group("name")
         self.assertEqual(group.name, "name")
 
+    def test_to_json(self):
+        group = Group("name")
+        self.assertDictEqual(group.to_json(), {"name": "name"})
+
 
 class ItemTest(unittest.TestCase):
 
