@@ -86,8 +86,15 @@ class MongoStorageTest(unittest.TestCase):
 
     def test_add_group(self):
         self.storage.add_group(self.group)
-        result = self.storage.conn()['hcapi']['group'].find_one(
+        result = self.storage.conn()['hcapi']['groups'].find_one(
             {"name": self.group.name})
         self.assertEqual(result["name"], self.group.name)
-        result = self.storage.conn()['hcapi']['group'].remove(
+        result = self.storage.conn()['hcapi']['groups'].remove(
+            {"name": self.group.name})
+
+    def test_find_group_by_name(self):
+        self.storage.add_group(self.group)
+        result = self.storage.find_group_by_name(self.group.name)
+        self.assertEqual(result.name, self.group.name)
+        result = self.storage.conn()['hcapi']['groups'].remove(
             {"name": self.group.name})
