@@ -39,3 +39,6 @@ class MongoStorage(object):
 
     def remove_item(self, item):
         self.conn()['hcapi']['items'].remove({"url": item.url})
+
+    def add_group(self, group):
+        self.conn()['hcapi']['group'].insert(group.to_json())

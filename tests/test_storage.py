@@ -39,6 +39,7 @@ class MongoStorageTest(unittest.TestCase):
         self.storage = MongoStorage()
         self.url = "http://myurl.com"
         self.item = Item(self.url)
+        self.group = Group("name")
 
     @mock.patch("pymongo.MongoClient")
     def test_mongodb_host_environ(self, mongo_mock):
@@ -82,3 +83,11 @@ class MongoStorageTest(unittest.TestCase):
         length = self.storage.conn()['hcapi']['items'].find(
             {"url": self.url}).count()
         self.assertEqual(length, 0)
+
+    def test_add_group(self):
+        self.storage.add_group(self.group)
+        result = self.storage.conn()['hcapi']['group'].find_one(
+            {"name": self.group.name})
+        self.assertEqual(result["name"], self.group.name)
+        result = self.storage.conn()['hcapi']['group'].remove(
+            {"name": self.group.name})
