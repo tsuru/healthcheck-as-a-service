@@ -98,3 +98,12 @@ class MongoStorageTest(unittest.TestCase):
         self.assertEqual(result.name, self.group.name)
         result = self.storage.conn()['hcapi']['groups'].remove(
             {"name": self.group.name})
+
+    def test_remove_group(self):
+        self.storage.add_group(self.group)
+        result = self.storage.find_group_by_name(self.group.name)
+        self.assertEqual(result.name, self.group.name)
+        self.storage.remove_group(self.group)
+        length = self.storage.conn()['hcapi']['groups'].find(
+            {"name": self.group.name}).count()
+        self.assertEqual(length, 0)

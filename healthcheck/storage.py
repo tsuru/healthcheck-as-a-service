@@ -46,3 +46,6 @@ class MongoStorage(object):
     def find_group_by_name(self, name):
         result = self.conn()['hcapi']['groups'].find_one({"name": name})
         return Group(result["name"])
+
+    def remove_group(self, group):
+        self.conn()['hcapi']['groups'].remove({"name": group.name})
