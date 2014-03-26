@@ -58,7 +58,7 @@ class Zabbix(object):
         self.zapi.httptest.delete([item.item_id])
         self.zapi.trigger.delete([item.trigger_id])
 
-    def add_action(self, url, trigger_id):
+    def add_action(self, url, trigger_id, group_id):
         result = self.zapi.action.create(
             name="action for url {}".format(url),
             recovery_msg=1,
@@ -73,7 +73,7 @@ class Zabbix(object):
             operations=[
                 {
                     "operationtype": 0,
-                    "opmessage_grp": [{"usrgrpid": "7"}],
+                    "opmessage_grp": [{"usrgrpid": group_id}],
                     "opmessage": {
                         "mediatypeid": "1"
                     }

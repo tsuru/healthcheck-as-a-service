@@ -75,7 +75,7 @@ class ZabbixTest(TestCase):
 
     def test_add_action(self):
         self.backend.zapi.action.create.return_value = {"actionids": ["1"]}
-        self.backend.add_action("url", "8")
+        self.backend.add_action("url", "8", "14")
         self.backend.zapi.action.create.assert_called_with(
             name="action for url url",
             recovery_msg=1,
@@ -87,7 +87,7 @@ class ZabbixTest(TestCase):
             operations=[
                 {
                     "operationtype": 0,
-                    "opmessage_grp": [{"usrgrpid": "7"}],
+                    "opmessage_grp": [{"usrgrpid": "14"}],
                     "opmessage": {
                         "mediatypeid": "1"
                     }
