@@ -47,11 +47,12 @@ class Zabbix(object):
             priority=5,
         )
         trigger_id = trigger_result['triggerids'][0]
-        self.add_action(url, trigger_id, "")
+        action_id = self.add_action(url, trigger_id, "")
         item = Item(
             url,
             item_id=item_result['itemids'][0],
             trigger_id=trigger_id,
+            action_id=action_id,
         )
         self.storage.add_item(item)
 
