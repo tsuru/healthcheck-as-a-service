@@ -59,7 +59,7 @@ class Zabbix(object):
         self.zapi.trigger.delete([item.trigger_id])
 
     def add_action(self, url):
-        self.zapi.action.create(
+        result = self.zapi.action.create(
             name="action for url {}".format(url),
             recovery_msg=1,
             conditions=[
@@ -80,6 +80,7 @@ class Zabbix(object):
                 }
             ],
         )
+        return result["actionids"][0]
 
     def add_group(self, name):
         result = self.zapi.usergroup.create(
