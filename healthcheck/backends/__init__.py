@@ -58,7 +58,7 @@ class Zabbix(object):
         self.zapi.httptest.delete([item.item_id])
         self.zapi.trigger.delete([item.trigger_id])
 
-    def add_action(self, url):
+    def add_action(self, url, trigger_id):
         result = self.zapi.action.create(
             name="action for url {}".format(url),
             recovery_msg=1,
@@ -68,7 +68,7 @@ class Zabbix(object):
                 # Trigger value = PROBLEM
                 {"conditiontype": 5, "value": "1"},
                 # Trigger = trigger id
-                {"conditiontype": 2, "value": "1"},
+                {"conditiontype": 2, "value": trigger_id},
             ],
             operations=[
                 {

@@ -75,14 +75,14 @@ class ZabbixTest(TestCase):
 
     def test_add_action(self):
         self.backend.zapi.action.create.return_value = {"actionids": ["1"]}
-        self.backend.add_action("url")
+        self.backend.add_action("url", "8")
         self.backend.zapi.action.create.assert_called_with(
             name="action for url url",
             recovery_msg=1,
             conditions=[
                 {"conditiontype": 16, "value": "", "operator": 7},
                 {"conditiontype": 5, "value": "1"},
-                {"conditiontype": 2, "value": "1"},
+                {"conditiontype": 2, "value": "8"},
             ],
             operations=[
                 {
