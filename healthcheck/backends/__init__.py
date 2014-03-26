@@ -46,10 +46,12 @@ class Zabbix(object):
             expression=expression.format(name, name),
             priority=5,
         )
+        trigger_id = trigger_result['triggerids'][0]
+        self.add_action(url, trigger_id, "")
         item = Item(
             url,
             item_id=item_result['itemids'][0],
-            trigger_id=trigger_result['triggerids'][0]
+            trigger_id=trigger_id,
         )
         self.storage.add_item(item)
 
