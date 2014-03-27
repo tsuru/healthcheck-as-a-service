@@ -66,7 +66,7 @@ class Zabbix(object):
             name="action for url {}".format(url),
             recovery_msg=1,
             conditions=[
-                #Maintenance status not in maintenance
+                # Maintenance status not in maintenance
                 {"conditiontype": 16, "value": "", "operator": 7},
                 # Trigger value = PROBLEM
                 {"conditiontype": 5, "value": "1"},
