@@ -107,3 +107,9 @@ class ZabbixTest(TestCase):
             name=name,
             rights={"permission": 2, "id": "1"},
         )
+
+    def test_delete_group(self):
+        self.backend.delete_group("id")
+        self.backend.zapi.usergroup.delete.assert_called_with(
+            ["id"]
+        )

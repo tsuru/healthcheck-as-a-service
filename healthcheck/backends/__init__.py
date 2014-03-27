@@ -92,5 +92,8 @@ class Zabbix(object):
         )
         return result["usrgrpids"][0]
 
+    def delete_group(self, id):
+        self.zapi.usergroup.delete([id])
+
     def add_watcher(self, email):
         pass
