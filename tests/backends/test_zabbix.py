@@ -67,11 +67,21 @@ class ZabbixTest(TestCase):
         url = "http://mysite.com"
         item_id = 1
         trigger_id = 1
-        item = Item(url, item_id=item_id, trigger_id=trigger_id)
+        action_id = 8
+        item = Item(
+            url,
+            item_id=item_id,
+            trigger_id=trigger_id,
+            action_id=action_id
+        )
         self.backend.storage.find_item_by_url.return_value = item
+        old_action = self.backend.delete_action
+        self.backend.delete_action = mock.Mock()
         self.backend.delete_url(url)
+        self.backend.delete_action.assert_called_with(8)
         self.backend.zapi.httptest.delete.assert_called_with([item_id])
         self.backend.zapi.trigger.delete.assert_called_with([trigger_id])
+        self.backend.delete_action = old_action
 
     def test_add_watcher(self):
         email = "andrews@corp.globo.com"
