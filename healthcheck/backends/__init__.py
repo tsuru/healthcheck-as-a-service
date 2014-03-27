@@ -95,5 +95,8 @@ class Zabbix(object):
     def delete_group(self, id):
         self.zapi.usergroup.delete([id])
 
+    def delete_action(self, id):
+        self.zapi.action.delete([id])
+
     def add_watcher(self, email):
         pass

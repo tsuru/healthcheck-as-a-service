@@ -113,3 +113,9 @@ class ZabbixTest(TestCase):
         self.backend.zapi.usergroup.delete.assert_called_with(
             ["id"]
         )
+
+    def test_delete_action(self):
+        self.backend.delete_action("id")
+        self.backend.zapi.action.delete.assert_called_with(
+            ["id"]
+        )
