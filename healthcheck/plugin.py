@@ -1,6 +1,8 @@
 #! /usr/bin/env python
+
 import urllib2
 import urllib
+import sys
 
 
 def post(url, data):
@@ -40,3 +42,11 @@ def add_watcher(name, watcher):
         "watcher": watcher,
     }
     post("/watcher", data)
+
+
+def main():
+    pass
+
+
+if __name__ == "__main__":
+    main()
