@@ -1,4 +1,12 @@
-import requests
+import urllib2
+import urllib
+
+
+def post(url, data):
+    data = urllib.urlencode(data)
+    req = urllib2.Request(url, data)
+    response = urllib2.urlopen(req)
+    return response.read()
 
 
 def add_url(name, url):
@@ -9,7 +17,7 @@ def add_url(name, url):
         "name": name,
         "url": url,
     }
-    requests.post("/url", data=data)
+    post("/url", data)
 
 
 def new(name):
@@ -19,7 +27,7 @@ def new(name):
     data = {
         "name": name,
     }
-    requests.post("/", data=data)
+    post("/", data)
 
 
 def add_watcher(name, watcher):
@@ -30,4 +38,4 @@ def add_watcher(name, watcher):
         "name": name,
         "watcher": watcher,
     }
-    requests.post("/watcher", data=data)
+    post("/watcher", data)
