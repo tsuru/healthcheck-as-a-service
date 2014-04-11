@@ -1,7 +1,7 @@
 import unittest
 import mock
 
-from healthcheck.plugin import add_url, new
+from healthcheck.plugin import add_url, add_watcher, new
 
 
 class PluginTest(unittest.TestCase):
@@ -22,3 +22,12 @@ class PluginTest(unittest.TestCase):
             "name": "name",
         }
         post_mock.assert_called_with("/", data=expected_data)
+
+    @mock.patch("requests.post")
+    def test_add_watcher(self, post_mock):
+        add_watcher("name", "watcher@watcher.com")
+        expected_data = {
+            "name": "name",
+            "watcher": "watcher@watcher.com",
+        }
+        post_mock.assert_called_with("/watcher", data=expected_data)

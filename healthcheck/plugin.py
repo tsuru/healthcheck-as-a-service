@@ -20,3 +20,14 @@ def new(name):
         "name": name,
     }
     requests.post("/", data=data)
+
+
+def add_watcher(name, watcher):
+    """
+    add_watcher creates a new watcher
+    """
+    data = {
+        "name": name,
+        "watcher": watcher,
+    }
+    requests.post("/watcher", data=data)
