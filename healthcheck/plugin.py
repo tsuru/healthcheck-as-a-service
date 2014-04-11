@@ -2,6 +2,7 @@
 
 import urllib2
 import urllib
+import sys
 
 
 def post(url, data):
@@ -52,9 +53,9 @@ def command(command_name):
     return commands[command_name]
 
 
-def main():
-    pass
+def main(cmd, *args):
+    command(cmd)(*args)
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1], sys.argv[2:])

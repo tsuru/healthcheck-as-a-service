@@ -2,7 +2,7 @@ import unittest
 import urllib
 import mock
 
-from healthcheck.plugin import add_url, add_watcher, new, post, command
+from healthcheck.plugin import add_url, add_watcher, new, post, command, main
 
 
 class PluginTest(unittest.TestCase):
@@ -51,3 +51,8 @@ class PluginTest(unittest.TestCase):
         }
         for key, cmd in expected_commands.items():
             self.assertEqual(command(key), cmd)
+
+    @mock.patch("healthcheck.plugin.add_url")
+    def test_main(self, add_url_mock):
+        main("add-url", "myhc", "http://tsuru.io")
+        add_url_mock.assert_called_with("myhc", "http://tsuru.io")
