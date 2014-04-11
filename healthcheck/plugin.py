@@ -2,7 +2,6 @@
 
 import urllib2
 import urllib
-import sys
 
 
 def post(url, data):
@@ -42,6 +41,15 @@ def add_watcher(name, watcher):
         "watcher": watcher,
     }
     post("/watcher", data)
+
+
+def command(command_name):
+    commands = {
+        "add-url": add_url,
+        "new": new,
+        "add-watcher": add_watcher,
+    }
+    return commands[command_name]
 
 
 def main():

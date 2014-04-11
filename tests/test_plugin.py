@@ -2,7 +2,7 @@ import unittest
 import urllib
 import mock
 
-from healthcheck.plugin import add_url, add_watcher, new, post
+from healthcheck.plugin import add_url, add_watcher, new, post, command
 
 
 class PluginTest(unittest.TestCase):
@@ -42,3 +42,12 @@ class PluginTest(unittest.TestCase):
         post(url, data)
         request_mock.assert_called_with(url, urllib.urlencode(data))
         urlopen_mock.assert_called_with(req_mock)
+
+    def test_commands(self):
+        expected_commands = {
+            "add-url": add_url,
+            "new": new,
+            "add-watcher": add_watcher,
+        }
+        for key, cmd in expected_commands.items():
+            self.assertEqual(command(key), cmd)
