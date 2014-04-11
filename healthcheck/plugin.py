@@ -1,9 +1,12 @@
 import requests
 
 
-def add_url(group, url):
+def add_url(name, url):
+    """
+    add_url creates a new url checker
+    """
     data = {
-        "group": group,
+        "name": name,
         "url": url,
     }
     requests.post("/url", data=data)

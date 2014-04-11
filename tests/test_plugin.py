@@ -8,9 +8,9 @@ class PluginTest(unittest.TestCase):
 
     @mock.patch("requests.post")
     def test_add_url(self, post_mock):
-        add_url("group", "url")
+        add_url("name", "url")
         expected_data = {
-            "group": "group",
+            "name": "name",
             "url": "url",
         }
         post_mock.assert_called_with("/url", data=expected_data)
