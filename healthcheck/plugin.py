@@ -58,12 +58,17 @@ def command(command_name):
         "add-watcher": add_watcher,
     }
     if command_name not in commands:
-        raise CommandNotFound
+        raise CommandNotFound(
+            "Command '{}' does not exist".format(command_name)
+        )
     return commands[command_name]
 
 
 def main(cmd, *args):
-    command(cmd)(*args)
+    try:
+        command(cmd)(*args)
+    except CommandNotFound as e:
+        print e
 
 
 if __name__ == "__main__":
