@@ -2,7 +2,8 @@ import unittest
 import urllib
 import mock
 
-from healthcheck.plugin import add_url, add_watcher, new, post, command, main
+from healthcheck.plugin import (add_url, add_watcher, new, post,
+                                command, main, CommandNotFound)
 
 
 class PluginTest(unittest.TestCase):
@@ -51,6 +52,10 @@ class PluginTest(unittest.TestCase):
         }
         for key, cmd in expected_commands.items():
             self.assertEqual(command(key), cmd)
+
+    def test_commands_not_found(self):
+        with self.assertRaises(CommandNotFound):
+            command('notfound')
 
     @mock.patch("healthcheck.plugin.add_url")
     def test_main(self, add_url_mock):

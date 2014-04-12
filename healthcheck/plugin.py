@@ -5,6 +5,13 @@ import urllib
 import sys
 
 
+class CommandNotFound(Exception):
+    """
+    Exception raised when a command is not found in the registered commands.
+    """
+    pass
+
+
 def post(url, data):
     data = urllib.urlencode(data)
     req = urllib2.Request(url, data)
@@ -50,6 +57,8 @@ def command(command_name):
         "new": new,
         "add-watcher": add_watcher,
     }
+    if command_name not in commands:
+        raise CommandNotFound
     return commands[command_name]
 
 
