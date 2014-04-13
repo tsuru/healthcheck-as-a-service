@@ -27,3 +27,8 @@ def remove_instance(name):
 @app.route("/resources/<name>/status", methods=["GET"])
 def status(name):
     return "", 204
+
+
+@app.route("/url", methods=["POST"])
+def add_url():
+    return "", 201
