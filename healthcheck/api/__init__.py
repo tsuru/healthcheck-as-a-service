@@ -60,4 +60,6 @@ def new():
 
 @app.route("/plugin", methods=["GET"])
 def plugin():
-    return "", 200
+    from healthcheck import plugin
+    plugin_data = open(plugin.__file__).read()
+    return plugin_data, 200
