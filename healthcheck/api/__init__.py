@@ -56,3 +56,8 @@ def new():
     name = request.form.get("name")
     zabbix.new(name)
     return "", 201
+
+
+@app.route("/plugin", methods=["GET"])
+def plugin():
+    return "", 200
