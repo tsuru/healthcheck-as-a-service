@@ -53,7 +53,7 @@ class APITestCase(unittest.TestCase):
         zabbix_mock = zabbix_class.return_value
         resp = self.api.delete("/hc/watcher/watcher@watcher.com")
         self.assertEqual(204, resp.status_code)
-        zabbix_mock.delete_watcher.assert_called_with(
+        zabbix_mock.remove_watcher.assert_called_with(
             "hc", "watcher@watcher.com")
 
     def test_plugin(self):

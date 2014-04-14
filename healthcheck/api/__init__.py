@@ -30,7 +30,7 @@ def add_watcher():
 def remove_watcher(name, watcher):
     from healthcheck.backends import Zabbix
     zabbix = Zabbix()
-    zabbix.delete_watcher(name, watcher)
+    zabbix.remove_watcher(name, watcher)
     return "", 204
 
 

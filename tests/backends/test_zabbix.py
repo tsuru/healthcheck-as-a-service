@@ -63,7 +63,7 @@ class ZabbixTest(TestCase):
         self.backend.add_action.assert_called_with('http://mysite.com', 1, '')
         self.backend.add_action = old_add_action
 
-    def test_delete_url(self):
+    def test_remove_url(self):
         url = "http://mysite.com"
         item_id = 1
         trigger_id = 1
@@ -75,13 +75,13 @@ class ZabbixTest(TestCase):
             action_id=action_id
         )
         self.backend.storage.find_item_by_url.return_value = item
-        old_action = self.backend.delete_action
-        self.backend.delete_action = mock.Mock()
-        self.backend.delete_url(url)
-        self.backend.delete_action.assert_called_with(8)
-        self.backend.zapi.httptest.delete.assert_called_with([item_id])
-        self.backend.zapi.trigger.delete.assert_called_with([trigger_id])
-        self.backend.delete_action = old_action
+        old_action = self.backend.remove_action
+        self.backend.remove_action = mock.Mock()
+        self.backend.remove_url(url)
+        self.backend.remove_action.assert_called_with(8)
+        self.backend.zapi.httptest.remove.assert_called_with([item_id])
+        self.backend.zapi.trigger.remove.assert_called_with([trigger_id])
+        self.backend.remove_action = old_action
 
     def test_add_watcher(self):
         email = "andrews@corp.globo.com"
@@ -126,21 +126,21 @@ class ZabbixTest(TestCase):
         self.backend.add_group.assert_called_with(name)
         self.backend.add_group = old_add_group
 
-    def test_delete_group(self):
-        self.backend.delete_group("id")
-        self.backend.zapi.usergroup.delete.assert_called_with(
+    def test_remove_group(self):
+        self.backend.remove_group("id")
+        self.backend.zapi.usergroup.remove.assert_called_with(
             ["id"]
         )
 
-    def test_delete_action(self):
-        self.backend.delete_action("id")
-        self.backend.zapi.action.delete.assert_called_with(
+    def test_remove_action(self):
+        self.backend.remove_action("id")
+        self.backend.zapi.action.remove.assert_called_with(
             ["id"]
         )
 
-    def test_delete_watcher(self):
+    def test_remove_watcher(self):
         email = "andrews@corp.globo.com"
-        self.backend.delete_watcher(email)
+        self.backend.remove_watcher(email)
 
     def test_remove(self):
         name = "blah"

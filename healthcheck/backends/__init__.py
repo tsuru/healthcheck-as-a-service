@@ -56,11 +56,11 @@ class Zabbix(object):
         )
         self.storage.add_item(item)
 
-    def delete_url(self, url):
+    def remove_url(self, url):
         item = self.storage.find_item_by_url(url)
-        self.delete_action(item.action_id)
-        self.zapi.httptest.delete([item.item_id])
-        self.zapi.trigger.delete([item.trigger_id])
+        self.remove_action(item.action_id)
+        self.zapi.httptest.remove([item.item_id])
+        self.zapi.trigger.remove([item.trigger_id])
 
     def add_action(self, url, trigger_id, group_id):
         result = self.zapi.action.create(
@@ -96,16 +96,16 @@ class Zabbix(object):
         )
         return result["usrgrpids"][0]
 
-    def delete_group(self, id):
-        self.zapi.usergroup.delete([id])
+    def remove_group(self, id):
+        self.zapi.usergroup.remove([id])
 
-    def delete_action(self, id):
-        self.zapi.action.delete([id])
+    def remove_action(self, id):
+        self.zapi.action.remove([id])
 
     def add_watcher(self, email):
         pass
 
-    def delete_watcher(self, email):
+    def remove_watcher(self, email):
         pass
 
     def remove(self, name):
