@@ -60,6 +60,14 @@ def new():
     return "", 201
 
 
+@app.route("/<name>", methods=["DELETE"])
+def remove(name):
+    from healthcheck.backends import Zabbix
+    zabbix = Zabbix()
+    zabbix.remove(name)
+    return "", 204
+
+
 @app.route("/plugin", methods=["GET"])
 def plugin():
     from healthcheck import plugin
