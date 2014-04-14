@@ -47,3 +47,12 @@ def add_watcher():
     watcher = request.form.get("watcher")
     zabbix.add_watcher(name, watcher)
     return "", 201
+
+
+@app.route("/", methods=["POST"])
+def new():
+    from healthcheck.backends import Zabbix
+    zabbix = Zabbix()
+    name = request.form.get("name")
+    zabbix.new(name)
+    return "", 201

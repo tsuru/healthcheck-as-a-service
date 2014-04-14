@@ -29,3 +29,13 @@ class APITestCase(unittest.TestCase):
         )
         self.assertEqual(201, resp.status_code)
         zabbix_mock.add_watcher.assert_called_with("hc", "watcher@watcher.com")
+
+    @mock.patch("healthcheck.backends.Zabbix")
+    def test_new(self, zabbix_class):
+        zabbix_mock = zabbix_class.return_value
+        resp = self.api.post(
+            "/",
+            data={"name": "hc"}
+        )
+        self.assertEqual(201, resp.status_code)
+        zabbix_mock.new.assert_called_with("hc")
