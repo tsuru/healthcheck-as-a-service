@@ -48,6 +48,14 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(204, resp.status_code)
         zabbix_mock.remove.assert_called_with("hc")
 
+    @mock.patch("healthcheck.backends.Zabbix")
+    def test_remove_watcher(self, zabbix_class):
+        zabbix_mock = zabbix_class.return_value
+        resp = self.api.delete("/hc/watcher/watcher@watcher.com")
+        self.assertEqual(204, resp.status_code)
+        zabbix_mock.delete_watcher.assert_called_with(
+            "hc", "watcher@watcher.com")
+
     def test_plugin(self):
         resp = self.api.get("/plugin")
         self.assertEqual(200, resp.status_code)

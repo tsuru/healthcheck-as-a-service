@@ -26,6 +26,14 @@ def add_watcher():
     return "", 201
 
 
+@app.route("/<name>/watcher/<watcher>", methods=["DELETE"])
+def remove_watcher(name, watcher):
+    from healthcheck.backends import Zabbix
+    zabbix = Zabbix()
+    zabbix.delete_watcher(name, watcher)
+    return "", 204
+
+
 @app.route("/", methods=["POST"])
 def new():
     from healthcheck.backends import Zabbix
