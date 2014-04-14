@@ -107,3 +107,6 @@ class Zabbix(object):
 
     def delete_watcher(self, email):
         pass
+
+    def remove(self, name):
+        pass

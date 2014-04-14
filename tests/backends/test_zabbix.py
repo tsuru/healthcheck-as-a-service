@@ -141,3 +141,7 @@ class ZabbixTest(TestCase):
     def test_delete_watcher(self):
         email = "andrews@corp.globo.com"
         self.backend.delete_watcher(email)
+
+    def test_remove(self):
+        name = "blah"
+        self.backend.remove(name)
