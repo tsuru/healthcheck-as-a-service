@@ -1,7 +1,7 @@
-import flask
+from flask import Flask, request
 
 
-app = flask.Flask(__name__)
+app = Flask(__name__)
 
 
 @app.route("/resources/<name>", methods=["POST"])
@@ -31,4 +31,9 @@ def status(name):
 
 @app.route("/url", methods=["POST"])
 def add_url():
+    from healthcheck.backends import Zabbix
+    zabbix = Zabbix()
+    name = request.form.get("name")
+    url = request.form.get("url")
+    zabbix.add_url(name, url)
     return "", 201
