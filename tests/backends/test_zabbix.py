@@ -118,6 +118,14 @@ class ZabbixTest(TestCase):
             rights={"permission": 2, "id": "1"},
         )
 
+    def test_new(self):
+        name = "blah"
+        old_add_group = self.backend.add_group
+        self.backend.add_group = mock.Mock()
+        self.backend.new(name)
+        self.backend.add_group.assert_called_with(name)
+        self.backend.add_group = old_add_group
+
     def test_delete_group(self):
         self.backend.delete_group("id")
         self.backend.zapi.usergroup.delete.assert_called_with(

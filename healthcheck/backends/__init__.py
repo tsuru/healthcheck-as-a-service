@@ -86,6 +86,9 @@ class Zabbix(object):
         )
         return result["actionids"][0]
 
+    def new(self, name):
+        self.add_group(name)
+
     def add_group(self, name):
         result = self.zapi.usergroup.create(
             name=name,
