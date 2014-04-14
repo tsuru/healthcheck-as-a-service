@@ -1,5 +1,7 @@
 from flask import Flask, request
 
+import inspect
+
 
 app = Flask(__name__)
 
@@ -61,5 +63,5 @@ def new():
 @app.route("/plugin", methods=["GET"])
 def plugin():
     from healthcheck import plugin
-    plugin_data = open(plugin.__file__).read()
-    return plugin_data, 200
+    source = inspect.getsource(plugin)
+    return source, 200

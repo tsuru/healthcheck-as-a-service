@@ -1,5 +1,6 @@
 import unittest
 import mock
+import inspect
 
 from healthcheck import api
 
@@ -44,5 +45,5 @@ class APITestCase(unittest.TestCase):
         resp = self.api.get("/plugin")
         self.assertEqual(200, resp.status_code)
         from healthcheck import plugin
-        expected_data = open(plugin.__file__).read()
-        self.assertEqual(expected_data, resp.data)
+        expected_source = inspect.getsource(plugin)
+        self.assertEqual(expected_source, resp.data)
