@@ -57,6 +57,20 @@ def new(name):
     post("/", data)
 
 
+def remove(name):
+    """
+    remove removes a healthcheck
+    """
+    delete("/{}".format(name))
+
+
+def remove(name):
+    """
+    remove removes a healthcheck
+    """
+    delete("/{}".format(name))
+
+
 def add_watcher(name, watcher):
     """
     add_watcher creates a new watcher

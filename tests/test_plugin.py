@@ -4,7 +4,7 @@ import mock
 from healthcheck.plugin import (add_url, add_watcher, new, post,
                                 command, main, CommandNotFound,
                                 delete, API_URL, remove_watcher,
-                                remove_url)
+                                remove_url, remove)
 
 
 class PluginTest(unittest.TestCase):
@@ -30,6 +30,11 @@ class PluginTest(unittest.TestCase):
             "name": "name",
         }
         post_mock.assert_called_with("/", expected_data)
+
+    @mock.patch("healthcheck.plugin.delete")
+    def test_remove(self, delete_mock):
+        remove("name")
+        delete_mock.assert_called_with("/name", expected_data)
 
     @mock.patch("healthcheck.plugin.post")
     def test_add_watcher(self, post_mock):
