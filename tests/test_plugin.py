@@ -3,7 +3,7 @@ import urllib
 import mock
 
 from healthcheck.plugin import (add_url, add_watcher, new, post,
-                                command, main, CommandNotFound)
+                                command, main, CommandNotFound, API_URL)
 
 
 class PluginTest(unittest.TestCase):
@@ -61,3 +61,6 @@ class PluginTest(unittest.TestCase):
     def test_main(self, add_url_mock):
         main("add-url", "myhc", "http://tsuru.io")
         add_url_mock.assert_called_with("myhc", "http://tsuru.io")
+
+    def test_api_url(self):
+        self.assertEqual("{{ API_URL }}", API_URL)

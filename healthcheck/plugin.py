@@ -5,6 +5,9 @@ import urllib
 import sys
 
 
+API_URL = "{{ API_URL }}"
+
+
 class CommandNotFound(Exception):
     """
     Exception raised when a command is not found in the registered commands.
