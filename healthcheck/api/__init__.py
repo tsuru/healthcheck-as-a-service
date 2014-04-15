@@ -1,6 +1,7 @@
 from flask import Flask, request
 
 import inspect
+import os
 
 
 app = Flask(__name__)
@@ -55,5 +56,6 @@ def remove(name):
 @app.route("/plugin", methods=["GET"])
 def plugin():
     from healthcheck import plugin
-    source = inspect.getsource(plugin)
+    url = os.environ.get("API_URL")
+    source = inspect.getsource(plugin).replace("{{ API_URL }}", url)
     return source, 200

@@ -1,6 +1,7 @@
 import unittest
 import mock
 import inspect
+import os
 
 from healthcheck import api
 
@@ -64,8 +65,12 @@ class APITestCase(unittest.TestCase):
             "hc", "watcher@watcher.com")
 
     def test_plugin(self):
+        url = "http://bla.com"
+        os.environ["API_URL"] = url
         resp = self.api.get("/plugin")
         self.assertEqual(200, resp.status_code)
         from healthcheck import plugin
-        expected_source = inspect.getsource(plugin)
+        expected_source = inspect.getsource(plugin).replace(
+            "{{ API_URL }}", url)
         self.assertEqual(expected_source, resp.data)
+        self.assertIn(url, resp.data)
