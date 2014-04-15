@@ -3,7 +3,7 @@ import mock
 
 from healthcheck.plugin import (add_url, add_watcher, new, post,
                                 command, main, CommandNotFound,
-                                delete, API_URL)
+                                delete, API_URL, remove_watcher)
 
 
 class PluginTest(unittest.TestCase):
@@ -33,6 +33,11 @@ class PluginTest(unittest.TestCase):
             "watcher": "watcher@watcher.com",
         }
         post_mock.assert_called_with("/watcher", expected_data)
+
+    @mock.patch("healthcheck.plugin.delete")
+    def test_remove_watcher(self, delete_mock):
+        remove_watcher("name", "watcher@watcher.com")
+        delete_mock.assert_called_with("/name/watcher/watcher@watcher.com")
 
     @mock.patch("httplib.HTTPConnection")
     def test_post(self, http_connection_mock):

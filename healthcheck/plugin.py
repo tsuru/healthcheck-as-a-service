@@ -61,6 +61,13 @@ def add_watcher(name, watcher):
     post("/watcher", data)
 
 
+def remove_watcher(name, watcher):
+    """
+    remove_watcher creates a new watcher
+    """
+    delete("/{}/watcher/{}".format(name, watcher))
+
+
 def command(command_name):
     commands = {
         "add-url": add_url,
