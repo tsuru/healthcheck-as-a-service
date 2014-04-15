@@ -40,6 +40,13 @@ def add_url(name, url):
     post("/url", data)
 
 
+def remove_url(name, url):
+    """
+    remove_url removes the url checker
+    """
+    delete("/{}/url/{}".format(name, url))
+
+
 def new(name):
     """
     new creates a new healthcheck account
