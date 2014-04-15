@@ -15,7 +15,7 @@ class PluginTest(unittest.TestCase):
             "name": "name",
             "url": "url",
         }
-        post_mock.assert_called_with("/url", expected_data)
+        post_mock.assert_called_with("{{ API_URL }}/url", expected_data)
 
     @mock.patch("healthcheck.plugin.post")
     def test_new(self, post_mock):
@@ -23,7 +23,7 @@ class PluginTest(unittest.TestCase):
         expected_data = {
             "name": "name",
         }
-        post_mock.assert_called_with("/", expected_data)
+        post_mock.assert_called_with("{{ API_URL }}", expected_data)
 
     @mock.patch("healthcheck.plugin.post")
     def test_add_watcher(self, post_mock):
@@ -32,7 +32,7 @@ class PluginTest(unittest.TestCase):
             "name": "name",
             "watcher": "watcher@watcher.com",
         }
-        post_mock.assert_called_with("/watcher", expected_data)
+        post_mock.assert_called_with("{{ API_URL }}/watcher", expected_data)
 
     @mock.patch("urllib2.Request")
     @mock.patch("urllib2.urlopen")

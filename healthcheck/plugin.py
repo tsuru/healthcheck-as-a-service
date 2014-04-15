@@ -30,7 +30,7 @@ def add_url(name, url):
         "name": name,
         "url": url,
     }
-    post("/url", data)
+    post("{}/url".format(API_URL), data)
 
 
 def new(name):
@@ -40,7 +40,7 @@ def new(name):
     data = {
         "name": name,
     }
-    post("/", data)
+    post("{}".format(API_URL), data)
 
 
 def add_watcher(name, watcher):
@@ -51,7 +51,7 @@ def add_watcher(name, watcher):
         "name": name,
         "watcher": watcher,
     }
-    post("/watcher", data)
+    post("{}/watcher".format(API_URL), data)
 
 
 def command(command_name):
