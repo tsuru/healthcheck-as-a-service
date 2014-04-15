@@ -22,6 +22,13 @@ class APITestCase(unittest.TestCase):
         zabbix_mock.add_url.assert_called_with("hc", "http://bla.com")
 
     @mock.patch("healthcheck.backends.Zabbix")
+    def test_remove_url(self, zabbix_class):
+        zabbix_mock = zabbix_class.return_value
+        resp = self.api.delete("/hc/url/http://bla.com")
+        self.assertEqual(204, resp.status_code)
+        zabbix_mock.remove_url.assert_called_with("hc", "http://bla.com")
+
+    @mock.patch("healthcheck.backends.Zabbix")
     def test_add_watcher(self, zabbix_class):
         zabbix_mock = zabbix_class.return_value
         resp = self.api.post(

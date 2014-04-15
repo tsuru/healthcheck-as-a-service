@@ -16,6 +16,14 @@ def add_url():
     return "", 201
 
 
+@app.route("/<name>/url/<path:url>", methods=["DELETE"])
+def remove_url(name, url):
+    from healthcheck.backends import Zabbix
+    zabbix = Zabbix()
+    zabbix.remove_url(name, url)
+    return "", 204
+
+
 @app.route("/watcher", methods=["POST"])
 def add_watcher():
     from healthcheck.backends import Zabbix
