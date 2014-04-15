@@ -14,11 +14,19 @@ class CommandNotFound(Exception):
     pass
 
 
-def post(url, data):
+def request(*args):
     conn = httplib.HTTPConnection(API_URL)
-    conn.request('POST', url, data)
+    conn.request(*args)
     resp = conn.getresponse()
     return resp.read()
+
+
+def post(url, data):
+    return request('POST', url, data)
+
+
+def delete(url):
+    return request('DELETE', url)
 
 
 def add_url(name, url):

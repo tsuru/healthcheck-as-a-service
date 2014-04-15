@@ -2,7 +2,8 @@ import unittest
 import mock
 
 from healthcheck.plugin import (add_url, add_watcher, new, post,
-                                command, main, CommandNotFound, API_URL)
+                                command, main, CommandNotFound,
+                                delete, API_URL)
 
 
 class PluginTest(unittest.TestCase):
@@ -45,6 +46,20 @@ class PluginTest(unittest.TestCase):
 
         http_connection_mock.assert_called_with(API_URL)
         conn_mock.request.assert_called_with('POST', url, data)
+        conn_mock.getresponse.assert_called_with()
+        resp_mock.read.assert_called_with()
+
+    @mock.patch("httplib.HTTPConnection")
+    def test_delete(self, http_connection_mock):
+        url = "url"
+
+        conn_mock = http_connection_mock.return_value
+        resp_mock = conn_mock.getresponse.return_value
+
+        delete(url)
+
+        http_connection_mock.assert_called_with(API_URL)
+        conn_mock.request.assert_called_with('DELETE', url)
         conn_mock.getresponse.assert_called_with()
         resp_mock.read.assert_called_with()
 
