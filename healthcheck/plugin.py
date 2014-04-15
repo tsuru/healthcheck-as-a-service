@@ -64,13 +64,6 @@ def remove(name):
     delete("/{}".format(name))
 
 
-def remove(name):
-    """
-    remove removes a healthcheck
-    """
-    delete("/{}".format(name))
-
-
 def add_watcher(name, watcher):
     """
     add_watcher creates a new watcher
@@ -92,8 +85,11 @@ def remove_watcher(name, watcher):
 def command(command_name):
     commands = {
         "add-url": add_url,
+        "remove-url": remove_url,
         "new": new,
+        "remove": remove,
         "add-watcher": add_watcher,
+        "remove-watcher": remove_watcher,
     }
     if command_name not in commands:
         raise CommandNotFound(

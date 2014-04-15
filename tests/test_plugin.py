@@ -34,7 +34,7 @@ class PluginTest(unittest.TestCase):
     @mock.patch("healthcheck.plugin.delete")
     def test_remove(self, delete_mock):
         remove("name")
-        delete_mock.assert_called_with("/name", expected_data)
+        delete_mock.assert_called_with("/name")
 
     @mock.patch("healthcheck.plugin.post")
     def test_add_watcher(self, post_mock):
@@ -84,6 +84,9 @@ class PluginTest(unittest.TestCase):
             "add-url": add_url,
             "new": new,
             "add-watcher": add_watcher,
+            "remove-url": remove_url,
+            "remove-watcher": remove_watcher,
+            "remove": remove,
         }
         for key, cmd in expected_commands.items():
             self.assertEqual(command(key), cmd)
