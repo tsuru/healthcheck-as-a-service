@@ -30,6 +30,18 @@ class Zabbix(object):
 
     def add_url(self, url):
         name = "healthcheck for {}".format(url)
+        item_id = self._add_item(name, url)
+        trigger_id = self._add_trigger(name, url)
+        action_id = self._add_action(url, trigger_id, "")
+        item = Item(
+            url,
+            item_id=item_id,
+            trigger_id=trigger_id,
+            action_id=action_id,
+        )
+        self.storage.add_item(item)
+
+    def _add_item(self, name, url):
         item_result = self.zapi.httptest.create(
             name=name,
             steps=[{
@@ -40,21 +52,16 @@ class Zabbix(object):
             }],
             hostid=self.host_id,
         )
+        return item_result['itemids'][0]
+
+    def _add_trigger(self, name, url):
         expression = "{{Zabbix Server:web.test.rspcode[{},{}].last()}}#200"
         trigger_result = self.zapi.trigger.create(
             description="trigger for url {}".format(url),
             expression=expression.format(name, name),
             priority=5,
         )
-        trigger_id = trigger_result['triggerids'][0]
-        action_id = self.add_action(url, trigger_id, "")
-        item = Item(
-            url,
-            item_id=item_result['itemids'][0],
-            trigger_id=trigger_id,
-            action_id=action_id,
-        )
-        self.storage.add_item(item)
+        return trigger_result['triggerids'][0]
 
     def remove_url(self, url):
         item = self.storage.find_item_by_url(url)
@@ -62,7 +69,7 @@ class Zabbix(object):
         self.zapi.httptest.remove([item.item_id])
         self.zapi.trigger.remove([item.trigger_id])
 
-    def add_action(self, url, trigger_id, group_id):
+    def _add_action(self, url, trigger_id, group_id):
         result = self.zapi.action.create(
             name="action for url {}".format(url),
             recovery_msg=1,

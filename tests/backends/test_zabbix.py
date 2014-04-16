@@ -40,8 +40,8 @@ class ZabbixTest(TestCase):
         name = "healthcheck for {}".format(url)
         self.backend.zapi.httptest.create.return_value = {"itemids": [1]}
         self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
-        old_add_action = self.backend.add_action
-        self.backend.add_action = mock.Mock()
+        old_add_action = self.backend._add_action
+        self.backend._add_action = mock.Mock()
         self.backend.add_url(url)
         self.backend.zapi.httptest.create.assert_called_with(
             name=name,
@@ -60,8 +60,8 @@ class ZabbixTest(TestCase):
             priority=5,
         )
         self.backend.storage.add_item.assert_called()
-        self.backend.add_action.assert_called_with('http://mysite.com', 1, '')
-        self.backend.add_action = old_add_action
+        self.backend._add_action.assert_called_with('http://mysite.com', 1, '')
+        self.backend._add_action = old_add_action
 
     def test_remove_url(self):
         url = "http://mysite.com"
@@ -89,7 +89,7 @@ class ZabbixTest(TestCase):
 
     def test_add_action(self):
         self.backend.zapi.action.create.return_value = {"actionids": ["1"]}
-        self.backend.add_action("url", "8", "14")
+        self.backend._add_action("url", "8", "14")
         self.backend.zapi.action.create.assert_called_with(
             name="action for url url",
             recovery_msg=1,
