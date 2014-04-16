@@ -42,7 +42,7 @@ class ZabbixTest(TestCase):
         self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
         old_add_action = self.backend._add_action
         self.backend._add_action = mock.Mock()
-        self.backend.add_url(url)
+        self.backend.add_url("hc_name", url)
         self.backend.zapi.httptest.create.assert_called_with(
             name=name,
             steps=[{
@@ -77,7 +77,7 @@ class ZabbixTest(TestCase):
         self.backend.storage.find_item_by_url.return_value = item
         old_action = self.backend._remove_action
         self.backend._remove_action = mock.Mock()
-        self.backend.remove_url(url)
+        self.backend.remove_url("hc_name", url)
         self.backend._remove_action.assert_called_with(8)
         self.backend.zapi.httptest.remove.assert_called_with([item_id])
         self.backend.zapi.trigger.remove.assert_called_with([trigger_id])
@@ -85,7 +85,7 @@ class ZabbixTest(TestCase):
 
     def test_add_watcher(self):
         email = "andrews@corp.globo.com"
-        self.backend.add_watcher(email)
+        self.backend.add_watcher("hc_name", email)
 
     def test_add_action(self):
         self.backend.zapi.action.create.return_value = {"actionids": ["1"]}
@@ -141,7 +141,7 @@ class ZabbixTest(TestCase):
 
     def test_remove_watcher(self):
         email = "andrews@corp.globo.com"
-        self.backend.remove_watcher(email)
+        self.backend.remove_watcher("healthcheck", email)
 
     def test_remove(self):
         name = "blah"

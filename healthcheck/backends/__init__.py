@@ -28,10 +28,10 @@ class Zabbix(object):
         self.storage = MongoStorage()
         self.storage.conn()
 
-    def add_url(self, url):
-        name = "healthcheck for {}".format(url)
-        item_id = self._add_item(name, url)
-        trigger_id = self._add_trigger(name, url)
+    def add_url(self, name, url):
+        item_name = "healthcheck for {}".format(url)
+        item_id = self._add_item(item_name, url)
+        trigger_id = self._add_trigger(item_name, url)
         action_id = self._add_action(url, trigger_id, "")
         item = Item(
             url,
@@ -41,7 +41,7 @@ class Zabbix(object):
         )
         self.storage.add_item(item)
 
-    def remove_url(self, url):
+    def remove_url(self, name, url):
         item = self.storage.find_item_by_url(url)
         self._remove_action(item.action_id)
         self.zapi.httptest.remove([item.item_id])
@@ -50,10 +50,10 @@ class Zabbix(object):
     def new(self, name):
         self._add_group(name)
 
-    def add_watcher(self, email):
+    def add_watcher(self, name, email):
         pass
 
-    def remove_watcher(self, email):
+    def remove_watcher(self, name, email):
         pass
 
     def remove(self, name):
