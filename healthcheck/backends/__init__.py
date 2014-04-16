@@ -1,6 +1,6 @@
 import os
 
-from healthcheck.storage import Item
+from healthcheck.storage import Item, Group
 
 
 def get_value(key):
@@ -110,7 +110,10 @@ class Zabbix(object):
             name=name,
             rights={"permission": 2, "id": self.host_id},
         )
-        return result["usrgrpids"][0]
+        group_id = result["usrgrpids"][0]
+        group = Group(name=name, id=group_id)
+        self.storage.add_group(group)
+        return group_id
 
     def _remove_group(self, id):
         self.zapi.usergroup.remove([id])
