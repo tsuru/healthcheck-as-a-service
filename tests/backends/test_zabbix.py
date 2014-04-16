@@ -75,13 +75,13 @@ class ZabbixTest(TestCase):
             action_id=action_id
         )
         self.backend.storage.find_item_by_url.return_value = item
-        old_action = self.backend.remove_action
-        self.backend.remove_action = mock.Mock()
+        old_action = self.backend._remove_action
+        self.backend._remove_action = mock.Mock()
         self.backend.remove_url(url)
-        self.backend.remove_action.assert_called_with(8)
+        self.backend._remove_action.assert_called_with(8)
         self.backend.zapi.httptest.remove.assert_called_with([item_id])
         self.backend.zapi.trigger.remove.assert_called_with([trigger_id])
-        self.backend.remove_action = old_action
+        self.backend._remove_action = old_action
 
     def test_add_watcher(self):
         email = "andrews@corp.globo.com"
@@ -112,7 +112,7 @@ class ZabbixTest(TestCase):
     def test_add_group(self):
         name = "group name"
         self.backend.zapi.usergroup.create.return_value = {"usrgrpids": [2]}
-        self.backend.add_group(name)
+        self.backend._add_group(name)
         self.backend.zapi.usergroup.create.assert_called_with(
             name=name,
             rights={"permission": 2, "id": "1"},
@@ -120,20 +120,20 @@ class ZabbixTest(TestCase):
 
     def test_new(self):
         name = "blah"
-        old_add_group = self.backend.add_group
-        self.backend.add_group = mock.Mock()
+        old_add_group = self.backend._add_group
+        self.backend._add_group = mock.Mock()
         self.backend.new(name)
-        self.backend.add_group.assert_called_with(name)
-        self.backend.add_group = old_add_group
+        self.backend._add_group.assert_called_with(name)
+        self.backend._add_group = old_add_group
 
     def test_remove_group(self):
-        self.backend.remove_group("id")
+        self.backend._remove_group("id")
         self.backend.zapi.usergroup.remove.assert_called_with(
             ["id"]
         )
 
     def test_remove_action(self):
-        self.backend.remove_action("id")
+        self.backend._remove_action("id")
         self.backend.zapi.action.remove.assert_called_with(
             ["id"]
         )

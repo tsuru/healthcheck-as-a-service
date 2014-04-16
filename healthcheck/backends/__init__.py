@@ -41,6 +41,24 @@ class Zabbix(object):
         )
         self.storage.add_item(item)
 
+    def remove_url(self, url):
+        item = self.storage.find_item_by_url(url)
+        self._remove_action(item.action_id)
+        self.zapi.httptest.remove([item.item_id])
+        self.zapi.trigger.remove([item.trigger_id])
+
+    def new(self, name):
+        self._add_group(name)
+
+    def add_watcher(self, email):
+        pass
+
+    def remove_watcher(self, email):
+        pass
+
+    def remove(self, name):
+        pass
+
     def _add_item(self, name, url):
         item_result = self.zapi.httptest.create(
             name=name,
@@ -62,12 +80,6 @@ class Zabbix(object):
             priority=5,
         )
         return trigger_result['triggerids'][0]
-
-    def remove_url(self, url):
-        item = self.storage.find_item_by_url(url)
-        self.remove_action(item.action_id)
-        self.zapi.httptest.remove([item.item_id])
-        self.zapi.trigger.remove([item.trigger_id])
 
     def _add_action(self, url, trigger_id, group_id):
         result = self.zapi.action.create(
@@ -93,27 +105,15 @@ class Zabbix(object):
         )
         return result["actionids"][0]
 
-    def new(self, name):
-        self.add_group(name)
-
-    def add_group(self, name):
+    def _add_group(self, name):
         result = self.zapi.usergroup.create(
             name=name,
             rights={"permission": 2, "id": self.host_id},
         )
         return result["usrgrpids"][0]
 
-    def remove_group(self, id):
+    def _remove_group(self, id):
         self.zapi.usergroup.remove([id])
 
-    def remove_action(self, id):
+    def _remove_action(self, id):
         self.zapi.action.remove([id])
-
-    def add_watcher(self, email):
-        pass
-
-    def remove_watcher(self, email):
-        pass
-
-    def remove(self, name):
-        pass
