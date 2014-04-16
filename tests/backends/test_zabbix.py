@@ -59,7 +59,7 @@ class ZabbixTest(TestCase):
             expression=expression.format(name, name),
             priority=5,
         )
-        self.backend.storage.add_item.assert_called()
+        self.assertTrue(self.backend.storage.add_item.called)
         self.backend._add_action.assert_called_with('http://mysite.com', 1, '')
         self.backend._add_action = old_add_action
 
