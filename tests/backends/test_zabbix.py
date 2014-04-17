@@ -87,7 +87,22 @@ class ZabbixTest(TestCase):
 
     def test_add_watcher(self):
         email = "andrews@corp.globo.com"
-        self.backend.add_watcher("hc_name", email)
+        name = "hc_name"
+        group_mock = mock.Mock(id="someid", name=name)
+        self.backend.storage.find_group_by_name.return_value = group_mock
+        self.backend.add_watcher(name, email)
+        self.backend.storage.find_group_by_name.assert_called_with(name)
+        self.backend.zapi.user.create.assert_called_with(
+            passwd="",
+            usrgrps=["someid"],
+            user_medias=[{
+                "mediatypeid": "1",
+                "sendto": email,
+                "active": 0,
+                "severity": 63,
+                "period": "1-7,00:00-24:00",
+            }],
+        )
 
     def test_add_action(self):
         self.backend.zapi.action.create.return_value = {"actionids": ["1"]}
