@@ -1,6 +1,14 @@
 import os
 
 
+class User(object):
+
+    def __init__(self, id, email, group):
+        self.email = email
+        self.group = group
+        self.id = id
+
+
 class Group(object):
 
     def __init__(self, name, id):

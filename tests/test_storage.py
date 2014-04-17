@@ -2,7 +2,19 @@ import unittest
 import mock
 import os
 
-from healthcheck.storage import Item, MongoStorage, Group
+from healthcheck.storage import Item, MongoStorage, Group, User
+
+
+class UserTest(unittest.TestCase):
+
+    def test_user(self):
+        id = "someid"
+        email = "watcher@watcher.com"
+        group_id = "anotherid"
+        user = User(id=id, email=email, group=group_id)
+        self.assertEqual(user.id, id)
+        self.assertEqual(user.email, email)
+        self.assertEqual(user.group, group_id)
 
 
 class GroupTest(unittest.TestCase):
