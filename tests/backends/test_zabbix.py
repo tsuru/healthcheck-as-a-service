@@ -42,6 +42,7 @@ class ZabbixTest(TestCase):
         self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
         old_add_action = self.backend._add_action
         self.backend._add_action = mock.Mock()
+        self.backend.storage.find_group_by_name.return_value = mock.Mock(id=13)
         self.backend.add_url("hc_name", url)
         self.backend.storage.find_group_by_name.assert_called_with("hc_name")
         self.backend.zapi.httptest.create.assert_called_with(
@@ -61,7 +62,7 @@ class ZabbixTest(TestCase):
             priority=5,
         )
         self.assertTrue(self.backend.storage.add_item.called)
-        self.backend._add_action.assert_called_with('http://mysite.com', 1, '')
+        self.backend._add_action.assert_called_with('http://mysite.com', 1, 13)
         self.backend._add_action = old_add_action
 
     def test_remove_url(self):

@@ -32,8 +32,8 @@ class Zabbix(object):
         item_name = "healthcheck for {}".format(url)
         item_id = self._add_item(item_name, url)
         trigger_id = self._add_trigger(item_name, url)
-        action_id = self._add_action(url, trigger_id, "")
         group_id = self.storage.find_group_by_name(name).id
+        action_id = self._add_action(url, trigger_id, group_id)
         item = Item(
             url,
             item_id=item_id,
