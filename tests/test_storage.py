@@ -11,10 +11,15 @@ class UserTest(unittest.TestCase):
         id = "someid"
         email = "watcher@watcher.com"
         group_id = "anotherid"
-        user = User(id=id, email=email, group=group_id)
+        user = User(id=id, email=email, group_id=group_id)
         self.assertEqual(user.id, id)
         self.assertEqual(user.email, email)
-        self.assertEqual(user.group, group_id)
+        self.assertEqual(user.group_id, group_id)
+
+    def test_to_json(self):
+        user = User(id="someid", email="w@w.com", group_id="id")
+        expected = {"id": "someid", "email": "w@w.com", "group_id": "id"}
+        self.assertDictEqual(expected, user.to_json())
 
 
 class GroupTest(unittest.TestCase):

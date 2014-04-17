@@ -3,10 +3,13 @@ import os
 
 class User(object):
 
-    def __init__(self, id, email, group):
+    def __init__(self, id, email, group_id):
         self.email = email
-        self.group = group
+        self.group_id = group_id
         self.id = id
+
+    def to_json(self):
+        return self.__dict__
 
 
 class Group(object):
