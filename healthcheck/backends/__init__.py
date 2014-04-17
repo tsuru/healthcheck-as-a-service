@@ -33,11 +33,13 @@ class Zabbix(object):
         item_id = self._add_item(item_name, url)
         trigger_id = self._add_trigger(item_name, url)
         action_id = self._add_action(url, trigger_id, "")
+        group_id = self.storage.find_group_by_name(name).id
         item = Item(
             url,
             item_id=item_id,
             trigger_id=trigger_id,
             action_id=action_id,
+            group_id=group_id,
         )
         self.storage.add_item(item)
 

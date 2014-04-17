@@ -43,6 +43,7 @@ class ZabbixTest(TestCase):
         old_add_action = self.backend._add_action
         self.backend._add_action = mock.Mock()
         self.backend.add_url("hc_name", url)
+        self.backend.storage.find_group_by_name.assert_called_with("hc_name")
         self.backend.zapi.httptest.create.assert_called_with(
             name=name,
             steps=[{
