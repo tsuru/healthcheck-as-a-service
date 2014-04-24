@@ -134,3 +134,13 @@ class MongoStorageTest(unittest.TestCase):
         self.assertEqual(result["email"], self.user.email)
         result = self.storage.conn()['hcapi']['users'].remove(
             {"email": self.user.email})
+
+    def test_remove_user(self):
+        self.storage.add_user(self.user)
+        result = self.storage.conn()['hcapi']['users'].find_one(
+            {"email": self.user.email})
+        self.assertEqual(result["email"], self.user.email)
+        self.storage.remove_user(self.user)
+        length = self.storage.conn()['hcapi']['users'].find(
+            {"email": self.user.email}).count()
+        self.assertEqual(length, 0)

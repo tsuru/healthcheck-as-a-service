@@ -64,3 +64,6 @@ class MongoStorage(object):
 
     def add_user(self, user):
         self.conn()['hcapi']['users'].insert(user.to_json())
+
+    def remove_user(self, user):
+        self.conn()['hcapi']['users'].remove({"email": user.email})
