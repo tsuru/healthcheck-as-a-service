@@ -105,18 +105,15 @@ class MongoStorageTest(unittest.TestCase):
 
     def test_add_group(self):
         self.storage.add_group(self.group)
-        result = self.storage.conn()['hcapi']['groups'].find_one(
-            {"name": self.group.name})
-        self.assertEqual(result["name"], self.group.name)
-        result = self.storage.conn()['hcapi']['groups'].remove(
-            {"name": self.group.name})
+        result = self.storage.find_group_by_name(self.group.name)
+        self.assertEqual(result.name, self.group.name)
+        self.storage.remove_group(self.group)
 
     def test_find_group_by_name(self):
         self.storage.add_group(self.group)
         result = self.storage.find_group_by_name(self.group.name)
         self.assertEqual(result.name, self.group.name)
-        result = self.storage.conn()['hcapi']['groups'].remove(
-            {"name": self.group.name})
+        self.storage.remove_group(self.group)
 
     def test_remove_group(self):
         self.storage.add_group(self.group)
@@ -129,17 +126,14 @@ class MongoStorageTest(unittest.TestCase):
 
     def test_add_user(self):
         self.storage.add_user(self.user)
-        result = self.storage.conn()['hcapi']['users'].find_one(
-            {"email": self.user.email})
-        self.assertEqual(result["email"], self.user.email)
-        result = self.storage.conn()['hcapi']['users'].remove(
-            {"email": self.user.email})
+        result = self.storage.find_user_by_email(self.user.email)
+        self.assertEqual(result.email, self.user.email)
+        self.storage.remove_user(self.user)
 
     def test_remove_user(self):
         self.storage.add_user(self.user)
-        result = self.storage.conn()['hcapi']['users'].find_one(
-            {"email": self.user.email})
-        self.assertEqual(result["email"], self.user.email)
+        result = self.storage.find_user_by_email(self.user.email)
+        self.assertEqual(result.email, self.user.email)
         self.storage.remove_user(self.user)
         length = self.storage.conn()['hcapi']['users'].find(
             {"email": self.user.email}).count()
