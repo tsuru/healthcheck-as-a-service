@@ -1,6 +1,6 @@
 import os
 
-from healthcheck.storage import Item, Group
+from healthcheck.storage import Item, Group, User
 
 
 def get_value(key):
@@ -54,7 +54,7 @@ class Zabbix(object):
 
     def add_watcher(self, name, email):
         group_id = self.storage.find_group_by_name(name).id
-        self.zapi.user.create(
+        result = self.zapi.user.create(
             passwd="",
             usrgrps=[group_id],
             user_medias=[{
@@ -65,6 +65,9 @@ class Zabbix(object):
                 "period": "1-7,00:00-24:00",
             }],
         )
+        user_id = result["userids"][0]
+        user = User(user_id, email, group_id)
+        self.storage.add_user(user)
 
     def remove_watcher(self, name, email):
         pass

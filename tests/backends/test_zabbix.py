@@ -90,6 +90,7 @@ class ZabbixTest(TestCase):
         name = "hc_name"
         group_mock = mock.Mock(id="someid", name=name)
         self.backend.storage.find_group_by_name.return_value = group_mock
+        self.backend.zapi.user.create.return_value = {"userids": ["123"]}
         self.backend.add_watcher(name, email)
         self.backend.storage.find_group_by_name.assert_called_with(name)
         self.backend.zapi.user.create.assert_called_with(
@@ -103,6 +104,7 @@ class ZabbixTest(TestCase):
                 "period": "1-7,00:00-24:00",
             }],
         )
+        self.assertTrue(self.backend.storage.add_user.called)
 
     def test_add_action(self):
         self.backend.zapi.action.create.return_value = {"actionids": ["1"]}
