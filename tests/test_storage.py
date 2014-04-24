@@ -144,3 +144,9 @@ class MongoStorageTest(unittest.TestCase):
         length = self.storage.conn()['hcapi']['users'].find(
             {"email": self.user.email}).count()
         self.assertEqual(length, 0)
+
+    def test_find_user_by_email(self):
+        self.storage.add_user(self.user)
+        result = self.storage.find_user_by_email(self.user.email)
+        self.assertEqual(result.email, self.user.email)
+        self.storage.remove_user(self.user)

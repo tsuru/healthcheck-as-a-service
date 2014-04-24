@@ -67,3 +67,7 @@ class MongoStorage(object):
 
     def remove_user(self, user):
         self.conn()['hcapi']['users'].remove({"email": user.email})
+
+    def find_user_by_email(self, email):
+        result = self.conn()['hcapi']['users'].find_one({"email": email})
+        return User(result["id"], result["email"], result["group_id"])
