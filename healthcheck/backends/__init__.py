@@ -70,7 +70,9 @@ class Zabbix(object):
         self.storage.add_user(user)
 
     def remove_watcher(self, name, email):
-        pass
+        user = self.storage.find_user_by_email(email)
+        self._remove_user(user.id)
+        self.storage.remove_user(user)
 
     def remove(self, name):
         group = self.storage.find_group_by_name(name)
@@ -138,3 +140,6 @@ class Zabbix(object):
 
     def _remove_action(self, id):
         self.zapi.action.remove([id])
+
+    def _remove_user(self, id):
+        self.zapi.user.remove([id])

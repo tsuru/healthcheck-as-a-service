@@ -1,5 +1,6 @@
 from unittest import TestCase
-from healthcheck.storage import Item
+
+from healthcheck.storage import Item, User
 
 import mock
 import os
@@ -159,8 +160,11 @@ class ZabbixTest(TestCase):
         )
 
     def test_remove_watcher(self):
-        email = "andrews@corp.globo.com"
-        self.backend.remove_watcher("healthcheck", email)
+        user = User("123", "email@email.com", "group")
+        self.backend.storage.find_user_by_email.return_value = user
+        self.backend.remove_watcher("healthcheck", user.email)
+        self.backend.zapi.user.remove.assert_called_with(["123"])
+        self.backend.storage.remove_user.assert_called_with(user)
 
     def test_remove(self):
         name = "blah"
