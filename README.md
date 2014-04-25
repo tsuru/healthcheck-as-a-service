@@ -10,11 +10,45 @@ This project is a http API to abstract healthcheck operations, like verify if a 
     
 ## configuring
 
+
+`API_URL` - the api base url
+
 TODO
 
 ## deploying
 
 TODO
+
+## installing healthcheck tsuru plugin
+
+tsuru plugin-install hc <API-URL>/plugin
+
+## using healtch tsuru plugin
+
+### creating a new healtcheck
+
+
+    $ tsuru hc new <healthcheck-name>
+
+### removing a healthcheck
+
+    $ tsuru hc remove <healthcheck-name>
+
+### adding a new url to be monitored
+
+    $ tsuru hc add-url <healthcheck-name> <url>
+
+## removing a url
+
+    $ tsuru hc remove-url <healthcheck-name> <url>
+
+## adding a new watcher
+
+    $ tsuru hc add-watcher <healthcheck-name> <email>
+
+## removing a watcher
+
+    $ tsuru hc remove-watcher <healthcheck-name> <email>
 
 ## development
 
