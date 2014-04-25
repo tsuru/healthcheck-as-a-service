@@ -1,5 +1,6 @@
 import unittest
 import mock
+import urllib
 
 from healthcheck.plugin import (add_url, add_watcher, new, post,
                                 command, main, CommandNotFound,
@@ -61,7 +62,8 @@ class PluginTest(unittest.TestCase):
         post(url, data)
 
         http_connection_mock.assert_called_with(API_URL)
-        conn_mock.request.assert_called_with('POST', url, data)
+        conn_mock.request.assert_called_with(
+            'POST', url, urllib.urlencode(data))
         conn_mock.getresponse.assert_called_with()
         resp_mock.read.assert_called_with()
 

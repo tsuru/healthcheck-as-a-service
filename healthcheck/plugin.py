@@ -2,6 +2,7 @@
 
 import httplib
 import sys
+import urllib
 
 
 API_URL = "{{ API_URL }}"
@@ -22,7 +23,7 @@ def request(*args):
 
 
 def post(url, data):
-    return request('POST', url, data)
+    return request('POST', url, urllib.urlencode(data))
 
 
 def delete(url):
@@ -106,4 +107,4 @@ def main(cmd, *args):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2:])
+    main(sys.argv[1], *sys.argv[2:])
