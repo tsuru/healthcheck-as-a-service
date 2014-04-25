@@ -27,7 +27,6 @@ tsuru plugin-install hc <API-URL>/plugin
 
 ### creating a new healtcheck
 
-
     $ tsuru hc new <healthcheck-name>
 
 ### removing a healthcheck

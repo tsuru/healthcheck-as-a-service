@@ -5,6 +5,7 @@ import os
 
 
 app = Flask(__name__)
+api.debug = os.environ.get("API_DEBUG", "0") in ("True", "true", "1")
 
 
 def zabbix():
