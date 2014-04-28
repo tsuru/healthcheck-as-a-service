@@ -21,8 +21,6 @@ This project is a http API to abstract healthcheck operations, like verify if a 
 * `ZABBIX_HOST` - host used to create the web monitoring
 
 
-TODO
-
 ## deploying
 
 TODO
