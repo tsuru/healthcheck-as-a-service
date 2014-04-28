@@ -10,8 +10,16 @@ This project is a http API to abstract healthcheck operations, like verify if a 
     
 ## configuring
 
+* `API_URL` - the api base url
+* `API_DEBUG` - enables the debug mode 
 
-`API_URL` - the api base url
+### zabbix backend
+
+* `ZABBIX_URL` - the zabbix api endpoint
+* `ZABBIX_USER` - zabbix user
+* `ZABBIX_PASSWORD` - zabbix password
+* `ZABBIX_HOST` - host used to create the web monitoring
+
 
 TODO
 
