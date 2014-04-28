@@ -39,7 +39,7 @@ class ZabbixTest(TestCase):
     def test_add_url(self):
         url = "http://mysite.com"
         name = "healthcheck for {}".format(url)
-        self.backend.zapi.httptest.create.return_value = {"itemids": [1]}
+        self.backend.zapi.httptest.create.return_value = {"httptestids": [1]}
         self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
         old_add_action = self.backend._add_action
         self.backend._add_action = mock.Mock()

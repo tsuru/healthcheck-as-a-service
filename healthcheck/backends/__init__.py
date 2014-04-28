@@ -90,7 +90,7 @@ class Zabbix(object):
             }],
             hostid=self.host_id,
         )
-        return item_result['itemids'][0]
+        return item_result['httptestids'][0]
 
     def _add_trigger(self, name, url):
         expression = "{{Zabbix Server:web.test.rspcode[{},{}].last()}}#200"
