@@ -79,7 +79,7 @@ class Zabbix(object):
     def remove(self, name):
         group = self.storage.find_group_by_name(name)
         self._remove_group(group.id)
-        self.storage.remove_item(group)
+        self.storage.remove_group(group)
 
     def _add_item(self, name, url):
         item_result = self.zapi.httptest.create(

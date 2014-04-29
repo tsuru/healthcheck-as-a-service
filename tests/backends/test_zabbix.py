@@ -194,6 +194,8 @@ class ZabbixTest(TestCase):
         id = "someid"
         group_mock = mock.Mock(id=id, name=name)
         self.backend.storage.find_group_by_name.return_value = group_mock
+
         self.backend.remove(name)
+
         self.backend.zapi.usergroup.delete.assert_called_with(id)
-        self.backend.storage.remove_group(group_mock)
+        self.backend.storage.remove_group.assert_called_with(group_mock)
