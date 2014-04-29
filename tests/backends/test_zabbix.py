@@ -109,24 +109,45 @@ class ZabbixTest(TestCase):
 
     def test_add_action(self):
         self.backend.zapi.action.create.return_value = {"actionids": ["1"]}
+
         self.backend._add_action("url", "8", "14")
+
         self.backend.zapi.action.create.assert_called_with(
-            name="action for url url",
-            recovery_msg=1,
-            conditions=[
-                {"conditiontype": 16, "value": "", "operator": 7},
-                {"conditiontype": 5, "value": "1"},
-                {"conditiontype": 2, "value": "8"},
-            ],
             operations=[
                 {
-                    "operationtype": 0,
-                    "opmessage_grp": [{"usrgrpid": "14"}],
-                    "opmessage": {
-                        "mediatypeid": "1"
-                    }
+                    'mediatypeid': 0,
+                    'esc_step_to': 1,
+                    'esc_step_from': 1,
+                    'operationtype': 0,
+                    'esc_period': 0,
+                    'evaltype': 0,
+                    'opmessage': {'mediatypeid': '0', 'default_msg': 1},
+                    'opmessage_grp': [
+                        {'usrgrpid': '14'}
+                    ]
                 }
             ],
+            status=0,
+            name='action for url url',
+            esc_period=3600,
+            evaltype=0,
+            eventsource=0,
+            conditions=[
+                {
+                    'operator': 7,
+                    'conditiontype': 16,
+                    'value': ''
+                },
+                {
+                    'conditiontype': 5,
+                    'value': '1'
+                },
+                {
+                    'conditiontype': 2,
+                    'value': '8'
+                }
+            ],
+            recovery_msg=1
         )
 
     def test_add_group(self):

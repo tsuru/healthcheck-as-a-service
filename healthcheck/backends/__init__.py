@@ -104,7 +104,11 @@ class Zabbix(object):
     def _add_action(self, url, trigger_id, group_id):
         result = self.zapi.action.create(
             name="action for url {}".format(url),
+            eventsource=0,
             recovery_msg=1,
+            status=0,
+            esc_period=3600,
+            evaltype=0,
             conditions=[
                 # Maintenance status not in maintenance
                 {"conditiontype": 16, "value": "", "operator": 7},
@@ -116,9 +120,19 @@ class Zabbix(object):
             operations=[
                 {
                     "operationtype": 0,
-                    "opmessage_grp": [{"usrgrpid": group_id}],
+                    "esc_period": 0,
+                    "esc_step_from": 1,
+                    "esc_step_to": 1,
+                    "evaltype": 0,
+                    "mediatypeid": 0,
+                    "opmessage_grp": [
+                        {
+                            "usrgrpid": group_id
+                        }
+                    ],
                     "opmessage": {
-                        "mediatypeid": "1"
+                        "default_msg": 1,
+                        "mediatypeid": "0"
                     }
                 }
             ],
