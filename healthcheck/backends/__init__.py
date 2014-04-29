@@ -19,6 +19,7 @@ class Zabbix(object):
         user = get_value("ZABBIX_USER")
         password = get_value("ZABBIX_PASSWORD")
         self.host_id = get_value("ZABBIX_HOST")
+        self.host_group_id = get_value("ZABBIX_HOST_GROUP")
 
         from pyzabbix import ZabbixAPI
         self.zapi = ZabbixAPI(url)
@@ -142,7 +143,7 @@ class Zabbix(object):
     def _add_group(self, name):
         result = self.zapi.usergroup.create(
             name=name,
-            rights={"permission": 2, "id": self.host_id},
+            rights={"permission": 2, "id": self.host_group_id},
         )
         group_id = result["usrgrpids"][0]
         group = Group(name=name, id=group_id)

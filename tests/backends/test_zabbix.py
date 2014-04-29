@@ -21,6 +21,7 @@ class ZabbixTest(TestCase):
         os.environ["ZABBIX_USER"] = user
         os.environ["ZABBIX_PASSWORD"] = password
         os.environ["ZABBIX_HOST"] = "1"
+        os.environ["ZABBIX_HOST_GROUP"] = "2"
         zapi_mock = mock.Mock()
         zabbix_mock.return_value = zapi_mock
 
@@ -157,7 +158,7 @@ class ZabbixTest(TestCase):
         self.assertTrue(self.backend.storage.add_group.called)
         self.backend.zapi.usergroup.create.assert_called_with(
             name=name,
-            rights={"permission": 2, "id": "1"},
+            rights={"permission": 2, "id": "2"},
         )
 
     def test_new(self):

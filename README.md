@@ -18,6 +18,7 @@ This project is a http API to abstract healthcheck operations, like verify if a 
 * `ZABBIX_URL` - the zabbix api endpoint
 * `ZABBIX_USER` - zabbix user
 * `ZABBIX_PASSWORD` - zabbix password
+* `ZABBIX_HOST_GROUP` - host group used to create the web monitoring
 * `ZABBIX_HOST` - host used to create the web monitoring
 
 
