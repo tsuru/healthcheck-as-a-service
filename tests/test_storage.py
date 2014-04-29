@@ -91,7 +91,8 @@ class MongoStorageTest(unittest.TestCase):
     def test_find_item_by_url(self):
         self.storage.add_item(self.item)
         result = self.storage.find_item_by_url(self.item.url)
-        self.assertEqual(result.url, self.url)
+        for attr, value in result.__dict__.items():
+            self.assertEqual(getattr(self.item, attr), value)
         self.storage.remove_item(self.item)
 
     def test_remove_item(self):
