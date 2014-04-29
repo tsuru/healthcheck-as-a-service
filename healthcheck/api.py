@@ -60,3 +60,7 @@ def plugin():
     url = os.environ.get("API_URL")
     source = inspect.getsource(plugin).replace("{{ API_URL }}", url)
     return source, 200
+
+
+if __name__ == "__main__":
+    app.run(port=8888, debug=True)
