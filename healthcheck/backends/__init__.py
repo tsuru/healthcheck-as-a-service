@@ -151,10 +151,10 @@ class Zabbix(object):
         return group_id
 
     def _remove_group(self, id):
-        self.zapi.usergroup.remove([id])
+        self.zapi.usergroup.delete([id])
 
     def _remove_action(self, id):
-        self.zapi.action.remove([id])
+        self.zapi.action.delete([id])
 
     def _remove_user(self, id):
-        self.zapi.user.remove([id])
+        self.zapi.user.delete([id])
