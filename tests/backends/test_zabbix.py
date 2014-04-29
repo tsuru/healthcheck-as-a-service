@@ -83,8 +83,7 @@ class ZabbixTest(TestCase):
         self.backend._remove_action = mock.Mock()
         self.backend.remove_url("hc_name", url)
         self.backend._remove_action.assert_called_with(8)
-        self.backend.zapi.httptest.remove.assert_called_with([item_id])
-        self.backend.zapi.trigger.remove.assert_called_with([trigger_id])
+        self.backend.zapi.httptest.delete.assert_called_with(item_id)
         self.backend._remove_action = old_action
 
     def test_add_watcher(self):
@@ -171,21 +170,17 @@ class ZabbixTest(TestCase):
 
     def test_remove_group(self):
         self.backend._remove_group("id")
-        self.backend.zapi.usergroup.delete.assert_called_with(
-            ["id"]
-        )
+        self.backend.zapi.usergroup.delete.assert_called_with("id")
 
     def test_remove_action(self):
         self.backend._remove_action("id")
-        self.backend.zapi.action.delete.assert_called_with(
-            ["id"]
-        )
+        self.backend.zapi.action.delete.assert_called_with("id")
 
     def test_remove_watcher(self):
         user = User("123", "email@email.com", "group")
         self.backend.storage.find_user_by_email.return_value = user
         self.backend.remove_watcher("healthcheck", user.email)
-        self.backend.zapi.user.delete.assert_called_with(["123"])
+        self.backend.zapi.user.delete.assert_called_with("123")
         self.backend.storage.remove_user.assert_called_with(user)
 
     def test_remove(self):
@@ -194,5 +189,5 @@ class ZabbixTest(TestCase):
         group_mock = mock.Mock(id=id, name=name)
         self.backend.storage.find_group_by_name.return_value = group_mock
         self.backend.remove(name)
-        self.backend.zapi.usergroup.delete.assert_called_with([id])
+        self.backend.zapi.usergroup.delete.assert_called_with(id)
         self.backend.storage.remove_group(group_mock)

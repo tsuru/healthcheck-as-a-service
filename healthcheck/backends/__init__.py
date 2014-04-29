@@ -47,8 +47,7 @@ class Zabbix(object):
     def remove_url(self, name, url):
         item = self.storage.find_item_by_url(url)
         self._remove_action(item.action_id)
-        self.zapi.httptest.remove([item.item_id])
-        self.zapi.trigger.remove([item.trigger_id])
+        self.zapi.httptest.delete(item.item_id)
 
     def new(self, name):
         self._add_group(name)
@@ -151,10 +150,10 @@ class Zabbix(object):
         return group_id
 
     def _remove_group(self, id):
-        self.zapi.usergroup.delete([id])
+        self.zapi.usergroup.delete(id)
 
     def _remove_action(self, id):
-        self.zapi.action.delete([id])
+        self.zapi.action.delete(id)
 
     def _remove_user(self, id):
-        self.zapi.user.delete([id])
+        self.zapi.user.delete(id)
