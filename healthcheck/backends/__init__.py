@@ -56,6 +56,7 @@ class Zabbix(object):
     def add_watcher(self, name, email):
         group_id = self.storage.find_group_by_name(name).id
         result = self.zapi.user.create(
+            alias=email,
             passwd="",
             usrgrps=[group_id],
             user_medias=[{

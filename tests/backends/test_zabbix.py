@@ -95,9 +95,12 @@ class ZabbixTest(TestCase):
         group_mock = mock.Mock(id="someid", name=name)
         self.backend.storage.find_group_by_name.return_value = group_mock
         self.backend.zapi.user.create.return_value = {"userids": ["123"]}
+
         self.backend.add_watcher(name, email)
+
         self.backend.storage.find_group_by_name.assert_called_with(name)
         self.backend.zapi.user.create.assert_called_with(
+            alias=email,
             passwd="",
             usrgrps=["someid"],
             user_medias=[{
