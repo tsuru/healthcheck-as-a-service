@@ -48,6 +48,7 @@ class Zabbix(object):
         item = self.storage.find_item_by_url(url)
         self._remove_action(item.action_id)
         self.zapi.httptest.delete(item.item_id)
+        self.storage.remove_item(item)
 
     def new(self, name):
         self._add_group(name)

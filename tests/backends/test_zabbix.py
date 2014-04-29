@@ -81,10 +81,13 @@ class ZabbixTest(TestCase):
         self.backend.storage.find_item_by_url.return_value = item
         old_action = self.backend._remove_action
         self.backend._remove_action = mock.Mock()
+
         self.backend.remove_url("hc_name", url)
+
         self.backend._remove_action.assert_called_with(8)
         self.backend.zapi.httptest.delete.assert_called_with(item_id)
         self.backend._remove_action = old_action
+        self.backend.storage.remove_item.assert_called_with(item)
 
     def test_add_watcher(self):
         email = "andrews@corp.globo.com"
