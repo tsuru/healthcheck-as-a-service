@@ -62,8 +62,12 @@ class PluginTest(unittest.TestCase):
         post(url, data)
 
         http_connection_mock.assert_called_with(API_URL)
+        headers = {
+            'Content-type': 'application/x-www-form-urlencoded',
+            'Accept': 'text/plain'
+        }
         conn_mock.request.assert_called_with(
-            'POST', url, urllib.urlencode(data))
+            'POST', url, urllib.urlencode(data), headers)
         conn_mock.getresponse.assert_called_with()
         resp_mock.read.assert_called_with()
 

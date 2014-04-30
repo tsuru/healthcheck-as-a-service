@@ -19,11 +19,16 @@ def request(*args):
     conn = httplib.HTTPConnection(API_URL)
     conn.request(*args)
     resp = conn.getresponse()
-    return resp.read()
+    resp.read()
+    return resp
 
 
 def post(url, data):
-    return request('POST', url, urllib.urlencode(data))
+    headers = {
+        "Content-type": "application/x-www-form-urlencoded",
+        "Accept": "text/plain"
+    }
+    return request('POST', url, urllib.urlencode(data), headers)
 
 
 def delete(url):
