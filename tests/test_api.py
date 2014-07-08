@@ -1,13 +1,12 @@
 # Copyright 2014 healthcheck-as-a-service authors. All rights reserved.
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
-
 import unittest
 import mock
 import inspect
 import os
 
-from healthcheck import api
+from healthcheck import api, backends
 
 
 class APITestCase(unittest.TestCase):
@@ -15,6 +14,9 @@ class APITestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.api = api.app.test_client()
+
+    def setUp(self):
+        os.environ["API_MANAGER"] = "zabbix"
 
     @mock.patch("healthcheck.backends.Zabbix")
     def test_add_url(self, zabbix_class):
@@ -78,3 +80,14 @@ class APITestCase(unittest.TestCase):
             "{{ API_URL }}", url)
         self.assertEqual(expected_source, resp.data)
         self.assertIn(url, resp.data)
+
+    @mock.patch("pyzabbix.ZabbixAPI")
+    def test_get_manager(self, zabbix_mock):
+        manager = api.get_manager()
+        self.assertIsInstance(manager, backends.Zabbix)
+
+    @mock.patch("pyzabbix.ZabbixAPI")
+    def test_get_manager_that_does_not_exist(self, zabbix_mock):
+        os.environ["API_MANAGER"] = "doesnotexist"
+        with self.assertRaises(ValueError):
+            api.get_manager()
