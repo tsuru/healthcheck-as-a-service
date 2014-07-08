@@ -2,10 +2,12 @@
 
 from setuptools import setup, find_packages
 
+from healthcheck import __version__
+
 
 setup(
     name="tsuru-hcaas",
-    version="0.1.0",
+    version=__version__,
     description="Healthcheck as a service API for Tsuru PaaS",
     author="Tsuru",
     author_email="tsuru@corp.globo.com",
