@@ -7,6 +7,7 @@ import inspect
 import os
 
 from healthcheck import api, backends
+from . import managers
 
 
 class APITestCase(unittest.TestCase):
@@ -14,61 +15,68 @@ class APITestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.api = api.app.test_client()
+        cls.manager = managers.FakeManager()
+        api.get_manager = lambda: cls.manager
 
     def setUp(self):
-        os.environ["API_MANAGER"] = "zabbix"
+        self.manager.new("hc")
 
-    @mock.patch("healthcheck.backends.Zabbix")
-    def test_add_url(self, zabbix_class):
-        zabbix_mock = zabbix_class.return_value
+    def tearDown(self):
+        self.manager.remove("hc")
+
+    def test_add_url(self):
         resp = self.api.post(
             "/url",
             data={"name": "hc", "url": "http://bla.com"}
         )
         self.assertEqual(201, resp.status_code)
-        zabbix_mock.add_url.assert_called_with("hc", "http://bla.com")
+        self.assertIn(
+            "http://bla.com",
+            self.manager.healthchecks["hc"]["urls"]
+        )
 
-    @mock.patch("healthcheck.backends.Zabbix")
-    def test_remove_url(self, zabbix_class):
-        zabbix_mock = zabbix_class.return_value
+    def test_remove_url(self):
+        self.manager.add_url("hc", "http://bla.com")
         resp = self.api.delete("/hc/url/http://bla.com")
         self.assertEqual(204, resp.status_code)
-        zabbix_mock.remove_url.assert_called_with("hc", "http://bla.com")
+        self.assertNotIn(
+            "http://bla.com",
+            self.manager.healthchecks["hc"]["urls"]
+        )
 
-    @mock.patch("healthcheck.backends.Zabbix")
-    def test_add_watcher(self, zabbix_class):
-        zabbix_mock = zabbix_class.return_value
+    def test_add_watcher(self):
         resp = self.api.post(
             "/watcher",
             data={"name": "hc", "watcher": "watcher@watcher.com"}
         )
         self.assertEqual(201, resp.status_code)
-        zabbix_mock.add_watcher.assert_called_with("hc", "watcher@watcher.com")
+        self.assertIn(
+            "watcher@watcher.com",
+            self.manager.healthchecks["hc"]["users"]
+        )
 
-    @mock.patch("healthcheck.backends.Zabbix")
-    def test_new(self, zabbix_class):
-        zabbix_mock = zabbix_class.return_value
+    def test_new(self):
         resp = self.api.post(
             "/",
-            data={"name": "hc"}
+            data={"name": "other"}
         )
         self.assertEqual(201, resp.status_code)
-        zabbix_mock.new.assert_called_with("hc")
+        self.assertIn("other", self.manager.healthchecks)
 
-    @mock.patch("healthcheck.backends.Zabbix")
-    def test_remove(self, zabbix_class):
-        zabbix_mock = zabbix_class.return_value
-        resp = self.api.delete("/hc")
+    def test_remove(self):
+        self.manager.new("blabla")
+        resp = self.api.delete("/blabla")
         self.assertEqual(204, resp.status_code)
-        zabbix_mock.remove.assert_called_with("hc")
+        self.assertNotIn("blabla", self.manager.healthchecks)
 
-    @mock.patch("healthcheck.backends.Zabbix")
-    def test_remove_watcher(self, zabbix_class):
-        zabbix_mock = zabbix_class.return_value
+    def test_remove_watcher(self):
+        self.manager.add_watcher("hc", "watcher@watcher.com")
         resp = self.api.delete("/hc/watcher/watcher@watcher.com")
         self.assertEqual(204, resp.status_code)
-        zabbix_mock.remove_watcher.assert_called_with(
-            "hc", "watcher@watcher.com")
+        self.assertNotIn(
+            "watcher@watcher.com",
+            self.manager.healthchecks["hc"]["users"]
+        )
 
     def test_plugin(self):
         url = "http://bla.com"
@@ -80,6 +88,13 @@ class APITestCase(unittest.TestCase):
             "{{ API_URL }}", url)
         self.assertEqual(expected_source, resp.data)
         self.assertIn(url, resp.data)
+
+
+class GetManagerTestCase(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        reload(api)
 
     @mock.patch("pyzabbix.ZabbixAPI")
     def test_get_manager(self, zabbix_mock):
