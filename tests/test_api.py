@@ -98,10 +98,15 @@ class GetManagerTestCase(unittest.TestCase):
 
     @mock.patch("pyzabbix.ZabbixAPI")
     def test_get_manager(self, zabbix_mock):
+        os.environ["ZABBIX_URL"] = ""
+        os.environ["ZABBIX_USER"] = ""
+        os.environ["ZABBIX_PASSWORD"] = ""
+        os.environ["ZABBIX_HOST"] = ""
+        os.environ["ZABBIX_HOST_GROUP"] = ""
         manager = api.get_manager()
         self.assertIsInstance(manager, backends.Zabbix)
 
-    @mock.patch("pyzabbix.ZabbixAPI")
+    @mock.patch("healthcheck.backends.Zabbix")
     def test_get_manager_that_does_not_exist(self, zabbix_mock):
         os.environ["API_MANAGER"] = "doesnotexist"
         with self.assertRaises(ValueError):
