@@ -158,6 +158,9 @@ class Zabbix(object):
     def _add_host_group(self, name):
         self.zapi.hostgroup.create(name=name)
 
+    def _remove_host_group(self, id):
+        self.zapi.hostgroup.delete([id])
+
     def _remove_group(self, id):
         self.zapi.usergroup.delete(id)
 

@@ -176,6 +176,11 @@ class ZabbixTest(TestCase):
         self.backend._add_host_group(name)
         self.backend.zapi.hostgroup.create.assert_called_with(name=name)
 
+    def test_remove_host_group(self):
+        id = "id"
+        self.backend._remove_host_group(id)
+        self.backend.zapi.hostgroup.delete.assert_called_with(["id"])
+
     def test_new(self):
         name = "blah"
         old_add_group = self.backend._add_group
