@@ -83,6 +83,17 @@ class MongoStorage(object):
     def remove_user(self, user):
         self.conn()['hcapi']['users'].remove({"email": user.email})
 
+    def add_healthcheck(self, healthcheck):
+        self.conn()['hcapi']['healthchecks'].insert(healthcheck.to_json())
+
+    def remove_healthcheck(self, healthcheck):
+        self.conn()['hcapi']['healthchecks'].remove({"name": healthcheck.name})
+
+    def find_healthcheck_by_name(self, name):
+        result = self.conn()['hcapi']['healthchecks'].find_one({"name": name})
+        name = result.pop("name")
+        return HealthCheck(name, **result)
+
     def find_user_by_email(self, email):
         result = self.conn()['hcapi']['users'].find_one({"email": email})
         return User(result["id"], result["email"], result["group_id"])

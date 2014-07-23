@@ -86,6 +86,7 @@ class MongoStorageTest(unittest.TestCase):
         self.item = Item(self.url)
         self.group = Group("name", "id")
         self.user = User("id", "w@w.com", "group_id")
+        self.healthcheck = HealthCheck("bla")
 
     @mock.patch("pymongo.MongoClient")
     def test_mongodb_host_environ(self, mongo_mock):
@@ -157,6 +158,27 @@ class MongoStorageTest(unittest.TestCase):
         result = self.storage.find_user_by_email(self.user.email)
         self.assertEqual(result.email, self.user.email)
         self.storage.remove_user(self.user)
+
+    def test_add_healthcheck(self):
+        self.storage.add_healthcheck(self.healthcheck)
+        result = self.storage.find_healthcheck_by_name(self.healthcheck.name)
+        self.assertEqual(result.name, self.healthcheck.name)
+        self.storage.remove_healthcheck(self.healthcheck)
+
+    def test_remove_healthcheck(self):
+        self.storage.add_healthcheck(self.healthcheck)
+        result = self.storage.find_healthcheck_by_name(self.healthcheck.name)
+        self.assertEqual(result.name, self.healthcheck.name)
+        self.storage.remove_healthcheck(self.healthcheck)
+        length = self.storage.conn()['hcapi']['healthchecks'].find(
+            {"name": self.healthcheck.name}).count()
+        self.assertEqual(length, 0)
+
+    def test_find_healthcheck_by_name(self):
+        self.storage.add_healthcheck(self.healthcheck)
+        result = self.storage.find_healthcheck_by_name(self.healthcheck.name)
+        self.assertEqual(result.name, self.healthcheck.name)
+        self.storage.remove_healthcheck(self.healthcheck)
 
     def test_remove_user(self):
         self.storage.add_user(self.user)
