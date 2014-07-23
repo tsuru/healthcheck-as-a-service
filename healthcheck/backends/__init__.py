@@ -55,7 +55,9 @@ class Zabbix(object):
         self.storage.remove_item(item)
 
     def new(self, name):
-        self._add_group(name)
+        host_group = self._add_host_group(name)
+        self._add_host(name, host_group)
+        self._add_group(name, host_group)
 
     def add_watcher(self, name, email):
         group_id = self.storage.find_group_by_name(name).id
@@ -145,10 +147,10 @@ class Zabbix(object):
         )
         return result["actionids"][0]
 
-    def _add_group(self, name):
+    def _add_group(self, name, host_group):
         result = self.zapi.usergroup.create(
             name=name,
-            rights={"permission": 2, "id": self.host_group_id},
+            rights={"permission": 2, "id": host_group},
         )
         group_id = result["usrgrpids"][0]
         group = Group(name=name, id=group_id)

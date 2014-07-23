@@ -162,12 +162,13 @@ class ZabbixTest(TestCase):
 
     def test_add_group(self):
         name = "group name"
+        host_group = "host group name"
         self.backend.zapi.usergroup.create.return_value = {"usrgrpids": [2]}
-        self.backend._add_group(name)
+        self.backend._add_group(name, host_group)
         self.assertTrue(self.backend.storage.add_group.called)
         self.backend.zapi.usergroup.create.assert_called_with(
             name=name,
-            rights={"permission": 2, "id": "2"},
+            rights={"permission": 2, "id": host_group},
         )
 
     def test_add_host_group(self):
@@ -197,9 +198,18 @@ class ZabbixTest(TestCase):
         name = "blah"
         old_add_group = self.backend._add_group
         self.backend._add_group = mock.Mock()
+        old_add_host = self.backend._add_host
+        self.backend._add_host = mock.Mock()
+        old_add_host_group = self.backend._add_host_group
+        self.backend._add_host_group = mock.Mock()
+        self.backend._add_host_group.return_value = "xpto"
         self.backend.new(name)
-        self.backend._add_group.assert_called_with(name)
+        self.backend._add_group.assert_called_with(name, "xpto")
         self.backend._add_group = old_add_group
+        self.backend._add_host.assert_called_with(name, "xpto")
+        self.backend._add_host = old_add_host
+        self.backend._add_host_group.assert_called_with(name)
+        self.backend._add_host_group = old_add_host_group
 
     def test_remove_group(self):
         self.backend._remove_group("id")
