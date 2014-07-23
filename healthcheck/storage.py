@@ -5,18 +5,29 @@
 import os
 
 
-class User(object):
+class Jsonable(object):
+
+    def to_json(self):
+        return self.__dict__
+
+
+class HealthCheck(Jsonable):
+
+    def __init__(self, name, **kwargs):
+        self.name = name
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+
+class User(Jsonable):
 
     def __init__(self, id, email, group_id):
         self.email = email
         self.group_id = group_id
         self.id = id
 
-    def to_json(self):
-        return self.__dict__
 
-
-class Group(object):
+class Group(Jsonable):
 
     def __init__(self, name, id):
         self.name = name
@@ -26,7 +37,7 @@ class Group(object):
         return self.__dict__
 
 
-class Item(object):
+class Item(Jsonable):
 
     def __init__(self, url, **kwargs):
         self.url = url

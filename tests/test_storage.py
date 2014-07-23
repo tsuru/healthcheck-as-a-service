@@ -6,7 +6,30 @@ import unittest
 import mock
 import os
 
-from healthcheck.storage import Item, MongoStorage, Group, User
+from healthcheck.storage import (Item, MongoStorage, Group,
+                                 User, HealthCheck, Jsonable)
+
+
+class JsonableTest(unittest.TestCase):
+
+    def test_to_json(self):
+        jsonable = Jsonable()
+        jsonable.id = 1
+        self.assertDictEqual(jsonable.to_json(), {"id": 1})
+
+
+class HealthCheckTest(unittest.TestCase):
+
+    def test_healthcheck(self):
+        name = "myhc"
+        group_id = "123"
+        hc = HealthCheck(name=name, group_id=group_id)
+        self.assertEqual(hc.name, name)
+        self.assertEqual(hc.group_id, group_id)
+
+    def test_to_json(self):
+        hc = HealthCheck("myhc", id=1)
+        self.assertDictEqual(hc.to_json(), {"name": "myhc", "id": 1})
 
 
 class UserTest(unittest.TestCase):
