@@ -170,6 +170,12 @@ class ZabbixTest(TestCase):
             rights={"permission": 2, "id": "2"},
         )
 
+    def test_add_host_group(self):
+        name = "host group name"
+        self.backend.zapi.hostgroup.create.return_value = {"groupids": [2]}
+        self.backend._add_host_group(name)
+        self.backend.zapi.hostgroup.create.assert_called_with(name=name)
+
     def test_new(self):
         name = "blah"
         old_add_group = self.backend._add_group
