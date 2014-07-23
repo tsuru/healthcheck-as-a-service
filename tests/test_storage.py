@@ -6,8 +6,7 @@ import unittest
 import mock
 import os
 
-from healthcheck.storage import (Item, MongoStorage, Group,
-                                 User, HealthCheck, Jsonable)
+from healthcheck.storage import Item, MongoStorage, User, HealthCheck, Jsonable
 
 
 class JsonableTest(unittest.TestCase):
@@ -49,18 +48,6 @@ class UserTest(unittest.TestCase):
         self.assertDictEqual(expected, user.to_json())
 
 
-class GroupTest(unittest.TestCase):
-
-    def test_group(self):
-        group = Group(name="name", id="xpto")
-        self.assertEqual(group.name, "name")
-        self.assertEqual(group.id, "xpto")
-
-    def test_to_json(self):
-        group = Group(name="name", id="xpto")
-        self.assertDictEqual(group.to_json(), {"name": "name", "id": "xpto"})
-
-
 class ItemTest(unittest.TestCase):
 
     def test_item(self):
@@ -84,7 +71,6 @@ class MongoStorageTest(unittest.TestCase):
         self.storage = MongoStorage()
         self.url = "http://myurl.com"
         self.item = Item(self.url)
-        self.group = Group("name", "id")
         self.user = User("id", "w@w.com", "group_id")
         self.healthcheck = HealthCheck("bla")
 
@@ -130,27 +116,6 @@ class MongoStorageTest(unittest.TestCase):
         self.storage.remove_item(self.item)
         length = self.storage.conn()['hcapi']['items'].find(
             {"url": self.url}).count()
-        self.assertEqual(length, 0)
-
-    def test_add_group(self):
-        self.storage.add_group(self.group)
-        result = self.storage.find_group_by_name(self.group.name)
-        self.assertEqual(result.name, self.group.name)
-        self.storage.remove_group(self.group)
-
-    def test_find_group_by_name(self):
-        self.storage.add_group(self.group)
-        result = self.storage.find_group_by_name(self.group.name)
-        self.assertEqual(result.name, self.group.name)
-        self.storage.remove_group(self.group)
-
-    def test_remove_group(self):
-        self.storage.add_group(self.group)
-        result = self.storage.find_group_by_name(self.group.name)
-        self.assertEqual(result.name, self.group.name)
-        self.storage.remove_group(self.group)
-        length = self.storage.conn()['hcapi']['groups'].find(
-            {"name": self.group.name}).count()
         self.assertEqual(length, 0)
 
     def test_add_user(self):

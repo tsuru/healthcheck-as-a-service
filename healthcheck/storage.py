@@ -27,16 +27,6 @@ class User(Jsonable):
         self.id = id
 
 
-class Group(Jsonable):
-
-    def __init__(self, name, id):
-        self.name = name
-        self.id = id
-
-    def to_json(self):
-        return self.__dict__
-
-
 class Item(Jsonable):
 
     def __init__(self, url, **kwargs):
@@ -66,16 +56,6 @@ class MongoStorage(object):
 
     def remove_item(self, item):
         self.conn()['hcapi']['items'].remove({"url": item.url})
-
-    def add_group(self, group):
-        self.conn()['hcapi']['groups'].insert(group.to_json())
-
-    def find_group_by_name(self, name):
-        result = self.conn()['hcapi']['groups'].find_one({"name": name})
-        return Group(result["name"], result["id"])
-
-    def remove_group(self, group):
-        self.conn()['hcapi']['groups'].remove({"name": group.name})
 
     def add_user(self, user):
         self.conn()['hcapi']['users'].insert(user.to_json())

@@ -4,7 +4,7 @@
 
 import os
 
-from healthcheck.storage import Item, Group, User
+from healthcheck.storage import Item, User
 
 
 def get_value(key):
@@ -152,10 +152,7 @@ class Zabbix(object):
             name=name,
             rights={"permission": 2, "id": host_group},
         )
-        group_id = result["usrgrpids"][0]
-        group = Group(name=name, id=group_id)
-        self.storage.add_group(group)
-        return group_id
+        return result["usrgrpids"][0]
 
     def _add_host_group(self, name):
         self.zapi.hostgroup.create(name=name)
