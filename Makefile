@@ -12,7 +12,7 @@ clean:
 	@find . -name "*.pyc" -delete
 
 test: test-deps clean
-	@PYTHONPATH=. py.test -s .
+	@PYTHONPATH=. py.test -s --cov .
 	@flake8 .
 
 run: deps
