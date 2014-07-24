@@ -4,7 +4,7 @@
 
 import os
 
-from healthcheck.storage import Item, User
+from healthcheck.storage import Item, User, HealthCheck
 
 
 def get_value(key):
@@ -56,8 +56,15 @@ class Zabbix(object):
 
     def new(self, name):
         host_group = self._add_host_group(name)
-        self._add_host(name, host_group)
-        self._add_group(name, host_group)
+        host = self._add_host(name, host_group)
+        group = self._add_group(name, host_group)
+        hc = HealthCheck(
+            name=name,
+            host_group_id=host_group,
+            host_id=host,
+            group_id=group
+        )
+        self.storage.add_healthcheck(hc)
 
     def add_watcher(self, name, email):
         group_id = self.storage.find_group_by_name(name).id

@@ -192,20 +192,29 @@ class ZabbixTest(TestCase):
 
     def test_new(self):
         name = "blah"
+
         old_add_group = self.backend._add_group
         self.backend._add_group = mock.Mock()
+
         old_add_host = self.backend._add_host
         self.backend._add_host = mock.Mock()
+
         old_add_host_group = self.backend._add_host_group
         self.backend._add_host_group = mock.Mock()
         self.backend._add_host_group.return_value = "xpto"
+
         self.backend.new(name)
+
         self.backend._add_group.assert_called_with(name, "xpto")
         self.backend._add_group = old_add_group
+
         self.backend._add_host.assert_called_with(name, "xpto")
         self.backend._add_host = old_add_host
+
         self.backend._add_host_group.assert_called_with(name)
         self.backend._add_host_group = old_add_host_group
+
+        self.assertTrue(self.backend.storage.add_healthcheck.called)
 
     def test_remove_group(self):
         self.backend._remove_group("id")
