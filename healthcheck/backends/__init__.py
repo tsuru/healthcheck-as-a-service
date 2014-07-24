@@ -23,7 +23,6 @@ class Zabbix(object):
         user = get_value("ZABBIX_USER")
         password = get_value("ZABBIX_PASSWORD")
         self.host_id = get_value("ZABBIX_HOST")
-        self.host_group_id = get_value("ZABBIX_HOST_GROUP")
 
         from pyzabbix import ZabbixAPI
         self.zapi = ZabbixAPI(url)
