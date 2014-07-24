@@ -46,13 +46,13 @@ class ZabbixTest(TestCase):
         self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
         old_add_action = self.backend._add_action
         self.backend._add_action = mock.Mock()
-        self.backend.storage.find_group_by_name.return_value = mock.Mock(id=13)
-        hmock = mock.Mock(host_id="1")
+        hmock = mock.Mock(host_id="1", group_id=13)
         self.backend.storage.find_healthcheck_by_name.return_value = hmock
 
         self.backend.add_url("hc_name", url)
 
-        self.backend.storage.find_group_by_name.assert_called_with("hc_name")
+        self.backend.storage.find_healthcheck_by_name.assert_called_with(
+            "hc_name")
         self.backend.zapi.httptest.create.assert_called_with(
             name=name,
             steps=[{
@@ -98,13 +98,13 @@ class ZabbixTest(TestCase):
     def test_add_watcher(self):
         email = "andrews@corp.globo.com"
         name = "hc_name"
-        group_mock = mock.Mock(id="someid", name=name)
-        self.backend.storage.find_group_by_name.return_value = group_mock
+        hmock = mock.Mock(group_id="someid")
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
         self.backend.zapi.user.create.return_value = {"userids": ["123"]}
 
         self.backend.add_watcher(name, email)
 
-        self.backend.storage.find_group_by_name.assert_called_with(name)
+        self.backend.storage.find_healthcheck_by_name.assert_called_with(name)
         self.backend.zapi.user.create.assert_called_with(
             alias=email,
             passwd="",

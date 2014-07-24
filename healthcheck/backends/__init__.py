@@ -35,14 +35,14 @@ class Zabbix(object):
         item_name = "healthcheck for {}".format(url)
         item_id = self._add_item(item_name, url)
         trigger_id = self._add_trigger(item_name, url)
-        group_id = self.storage.find_group_by_name(name).id
-        action_id = self._add_action(url, trigger_id, group_id)
+        hc = self.storage.find_healthcheck_by_name(name)
+        action_id = self._add_action(url, trigger_id, hc.group_id)
         item = Item(
             url,
             item_id=item_id,
             trigger_id=trigger_id,
             action_id=action_id,
-            group_id=group_id,
+            group_id=hc.group_id,
         )
         self.storage.add_item(item)
 
@@ -65,11 +65,11 @@ class Zabbix(object):
         self.storage.add_healthcheck(hc)
 
     def add_watcher(self, name, email):
-        group_id = self.storage.find_group_by_name(name).id
+        hc = self.storage.find_healthcheck_by_name(name)
         result = self.zapi.user.create(
             alias=email,
             passwd="",
-            usrgrps=[group_id],
+            usrgrps=[hc.group_id],
             user_medias=[{
                 "mediatypeid": "1",
                 "sendto": email,
@@ -79,7 +79,7 @@ class Zabbix(object):
             }],
         )
         user_id = result["userids"][0]
-        user = User(user_id, email, group_id)
+        user = User(user_id, email, hc.group_id)
         self.storage.add_user(user)
 
     def remove_watcher(self, name, email):
