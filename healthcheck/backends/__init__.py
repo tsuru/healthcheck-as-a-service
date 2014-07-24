@@ -22,7 +22,6 @@ class Zabbix(object):
         url = get_value("ZABBIX_URL")
         user = get_value("ZABBIX_USER")
         password = get_value("ZABBIX_PASSWORD")
-        self.host_id = get_value("ZABBIX_HOST")
 
         from pyzabbix import ZabbixAPI
         self.zapi = ZabbixAPI(url)
@@ -94,6 +93,7 @@ class Zabbix(object):
         self.storage.remove_group(group)
 
     def _add_item(self, name, url):
+        hc = self.storage.find_healthcheck_by_name(name)
         item_result = self.zapi.httptest.create(
             name=name,
             steps=[{
@@ -102,7 +102,7 @@ class Zabbix(object):
                 "status_codes": 200,
                 "no": 1,
             }],
-            hostid=self.host_id,
+            hostid=hc.host_id,
         )
         return item_result['httptestids'][0]
 

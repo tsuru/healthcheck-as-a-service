@@ -41,12 +41,17 @@ class ZabbixTest(TestCase):
     def test_add_url(self):
         url = "http://mysite.com"
         name = "healthcheck for {}".format(url)
+
         self.backend.zapi.httptest.create.return_value = {"httptestids": [1]}
         self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
         old_add_action = self.backend._add_action
         self.backend._add_action = mock.Mock()
         self.backend.storage.find_group_by_name.return_value = mock.Mock(id=13)
+        hmock = mock.Mock(host_id="1")
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
+
         self.backend.add_url("hc_name", url)
+
         self.backend.storage.find_group_by_name.assert_called_with("hc_name")
         self.backend.zapi.httptest.create.assert_called_with(
             name=name,
