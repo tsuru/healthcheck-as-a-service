@@ -11,9 +11,6 @@ import os
 
 
 class ZabbixTest(TestCase):
-    def remove_env(self, env):
-        if env in os.environ:
-            del os.environ[env]
 
     @mock.patch("healthcheck.storage.MongoStorage")
     @mock.patch("pyzabbix.ZabbixAPI")
