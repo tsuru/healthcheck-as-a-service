@@ -239,10 +239,10 @@ class ZabbixTest(TestCase):
     def test_remove(self):
         name = "blah"
         id = "someid"
-        group_mock = mock.Mock(id=id, name=name)
-        self.backend.storage.find_group_by_name.return_value = group_mock
+        hmock = mock.Mock(group_id=id)
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
 
         self.backend.remove(name)
 
         self.backend.zapi.usergroup.delete.assert_called_with(id)
-        self.backend.storage.remove_group.assert_called_with(group_mock)
+        self.backend.storage.remove_healthcheck.assert_called_with(hmock)
