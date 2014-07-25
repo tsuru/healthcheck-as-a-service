@@ -4,7 +4,6 @@
 
 from flask import Flask, request
 from flask.ext.admin import Admin
-from flask.ext.admin import Admin, BaseView, expose
 
 from healthcheck import admin as hadmin
 
@@ -16,7 +15,8 @@ app = Flask(__name__)
 app.debug = os.environ.get("API_DEBUG", "0") in ("True", "true", "1")
 
 admin = Admin(app, name="Tsuru healthcheck service")
-admin.add_view(hadmin.HealthcheckAdmin(name='healthchecks', endpoint='healthchecks'))
+admin.add_view(
+    hadmin.HealthcheckAdmin(name='healthchecks', endpoint='healthchecks'))
 admin.add_view(hadmin.UrlAdmin(name='urls', endpoint='urls'))
 admin.add_view(hadmin.WatcherAdmin(name='watchers', endpoint='watchers'))
 
