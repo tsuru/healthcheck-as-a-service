@@ -65,7 +65,7 @@ class APITestCase(unittest.TestCase):
 
     def test_remove(self):
         self.manager.new("blabla")
-        resp = self.api.delete("/blabla")
+        resp = self.api.delete("/resources/blabla")
         self.assertEqual(204, resp.status_code)
         self.assertNotIn("blabla", self.manager.healthchecks)
 

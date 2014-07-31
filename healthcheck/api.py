@@ -68,7 +68,7 @@ def new():
     return "", 201
 
 
-@app.route("/<name>", methods=["DELETE"])
+@app.route("/resources/<name>", methods=["DELETE"])
 def remove(name):
     get_manager().remove(name)
     return "", 204
