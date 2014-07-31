@@ -57,23 +57,6 @@ def remove_url(name, url):
     delete("/{}/url/{}".format(name, url))
 
 
-def new(name):
-    """
-    new creates a new healthcheck account
-    """
-    data = {
-        "name": name,
-    }
-    post("/", data)
-
-
-def remove(name):
-    """
-    remove removes a healthcheck
-    """
-    delete("/{}".format(name))
-
-
 def add_watcher(name, watcher):
     """
     add_watcher creates a new watcher
@@ -96,8 +79,6 @@ def command(command_name):
     commands = {
         "add-url": add_url,
         "remove-url": remove_url,
-        "new": new,
-        "remove": remove,
         "add-watcher": add_watcher,
         "remove-watcher": remove_watcher,
     }
