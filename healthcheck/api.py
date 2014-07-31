@@ -61,7 +61,7 @@ def remove_watcher(name, watcher):
     return "", 204
 
 
-@app.route("/", methods=["POST"])
+@app.route("/resources", methods=["POST"])
 def new():
     name = request.form.get("name")
     get_manager().new(name)

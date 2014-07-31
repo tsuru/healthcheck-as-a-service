@@ -57,7 +57,7 @@ class APITestCase(unittest.TestCase):
 
     def test_new(self):
         resp = self.api.post(
-            "/",
+            "/resources",
             data={"name": "other"}
         )
         self.assertEqual(201, resp.status_code)
