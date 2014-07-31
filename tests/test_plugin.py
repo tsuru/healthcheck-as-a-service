@@ -2,79 +2,113 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-import unittest
 import mock
-import urllib
+import os
+import unittest
 
-from healthcheck.plugin import (add_url, add_watcher, post,
-                                command, main, CommandNotFound,
-                                delete, API_URL, remove_watcher,
-                                remove_url)
+from healthcheck.plugin import (add_url, add_watcher, command, main,
+                                CommandNotFound, remove_watcher, remove_url)
 
 
 class PluginTest(unittest.TestCase):
 
-    @mock.patch("healthcheck.plugin.post")
-    def test_add_url(self, post_mock):
+    def set_envs(self):
+        os.environ["TSURU_TARGET"] = self.target = "https://cloud.tsuru.io/"
+        os.environ["TSURU_TOKEN"] = self.token = "abc123"
+
+    def delete_envs(self):
+        del os.environ["TSURU_TARGET"], os.environ["TSURU_TOKEN"]
+
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
+    def test_add_url(self, Request, urlopen):
+        self.set_envs()
+        self.addCleanup(self.delete_envs)
+
+        request = mock.Mock()
+        Request.return_value = request
+
         add_url("name", "url")
-        expected_data = {
-            "name": "name",
-            "url": "url",
-        }
-        post_mock.assert_called_with("/url", expected_data)
 
-    @mock.patch("healthcheck.plugin.delete")
-    def test_remove_url(self, delete_mock):
+        Request.assert_called_with(
+            'POST',
+            self.target + 'services/proxy/name?callback=/url',
+            headers={
+                'Content-type': 'application/x-www-form-urlencoded',
+                'Accept': 'text/plain'
+            },
+            data={'url': 'url', 'name': 'name'}
+        )
+        request.add_header.assert_called_with("Authorization",
+                                              "bearer " + self.token)
+        urlopen.assert_called_with(request)
+
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
+    def test_remove_url(self, Request, urlopen):
+        self.set_envs()
+        self.addCleanup(self.delete_envs)
+
+        request = mock.Mock()
+        Request.return_value = request
+
         remove_url("name", "url")
-        delete_mock.assert_called_with("/name/url/url")
 
-    @mock.patch("healthcheck.plugin.post")
-    def test_add_watcher(self, post_mock):
+        Request.assert_called_with(
+            'DELETE',
+            self.target + 'services/proxy/name?callback=/name/url/url',
+            headers=None,
+            data=None,
+        )
+        request.add_header.assert_called_with("Authorization",
+                                              "bearer " + self.token)
+        urlopen.assert_called_with(request)
+
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
+    def test_add_watcher(self, Request, urlopen):
+        self.set_envs()
+        self.addCleanup(self.delete_envs)
+
+        request = mock.Mock()
+        Request.return_value = request
+
         add_watcher("name", "watcher@watcher.com")
-        expected_data = {
-            "name": "name",
-            "watcher": "watcher@watcher.com",
-        }
-        post_mock.assert_called_with("/watcher", expected_data)
 
-    @mock.patch("healthcheck.plugin.delete")
-    def test_remove_watcher(self, delete_mock):
+        Request.assert_called_with(
+            'POST',
+            self.target + 'services/proxy/name?callback=/watcher',
+            headers={
+                'Content-type': 'application/x-www-form-urlencoded',
+                'Accept': 'text/plain'
+            },
+            data={'watcher': 'watcher@watcher.com', 'name': 'name'}
+        )
+        request.add_header.assert_called_with("Authorization",
+                                              "bearer " + self.token)
+        urlopen.assert_called_with(request)
+
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
+    def test_remove_watcher(self, Request, urlopen):
+        self.set_envs()
+        self.addCleanup(self.delete_envs)
+
+        request = mock.Mock()
+        Request.return_value = request
+
         remove_watcher("name", "watcher@watcher.com")
-        delete_mock.assert_called_with("/name/watcher/watcher@watcher.com")
 
-    @mock.patch("httplib.HTTPConnection")
-    def test_post(self, http_connection_mock):
-        url = "url"
-        data = {"name": "name"}
-
-        conn_mock = http_connection_mock.return_value
-        resp_mock = conn_mock.getresponse.return_value
-
-        post(url, data)
-
-        http_connection_mock.assert_called_with(API_URL)
-        headers = {
-            'Content-type': 'application/x-www-form-urlencoded',
-            'Accept': 'text/plain'
-        }
-        conn_mock.request.assert_called_with(
-            'POST', url, urllib.urlencode(data), headers)
-        conn_mock.getresponse.assert_called_with()
-        resp_mock.read.assert_called_with()
-
-    @mock.patch("httplib.HTTPConnection")
-    def test_delete(self, http_connection_mock):
-        url = "url"
-
-        conn_mock = http_connection_mock.return_value
-        resp_mock = conn_mock.getresponse.return_value
-
-        delete(url)
-
-        http_connection_mock.assert_called_with(API_URL)
-        conn_mock.request.assert_called_with('DELETE', url)
-        conn_mock.getresponse.assert_called_with()
-        resp_mock.read.assert_called_with()
+        uri = 'services/proxy/name?callback=/name/watcher/watcher@watcher.com'
+        Request.assert_called_with(
+            'DELETE',
+            self.target + uri,
+            headers=None,
+            data=None,
+        )
+        request.add_header.assert_called_with("Authorization",
+                                              "bearer " + self.token)
+        urlopen.assert_called_with(request)
 
     def test_commands(self):
         expected_commands = {
@@ -94,6 +128,3 @@ class PluginTest(unittest.TestCase):
     def test_main(self, add_url_mock):
         main("add-url", "myhc", "http://tsuru.io")
         add_url_mock.assert_called_with("myhc", "http://tsuru.io")
-
-    def test_api_url(self):
-        self.assertEqual("{{ API_URL }}", API_URL)

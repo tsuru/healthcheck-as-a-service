@@ -79,15 +79,11 @@ class APITestCase(unittest.TestCase):
         )
 
     def test_plugin(self):
-        url = "http://bla.com"
-        os.environ["API_URL"] = url
         resp = self.api.get("/plugin")
         self.assertEqual(200, resp.status_code)
         from healthcheck import plugin
-        expected_source = inspect.getsource(plugin).replace(
-            "{{ API_URL }}", url)
+        expected_source = inspect.getsource(plugin)
         self.assertEqual(expected_source, resp.data)
-        self.assertIn(url, resp.data)
 
 
 class GetManagerTestCase(unittest.TestCase):

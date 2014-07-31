@@ -77,8 +77,7 @@ def remove(name):
 @app.route("/plugin", methods=["GET"])
 def plugin():
     from healthcheck import plugin
-    url = os.environ.get("API_URL")
-    source = inspect.getsource(plugin).replace("{{ API_URL }}", url)
+    source = inspect.getsource(plugin)
     return source, 200
 
 

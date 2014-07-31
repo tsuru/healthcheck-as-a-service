@@ -4,12 +4,9 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-import httplib
+import os
 import sys
-import urllib
-
-
-API_URL = "{{ API_URL }}"
+import urllib2
 
 
 class CommandNotFound(Exception):
@@ -19,24 +16,32 @@ class CommandNotFound(Exception):
     pass
 
 
-def request(*args):
-    conn = httplib.HTTPConnection(API_URL)
-    conn.request(*args)
-    resp = conn.getresponse()
-    resp.read()
-    return resp
+def get_env(name):
+    env = os.environ.get(name)
+    if not env:
+        sys.stderr.write("ERROR: missing {}\n".format(name))
+        sys.exit(2)
+    return env
 
 
-def post(url, data):
-    headers = {
-        "Content-type": "application/x-www-form-urlencoded",
-        "Accept": "text/plain"
-    }
-    return request('POST', url, urllib.urlencode(data), headers)
+class Request(urllib2.Request):
+
+    def __init__(self, method, *args, **kwargs):
+        self._method = method
+        urllib2.Request.__init__(*args, **kwargs)
+
+    def get_method(self):
+        return self._method
 
 
-def delete(url):
-    return request('DELETE', url)
+def proxy_request(instance_name, method, path, body=None, headers=None):
+    target = get_env("TSURU_TARGET").rstrip("/")
+    token = get_env("TSURU_TOKEN")
+    url = "{}/services/proxy/{}?callback={}".format(target, instance_name,
+                                                    path)
+    request = Request(method, url, data=body, headers=headers)
+    request.add_header("Authorization", "bearer " + token)
+    return urllib2.urlopen(request)
 
 
 def add_url(name, url):
@@ -47,14 +52,19 @@ def add_url(name, url):
         "name": name,
         "url": url,
     }
-    post("/url", data)
+    headers = {
+        "Content-type": "application/x-www-form-urlencoded",
+        "Accept": "text/plain"
+    }
+    proxy_request(name, "POST", "/url", data, headers)
 
 
 def remove_url(name, url):
     """
     remove_url removes the url checker
     """
-    delete("/{}/url/{}".format(name, url))
+    url = "/{}/url/{}".format(name, url)
+    proxy_request(name, "DELETE", url)
 
 
 def add_watcher(name, watcher):
@@ -65,14 +75,19 @@ def add_watcher(name, watcher):
         "name": name,
         "watcher": watcher,
     }
-    post("/watcher", data)
+    headers = {
+        "Content-type": "application/x-www-form-urlencoded",
+        "Accept": "text/plain"
+    }
+    proxy_request(name, "POST", "/watcher", data, headers)
 
 
 def remove_watcher(name, watcher):
     """
     remove_watcher creates a new watcher
     """
-    delete("/{}/watcher/{}".format(name, watcher))
+    url = "/{}/watcher/{}".format(name, watcher)
+    proxy_request(name, "DELETE", url)
 
 
 def command(command_name):
