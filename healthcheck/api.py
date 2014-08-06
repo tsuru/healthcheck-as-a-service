@@ -6,6 +6,7 @@ from flask import Flask, request
 from flask.ext.admin import Admin
 
 from healthcheck import admin as hadmin
+from . import auth
 
 import inspect
 import os
@@ -34,6 +35,7 @@ def get_manager():
 
 
 @app.route("/url", methods=["POST"])
+@auth.required
 def add_url():
     name = request.form.get("name")
     url = request.form.get("url")
@@ -42,12 +44,14 @@ def add_url():
 
 
 @app.route("/<name>/url/<path:url>", methods=["DELETE"])
+@auth.required
 def remove_url(name, url):
     get_manager().remove_url(name, url)
     return "", 204
 
 
 @app.route("/watcher", methods=["POST"])
+@auth.required
 def add_watcher():
     name = request.form.get("name")
     watcher = request.form.get("watcher")
@@ -56,12 +60,14 @@ def add_watcher():
 
 
 @app.route("/<name>/watcher/<watcher>", methods=["DELETE"])
+@auth.required
 def remove_watcher(name, watcher):
     get_manager().remove_watcher(name, watcher)
     return "", 204
 
 
 @app.route("/resources", methods=["POST"])
+@auth.required
 def new():
     name = request.form.get("name")
     get_manager().new(name)
@@ -69,6 +75,7 @@ def new():
 
 
 @app.route("/resources/<name>", methods=["DELETE"])
+@auth.required
 def remove(name):
     get_manager().remove(name)
     return "", 204
