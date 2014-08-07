@@ -22,6 +22,7 @@ class Zabbix(object):
         url = get_value("ZABBIX_URL")
         user = get_value("ZABBIX_USER")
         password = get_value("ZABBIX_PASSWORD")
+        self.host_group_id = get_value("ZABBIX_HOST_GROUP")
 
         from pyzabbix import ZabbixAPI
         self.zapi = ZabbixAPI(url)
@@ -53,12 +54,11 @@ class Zabbix(object):
         self.storage.remove_item(item)
 
     def new(self, name):
-        host_group = self._add_host_group(name)
-        host = self._add_host(name, host_group)
-        group = self._add_group(name, host_group)
+        host = self._add_host(name, self.host_group_id)
+        group = self._add_group(name, self.host_group_id)
         hc = HealthCheck(
             name=name,
-            host_group_id=host_group,
+            host_group_id=self.host_group_id,
             host_id=host,
             group_id=group
         )
@@ -159,12 +159,6 @@ class Zabbix(object):
             rights={"permission": 2, "id": host_group},
         )
         return result["usrgrpids"][0]
-
-    def _add_host_group(self, name):
-        self.zapi.hostgroup.create(name=name)
-
-    def _remove_host_group(self, id):
-        self.zapi.hostgroup.delete([id])
 
     def _add_host(self, name, host_group):
         self.zapi.host.create(host=name, groups=[host_group])
