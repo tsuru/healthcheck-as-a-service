@@ -185,7 +185,7 @@ class ZabbixTest(TestCase):
             'port': '10050'
         }]
         self.backend.zapi.host.create.assert_called_with(
-            interfaces=expected, host=name, groups=["123"])
+            interfaces=expected, host=name, groups=[{"groupid": "123"}])
 
     def test_remove_host(self):
         id = "id"

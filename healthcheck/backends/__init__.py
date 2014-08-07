@@ -163,7 +163,7 @@ class Zabbix(object):
     def _add_host(self, name, host_group):
         self.zapi.host.create(
             host=name,
-            groups=[host_group],
+            groups=[{"groupid": host_group}],
             interfaces=[{
                 "type": 1,
                 "main": 1,
