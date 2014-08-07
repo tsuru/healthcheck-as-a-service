@@ -176,8 +176,16 @@ class ZabbixTest(TestCase):
         name = "host name"
         self.backend.zapi.host.create.return_value = {"hostids": [2]}
         self.backend._add_host(name, host_group="123")
+        expected = [{
+            'ip': '127.0.0.1',
+            'useip': 1,
+            'dns': '',
+            'main': 1,
+            'type': 1,
+            'port': '10050'
+        }]
         self.backend.zapi.host.create.assert_called_with(
-            host=name, groups=["123"])
+            interfaces=expected, host=name, groups=["123"])
 
     def test_remove_host(self):
         id = "id"
