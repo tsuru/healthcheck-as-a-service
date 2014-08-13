@@ -1,0 +1,3 @@
+id: healthcheck
+endpoint:
+  production: uri
