@@ -18,5 +18,16 @@ class Pipeline(object):
         self.actions = actions
 
     def execute(self):
-        for action in self.actions:
-            action.forward()
+        try:
+            for action in self.actions:
+                action.forward()
+        except:
+            self.rollback(action)
+
+    def rollback(self, action):
+        index = self.actions.index(action) - 1
+
+        while index >= 0:
+            action = self.actions[index]
+            action.backward()
+            index = index - 1

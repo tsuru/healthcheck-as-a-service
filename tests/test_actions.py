@@ -33,3 +33,15 @@ class PipelineTest(unittest.TestCase):
         pipeline.execute()
 
         action.forward.assert_called_with()
+
+    def test_rollback(self):
+        action = mock.Mock()
+        action2 = mock.Mock()
+        action2.forward.side_effect = NotImplementedError()
+        pipeline = Pipeline(actions=[action, action2])
+
+        pipeline.execute()
+
+        action.forward.assert_called_with()
+        action.backward.assert_called_with()
+        action2.forward.assert_called_with()
