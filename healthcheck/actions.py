@@ -16,3 +16,7 @@ class Pipeline(object):
 
     def __init__(self, actions):
         self.actions = actions
+
+    def execute(self):
+        for action in self.actions:
+            action.forward()

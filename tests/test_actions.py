@@ -25,3 +25,11 @@ class PipelineTest(unittest.TestCase):
         action = mock.Mock()
         pipeline = Pipeline(actions=[action])
         self.assertListEqual(pipeline.actions, [action])
+
+    def test_execute(self):
+        action = mock.Mock()
+        pipeline = Pipeline(actions=[action])
+
+        pipeline.execute()
+
+        action.forward.assert_called_with()
