@@ -10,3 +10,9 @@ class Action(object):
 
     def forward(self):
         raise NotImplementedError()
+
+
+class Pipeline(object):
+
+    def __init__(self, actions):
+        self.actions = actions

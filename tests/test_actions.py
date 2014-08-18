@@ -4,7 +4,9 @@
 
 import unittest
 
-from healthcheck.actions import Action
+import mock
+
+from healthcheck.actions import Action, Pipeline
 
 
 class ActionTest(unittest.TestCase):
@@ -15,3 +17,11 @@ class ActionTest(unittest.TestCase):
 
         with self.assertRaises(NotImplementedError):
             Action().backward()
+
+
+class PipelineTest(unittest.TestCase):
+
+    def test_pipeline(self):
+        action = mock.Mock()
+        pipeline = Pipeline(actions=[action])
+        self.assertListEqual(pipeline.actions, [action])
