@@ -1,3 +1,4 @@
 id: healthcheck
+password: abc123
 endpoint:
   production: uri
