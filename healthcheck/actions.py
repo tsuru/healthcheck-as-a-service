@@ -17,17 +17,17 @@ class Pipeline(object):
     def __init__(self, actions):
         self.actions = actions
 
-    def execute(self):
+    def execute(self, **kwargs):
         try:
             for action in self.actions:
-                action.forward()
+                action.forward(**kwargs)
         except:
-            self.rollback(action)
+            self.rollback(action, **kwargs)
 
-    def rollback(self, action):
+    def rollback(self, action, **kwargs):
         index = self.actions.index(action) - 1
 
         while index >= 0:
             action = self.actions[index]
-            action.backward()
+            action.backward(**kwargs)
             index = index - 1
