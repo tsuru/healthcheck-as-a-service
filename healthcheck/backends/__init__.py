@@ -90,6 +90,7 @@ class Zabbix(object):
     def remove(self, name):
         healthcheck = self.storage.find_healthcheck_by_name(name)
         self._remove_group(healthcheck.group_id)
+        self._remove_host(healthcheck.host_id)
         self.storage.remove_healthcheck(healthcheck)
 
     def _add_item(self, name, url):
