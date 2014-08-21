@@ -194,7 +194,7 @@ class ZabbixTest(TestCase):
     def test_remove_host(self):
         id = "id"
         self.backend._remove_host(id)
-        self.backend.zapi.host.delete.assert_called_with(["id"])
+        self.backend.zapi.host.delete.assert_called_with("id")
 
     def test_new(self):
         name = "blah"
@@ -239,5 +239,5 @@ class ZabbixTest(TestCase):
         self.backend.remove(name)
 
         self.backend.zapi.usergroup.delete.assert_called_with(id)
-        self.backend.zapi.host.delete.assert_called_with([id])
+        self.backend.zapi.host.delete.assert_called_with(id)
         self.backend.storage.remove_healthcheck.assert_called_with(hmock)

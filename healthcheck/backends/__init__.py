@@ -177,7 +177,7 @@ class Zabbix(object):
         return result["hostids"][0]
 
     def _remove_host(self, id):
-        self.zapi.host.delete([id])
+        self.zapi.host.delete(id)
 
     def _remove_group(self, id):
         self.zapi.usergroup.delete(id)
