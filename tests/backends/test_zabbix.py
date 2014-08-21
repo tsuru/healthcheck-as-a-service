@@ -175,7 +175,11 @@ class ZabbixTest(TestCase):
     def test_add_host(self):
         name = "host name"
         self.backend.zapi.host.create.return_value = {"hostids": [2]}
-        self.backend._add_host(name, host_group="123")
+
+        result = self.backend._add_host(name, host_group="123")
+
+        self.assertEqual(result, 2)
+
         expected = [{
             'ip': '127.0.0.1',
             'useip': 1,

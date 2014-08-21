@@ -162,7 +162,7 @@ class Zabbix(object):
         return result["usrgrpids"][0]
 
     def _add_host(self, name, host_group):
-        self.zapi.host.create(
+        result = self.zapi.host.create(
             host=name,
             groups=[{"groupid": host_group}],
             interfaces=[{
@@ -174,6 +174,7 @@ class Zabbix(object):
                 "port": "10050"
             }]
         )
+        return result["hostids"][0]
 
     def _remove_host(self, id):
         self.zapi.host.delete([id])
