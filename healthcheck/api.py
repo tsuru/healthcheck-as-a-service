@@ -6,7 +6,7 @@ from flask import Flask, request
 from flask.ext.admin import Admin
 
 from healthcheck import admin as hadmin
-from . import auth
+from healthcheck import auth
 
 import inspect
 import os
@@ -89,4 +89,4 @@ def plugin():
 
 
 if __name__ == "__main__":
-    app.run(port=8888, debug=True)
+    app.run(host="0.0.0.0", port=8888, debug=True)
