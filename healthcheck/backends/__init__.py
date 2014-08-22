@@ -33,9 +33,8 @@ class Zabbix(object):
         self.storage.conn()
 
     def add_url(self, name, url):
-        item_name = "healthcheck for {}".format(url)
-        item_id = self._add_item(item_name, url)
-        trigger_id = self._add_trigger(item_name, url)
+        item_id = self._add_item(name, url)
+        trigger_id = self._add_trigger(url)
         hc = self.storage.find_healthcheck_by_name(name)
         action_id = self._add_action(url, trigger_id, hc.group_id)
         item = Item(
@@ -93,12 +92,13 @@ class Zabbix(object):
         self._remove_host(healthcheck.host_id)
         self.storage.remove_healthcheck(healthcheck)
 
-    def _add_item(self, name, url):
-        hc = self.storage.find_healthcheck_by_name(name)
+    def _add_item(self, healthcheck_name, url):
+        hc = self.storage.find_healthcheck_by_name(healthcheck_name)
+        item_name = "healthcheck for {}".format(url)
         item_result = self.zapi.httptest.create(
-            name=name,
+            name=item_name,
             steps=[{
-                "name": name,
+                "name": item_name,
                 "url": url,
                 "status_codes": 200,
                 "no": 1,
@@ -107,11 +107,12 @@ class Zabbix(object):
         )
         return item_result['httptestids'][0]
 
-    def _add_trigger(self, name, url):
+    def _add_trigger(self, url):
+        item_name = "healthcheck for {}".format(url)
         expression = "{{Zabbix Server:web.test.rspcode[{},{}].last()}}#200"
         trigger_result = self.zapi.trigger.create(
             description="trigger for url {}".format(url),
-            expression=expression.format(name, name),
+            expression=expression.format(item_name, item_name),
             priority=5,
         )
         return trigger_result['triggerids'][0]

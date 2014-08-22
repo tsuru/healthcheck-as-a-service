@@ -40,7 +40,8 @@ class ZabbixTest(TestCase):
 
     def test_add_url(self):
         url = "http://mysite.com"
-        name = "healthcheck for {}".format(url)
+        hc_name = "hc_name"
+        item_name = "healthcheck for {}".format(url)
 
         self.backend.zapi.httptest.create.return_value = {"httptestids": [1]}
         self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
@@ -49,14 +50,14 @@ class ZabbixTest(TestCase):
         hmock = mock.Mock(host_id="1", group_id=13)
         self.backend.storage.find_healthcheck_by_name.return_value = hmock
 
-        self.backend.add_url("hc_name", url)
+        self.backend.add_url(hc_name, url)
 
         self.backend.storage.find_healthcheck_by_name.assert_called_with(
-            "hc_name")
+            hc_name)
         self.backend.zapi.httptest.create.assert_called_with(
-            name=name,
+            name=item_name,
             steps=[{
-                "name": name,
+                "name": item_name,
                 "url": url,
                 "status_codes": 200,
                 "no": 1,
@@ -66,7 +67,7 @@ class ZabbixTest(TestCase):
         expression = "{{Zabbix Server:web.test.rspcode[{},{}].last()}}#200"
         self.backend.zapi.trigger.create.assert_called_with(
             description="trigger for url {}".format(url),
-            expression=expression.format(name, name),
+            expression=expression.format(item_name, item_name),
             priority=5,
         )
         self.assertTrue(self.backend.storage.add_item.called)
