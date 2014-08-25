@@ -64,7 +64,7 @@ class ZabbixTest(TestCase):
             }],
             hostid="1",
         )
-        expression = "{{Zabbix Server:web.test.rspcode[{},{}].last()}}#200"
+        expression = "{{%s:web.test.rspcode[{},{}].last()}}#200" % hc_name
         self.backend.zapi.trigger.create.assert_called_with(
             description="trigger for url {}".format(url),
             expression=expression.format(item_name, item_name),

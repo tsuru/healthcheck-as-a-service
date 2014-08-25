@@ -33,9 +33,9 @@ class Zabbix(object):
         self.storage.conn()
 
     def add_url(self, name, url):
-        item_id = self._add_item(name, url)
-        trigger_id = self._add_trigger(url)
         hc = self.storage.find_healthcheck_by_name(name)
+        item_id = self._add_item(name, url)
+        trigger_id = self._add_trigger(name, url)
         action_id = self._add_action(url, trigger_id, hc.group_id)
         item = Item(
             url,
@@ -107,9 +107,9 @@ class Zabbix(object):
         )
         return item_result['httptestids'][0]
 
-    def _add_trigger(self, url):
+    def _add_trigger(self, host_name, url):
         item_name = "healthcheck for {}".format(url)
-        expression = "{{Zabbix Server:web.test.rspcode[{},{}].last()}}#200"
+        expression = "{{%s:web.test.rspcode[{},{}].last()}}#200" % host_name
         trigger_result = self.zapi.trigger.create(
             description="trigger for url {}".format(url),
             expression=expression.format(item_name, item_name),
