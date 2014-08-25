@@ -70,13 +70,29 @@ class APITestCase(unittest.TestCase):
     def test_add_watcher(self):
         resp = self.api.post(
             "/watcher",
-            data={"name": "hc", "watcher": "watcher@watcher.com"}
+            data=json.dumps({"name": "hc", "watcher": "watcher@watcher.com"})
         )
         self.assertEqual(201, resp.status_code)
         self.assertIn(
             "watcher@watcher.com",
             self.manager.healthchecks["hc"]["users"]
         )
+
+    def test_add_watcher_bad_request(self):
+        resp = self.api.post("/watcher")
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(resp.data, "name and watcher are required")
+
+        resp = self.api.post("/watcher", data=json.dumps({"name": "hc"}))
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(resp.data, "name and watcher are required")
+
+        resp = self.api.post(
+            "/watcher",
+            data=json.dumps({"watcher": "watcher@watcher.com"})
+        )
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(resp.data, "name and watcher are required")
 
     def test_new(self):
         resp = self.api.post(

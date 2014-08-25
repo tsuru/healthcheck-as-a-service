@@ -63,9 +63,18 @@ def remove_url(name, url):
 @app.route("/watcher", methods=["POST"])
 @auth.required
 def add_watcher():
-    name = request.form.get("name")
-    watcher = request.form.get("watcher")
+    if not request.data:
+        return "name and watcher are required", 400
+
+    data = json.loads(request.data)
+
+    if "name" not in data or "watcher" not in data:
+        return "name and watcher are required", 400
+
+    name = data["name"]
+    watcher = data["watcher"]
     get_manager().add_watcher(name, watcher)
+
     return "", 201
 
 
