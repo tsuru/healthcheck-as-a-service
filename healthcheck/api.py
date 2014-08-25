@@ -8,6 +8,7 @@ from flask.ext.admin import Admin
 from healthcheck import admin as hadmin
 from healthcheck import auth
 
+import json
 import inspect
 import os
 
@@ -37,9 +38,18 @@ def get_manager():
 @app.route("/url", methods=["POST"])
 @auth.required
 def add_url():
-    name = request.form.get("name")
-    url = request.form.get("url")
+    if not request.data:
+        return "name and url are required", 400
+
+    data = json.loads(request.data)
+
+    if "name" not in data or "url" not in data:
+        return "name and url are required", 400
+
+    name = data["name"]
+    url = data["url"]
     get_manager().add_url(name, url)
+
     return "", 201
 
 

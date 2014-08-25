@@ -1,7 +1,9 @@
 # Copyright 2014 healthcheck-as-a-service authors. All rights reserved.
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
+
 import unittest
+import json
 import mock
 import inspect
 import os
@@ -27,13 +29,34 @@ class APITestCase(unittest.TestCase):
     def test_add_url(self):
         resp = self.api.post(
             "/url",
-            data={"name": "hc", "url": "http://bla.com"}
+            data=json.dumps({"name": "hc", "url": "http://bla.com"})
         )
         self.assertEqual(201, resp.status_code)
         self.assertIn(
             "http://bla.com",
             self.manager.healthchecks["hc"]["urls"]
         )
+
+    def test_add_url_bad_request(self):
+        resp = self.api.post(
+            "/url",
+        )
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(resp.data, 'name and url are required')
+
+        resp = self.api.post(
+            "/url",
+            data=json.dumps({"name": "hc"})
+        )
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(resp.data, 'name and url are required')
+
+        resp = self.api.post(
+            "/url",
+            data=json.dumps({"url": "http://bla.com"})
+        )
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(resp.data, 'name and url are required')
 
     def test_remove_url(self):
         self.manager.add_url("hc", "http://bla.com")
