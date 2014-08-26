@@ -5,6 +5,7 @@
 # license that can be found in the LICENSE file.
 
 import os
+import json
 import sys
 import urllib2
 
@@ -43,6 +44,10 @@ def proxy_request(instance_name, method, path, body=None, headers=None):
 
     url = "{}/services/proxy/{}?callback={}".format(target, instance_name,
                                                     path)
+
+    if body:
+        body = json.dumps(body)
+
     request = Request(method, url, data=body, headers=headers)
     request.add_header("Authorization", "bearer " + token)
     return urllib2.urlopen(request)

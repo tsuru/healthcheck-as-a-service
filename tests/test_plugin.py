@@ -3,6 +3,7 @@
 # license that can be found in the LICENSE file.
 
 import mock
+import json
 import os
 import unittest
 
@@ -37,7 +38,7 @@ class PluginTest(unittest.TestCase):
                 'Content-type': 'application/x-www-form-urlencoded',
                 'Accept': 'text/plain'
             },
-            data={'url': 'url', 'name': 'name'}
+            data=json.dumps({'url': 'url', 'name': 'name'})
         )
         request.add_header.assert_called_with("Authorization",
                                               "bearer " + self.token)
@@ -82,7 +83,7 @@ class PluginTest(unittest.TestCase):
                 'Content-type': 'application/x-www-form-urlencoded',
                 'Accept': 'text/plain'
             },
-            data={'watcher': 'watcher@watcher.com', 'name': 'name'}
+            data=json.dumps({'watcher': 'watcher@watcher.com', 'name': 'name'})
         )
         request.add_header.assert_called_with("Authorization",
                                               "bearer " + self.token)
