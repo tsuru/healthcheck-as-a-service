@@ -108,7 +108,8 @@ def main(cmd, *args):
     try:
         command(cmd)(*args)
     except CommandNotFound as e:
-        print e
+        sys.stderr.write(unicode(e) + u"\n")
+        sys.exit(2)
 
 
 if __name__ == "__main__":
