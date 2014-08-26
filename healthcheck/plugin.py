@@ -57,6 +57,8 @@ def add_url(name, url):
         "Accept": "text/plain"
     }
     proxy_request(name, "POST", "/url", data, headers)
+    msg = "url {} successfully added!".format(url)
+    sys.stdout.write(msg)
 
 
 def remove_url(name, url):
@@ -65,6 +67,8 @@ def remove_url(name, url):
     """
     url = "/{}/url/{}".format(name, url)
     proxy_request(name, "DELETE", url)
+    msg = "url {} successfully removed!".format(url)
+    sys.stdout.write(msg)
 
 
 def add_watcher(name, watcher):
@@ -80,6 +84,8 @@ def add_watcher(name, watcher):
         "Accept": "text/plain"
     }
     proxy_request(name, "POST", "/watcher", data, headers)
+    msg = "watcher {} successfully added!".format(watcher)
+    sys.stdout.write(msg)
 
 
 def remove_watcher(name, watcher):
@@ -88,6 +94,8 @@ def remove_watcher(name, watcher):
     """
     url = "/{}/watcher/{}".format(name, watcher)
     proxy_request(name, "DELETE", url)
+    msg = "watcher {} successfully removed!".format(watcher)
+    sys.stdout.write(msg)
 
 
 def command(command_name):
