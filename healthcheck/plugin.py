@@ -37,6 +37,10 @@ class Request(urllib2.Request):
 def proxy_request(instance_name, method, path, body=None, headers=None):
     target = get_env("TSURU_TARGET").rstrip("/")
     token = get_env("TSURU_TOKEN")
+
+    if not target.startswith("http://") and not target.startswith("https://"):
+        target = "http://{}".format(target)
+
     url = "{}/services/proxy/{}?callback={}".format(target, instance_name,
                                                     path)
     request = Request(method, url, data=body, headers=headers)
