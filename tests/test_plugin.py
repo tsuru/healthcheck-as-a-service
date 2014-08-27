@@ -34,14 +34,15 @@ class PluginTest(unittest.TestCase):
         Request.assert_called_with(
             'POST',
             self.target + 'services/proxy/name?callback=/url',
-            headers={
-                'Content-type': 'application/x-www-form-urlencoded',
-                'Accept': 'text/plain'
-            },
             data=json.dumps({'url': 'url', 'name': 'name'})
         )
-        request.add_header.assert_called_with("Authorization",
-                                              "bearer " + self.token)
+
+        calls = [
+            mock.call("authorization", "bearer {}".format(self.token)),
+            mock.call("content-type", "application/x-www-form-urlencoded"),
+            mock.call("accept", "text/plain"),
+        ]
+        request.add_header.has_calls(calls)
         urlopen.assert_called_with(request, timeout=30)
 
     @mock.patch("urllib2.urlopen")
@@ -58,7 +59,6 @@ class PluginTest(unittest.TestCase):
         Request.assert_called_with(
             'DELETE',
             self.target + 'services/proxy/name?callback=/name/url/url',
-            headers=None,
             data=None,
         )
         request.add_header.assert_called_with("Authorization",
@@ -79,14 +79,15 @@ class PluginTest(unittest.TestCase):
         Request.assert_called_with(
             'POST',
             self.target + 'services/proxy/name?callback=/watcher',
-            headers={
-                'Content-type': 'application/x-www-form-urlencoded',
-                'Accept': 'text/plain'
-            },
             data=json.dumps({'watcher': 'watcher@watcher.com', 'name': 'name'})
         )
-        request.add_header.assert_called_with("Authorization",
-                                              "bearer " + self.token)
+
+        calls = [
+            mock.call("authorization", "bearer {}".format(self.token)),
+            mock.call("content-type", "application/x-www-form-urlencoded"),
+            mock.call("accept", "text/plain"),
+        ]
+        request.add_header.has_calls(calls)
         urlopen.assert_called_with(request, timeout=30)
 
     @mock.patch("urllib2.urlopen")
@@ -104,7 +105,6 @@ class PluginTest(unittest.TestCase):
         Request.assert_called_with(
             'DELETE',
             self.target + uri,
-            headers=None,
             data=None,
         )
         request.add_header.assert_called_with("Authorization",

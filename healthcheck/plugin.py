@@ -48,8 +48,13 @@ def proxy_request(instance_name, method, path, body=None, headers=None):
     if body:
         body = json.dumps(body)
 
-    request = Request(method, url, data=body, headers=headers)
+    request = Request(method, url, data=body)
     request.add_header("Authorization", "bearer " + token)
+
+    if headers:
+        for header, value in headers.items():
+            request.add_header(header, value)
+
     return urllib2.urlopen(request, timeout=30)
 
 
