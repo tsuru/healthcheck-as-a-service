@@ -50,7 +50,7 @@ def proxy_request(instance_name, method, path, body=None, headers=None):
 
     request = Request(method, url, data=body, headers=headers)
     request.add_header("Authorization", "bearer " + token)
-    return urllib2.urlopen(request)
+    return urllib2.urlopen(request, timeout=30)
 
 
 def add_url(name, url):

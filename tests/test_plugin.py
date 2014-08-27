@@ -42,7 +42,7 @@ class PluginTest(unittest.TestCase):
         )
         request.add_header.assert_called_with("Authorization",
                                               "bearer " + self.token)
-        urlopen.assert_called_with(request)
+        urlopen.assert_called_with(request, timeout=30)
 
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
@@ -63,7 +63,7 @@ class PluginTest(unittest.TestCase):
         )
         request.add_header.assert_called_with("Authorization",
                                               "bearer " + self.token)
-        urlopen.assert_called_with(request)
+        urlopen.assert_called_with(request, timeout=30)
 
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
@@ -87,7 +87,7 @@ class PluginTest(unittest.TestCase):
         )
         request.add_header.assert_called_with("Authorization",
                                               "bearer " + self.token)
-        urlopen.assert_called_with(request)
+        urlopen.assert_called_with(request, timeout=30)
 
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
@@ -109,7 +109,7 @@ class PluginTest(unittest.TestCase):
         )
         request.add_header.assert_called_with("Authorization",
                                               "bearer " + self.token)
-        urlopen.assert_called_with(request)
+        urlopen.assert_called_with(request, timeout=30)
 
     def test_commands(self):
         expected_commands = {
