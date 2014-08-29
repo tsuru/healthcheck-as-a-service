@@ -77,24 +77,24 @@ class MongoStorageTest(unittest.TestCase):
     @mock.patch("pymongo.MongoClient")
     def test_mongodb_host_environ(self, mongo_mock):
         self.storage.conn()
-        mongo_mock.assert_called_with(host="localhost", port=27017)
+        mongo_mock.assert_called_with('mongodb://localhost:27017/')
 
-        os.environ["MONGODB_HOST"] = "0.0.0.0"
-        self.addCleanup(self.remove_env, "MONGODB_HOST")
+        os.environ["MONGODB_URI"] = "mongodb://myhost:2222/"
+        self.addCleanup(self.remove_env, "MONGODB_URI")
         storage = MongoStorage()
         storage.conn()
-        mongo_mock.assert_called_with(host="0.0.0.0", port=27017)
+        mongo_mock.assert_called_with('mongodb://myhost:2222/')
 
     @mock.patch("pymongo.MongoClient")
     def test_mongodb_port_environ(self, mongo_mock):
         self.storage.conn()
-        mongo_mock.assert_called_with(host='localhost', port=27017)
+        mongo_mock.assert_called_with('mongodb://localhost:27017/')
 
-        os.environ["MONGODB_PORT"] = "3333"
-        self.addCleanup(self.remove_env, "MONGODB_PORT")
+        os.environ["MONGODB_URI"] = "mongodb://myhost:2222/"
+        self.addCleanup(self.remove_env, "MONGODB_URI")
         storage = MongoStorage()
         storage.conn()
-        mongo_mock.assert_called_with(host='localhost', port=3333)
+        mongo_mock.assert_called_with('mongodb://myhost:2222/')
 
     def test_add_item(self):
         self.storage.add_item(self.item)
