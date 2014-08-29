@@ -10,13 +10,6 @@ import sys
 import urllib2
 
 
-class CommandNotFound(Exception):
-    """
-    Exception raised when a command is not found in the registered commands.
-    """
-    pass
-
-
 def get_env(name):
     env = os.environ.get(name)
     if not env:
@@ -119,19 +112,22 @@ def command(command_name):
         "add-watcher": add_watcher,
         "remove-watcher": remove_watcher,
     }
-    if command_name not in commands:
-        raise CommandNotFound(
-            "Command '{}' does not exist".format(command_name)
-        )
-    return commands[command_name]
+    if command_name in commands:
+        return commands[command_name]
+
+    sys.stdout.write("Usage: tsuru <plugin> command [args]\n\n")
+    sys.stdout.write("Available commands:\n")
+
+    for name in commands.keys():
+        sys.stdout.write("  {}\n".format(name))
+
+    msg = "Use tsuru <plugin> help <commandname> to get more information."
+    sys.stdout.write(msg)
+    sys.exit(2)
 
 
 def main(cmd, *args):
-    try:
-        command(cmd)(*args)
-    except CommandNotFound as e:
-        sys.stderr.write(unicode(e) + u"\n")
-        sys.exit(2)
+    command(cmd)(*args)
 
 
 if __name__ == "__main__":
