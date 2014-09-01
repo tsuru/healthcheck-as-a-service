@@ -102,7 +102,7 @@ def add_watcher(name, watcher):
 
         add-watcher <instance-name> <email>
 
-    Example
+    Example:
 
         tsuru {plugin-name} add-watcher mysite mysite+monit@mycompany.com
     """
@@ -121,7 +121,14 @@ def add_watcher(name, watcher):
 
 def remove_watcher(name, watcher):
     """
-    remove_watcher creates a new watcher
+    remove-watcher removes the specified watcher from the given monitoring
+    instance. Usage:
+
+        remove-watcher <instance-name> <email>
+
+    Example:
+
+        tsuru {plugin-name} remove-watcher mysite mysite+monit@mycompany.com
     """
     url = "/{}/watcher/{}".format(name, watcher)
     proxy_request(name, "DELETE", url)
