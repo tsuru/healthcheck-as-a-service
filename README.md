@@ -7,11 +7,11 @@ This project is a http API to abstract healthcheck operations, like verify if a 
 ## supported backends:
 
  * [zabbix](http://zabbix.com)
-    
+
 ## configuring
 
 * `API_URL` - the api base url
-* `API_DEBUG` - enables the debug mode 
+* `API_DEBUG` - enables the debug mode
 
 ### zabbix backend
 
@@ -42,7 +42,7 @@ tsuru plugin-install hc <API-URL>/plugin
 
 ### adding a new url to be monitored
 
-    $ tsuru hc add-url <healthcheck-name> <url>
+    $ tsuru hc add-url <healthcheck-name> <url> [expected string]
 
 ## removing a url
 
