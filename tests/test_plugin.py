@@ -47,6 +47,32 @@ class PluginTest(unittest.TestCase):
 
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
+    def test_add_url_three_args(self, Request, urlopen):
+        self.set_envs()
+        self.addCleanup(self.delete_envs)
+
+        request = mock.Mock()
+        Request.return_value = request
+
+        add_url("name", "url", "WORKING")
+
+        Request.assert_called_with(
+            'POST',
+            self.target + 'services/proxy/name?callback=/url',
+            data=json.dumps({'url': 'url', 'name': 'name',
+                             'expected_string': 'WORKING'})
+        )
+
+        calls = [
+            mock.call("authorization", "bearer {}".format(self.token)),
+            mock.call("content-type", "application/x-www-form-urlencoded"),
+            mock.call("accept", "text/plain"),
+        ]
+        request.add_header.has_calls(calls)
+        urlopen.assert_called_with(request, timeout=30)
+
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
     def test_remove_url(self, Request, urlopen):
         self.set_envs()
         self.addCleanup(self.delete_envs)

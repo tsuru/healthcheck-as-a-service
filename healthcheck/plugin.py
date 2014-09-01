@@ -51,7 +51,7 @@ def proxy_request(instance_name, method, path, body=None, headers=None):
     return urllib2.urlopen(request, timeout=30)
 
 
-def add_url(name, url):
+def add_url(name, url, expected_string=None):
     """
     add_url creates a new url checker
     """
@@ -59,6 +59,8 @@ def add_url(name, url):
         "name": name,
         "url": url,
     }
+    if expected_string:
+        data["expected_string"] = expected_string
     headers = {
         "Content-type": "application/x-www-form-urlencoded",
         "Accept": "text/plain"
