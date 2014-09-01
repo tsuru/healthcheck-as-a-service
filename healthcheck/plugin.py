@@ -53,9 +53,9 @@ def proxy_request(instance_name, method, path, body=None, headers=None):
 
 def add_url(name, url, expected_string=None):
     """
-    add-url creates a new url checker, using the provided parameters. Usage:
+    add-url add a new url checker to the given instance. Usage:
 
-        add-url <name> <url> [expected_string]
+        add-url <instance-name> <url> [expected_string]
 
     expected_string is an optional parameter that represents the string that
     the healthcheck should expect to find in the body of the response. Example:
@@ -79,7 +79,8 @@ def add_url(name, url, expected_string=None):
 
 def remove_url(name, url):
     """
-    remove-url removes the specified url checker. Usage:
+    remove-url removes the specified url checker from the specified instance.
+    Usage:
 
         remove-url <name> <url>
 
@@ -95,7 +96,15 @@ def remove_url(name, url):
 
 def add_watcher(name, watcher):
     """
-    add_watcher creates a new watcher
+    add-watcher creates a new watcher for the given monitoring instance. A
+    watcher is an email address that will receive notifications for this
+    instance. Usage:
+
+        add-watcher <instance-name> <email>
+
+    Example
+
+        tsuru {plugin-name} add-watcher mysite mysite+monit@mycompany.com
     """
     data = {
         "name": name,
