@@ -53,7 +53,7 @@ def proxy_request(instance_name, method, path, body=None, headers=None):
 
 def add_url(name, url, expected_string=None):
     """
-    add_url creates a new url checker, using the provided parameters. Usage:
+    add-url creates a new url checker, using the provided parameters. Usage:
 
         add-url <name> <url> [expected_string]
 
@@ -79,7 +79,7 @@ def add_url(name, url, expected_string=None):
 
 def remove_url(name, url):
     """
-    remove_url removes the specified url checker. Usage:
+    remove-url removes the specified url checker. Usage:
 
         remove-url <name> <url>
 
