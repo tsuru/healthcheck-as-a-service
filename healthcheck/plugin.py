@@ -14,7 +14,7 @@ def get_env(name):
     env = os.environ.get(name)
     if not env:
         sys.stderr.write("ERROR: missing {}\n".format(name))
-        sys.exit(2)
+        sys.exit(5)
     return env
 
 
@@ -60,7 +60,7 @@ def add_url(name, url, expected_string=None):
     expected_string is an optional parameter that represents the string that
     the healthcheck should expect to find in the body of the response. Example:
 
-        tsuru {plugin-name} add-url mysite http://mysite.com/hc WORKING
+        tsuru {plugin_name} add-url mysite http://mysite.com/hc WORKING
     """
     data = {
         "name": name,
@@ -86,7 +86,7 @@ def remove_url(name, url):
 
     Example:
 
-        tsuru {plugin-name} remove-url mysite http://mysite.com/hc
+        tsuru {plugin_name} remove-url mysite http://mysite.com/hc
     """
     url = "/{}/url/{}".format(name, url)
     proxy_request(name, "DELETE", url)
@@ -104,7 +104,7 @@ def add_watcher(name, watcher):
 
     Example:
 
-        tsuru {plugin-name} add-watcher mysite mysite+monit@mycompany.com
+        tsuru {plugin_name} add-watcher mysite mysite+monit@mycompany.com
     """
     data = {
         "name": name,
@@ -128,7 +128,7 @@ def remove_watcher(name, watcher):
 
     Example:
 
-        tsuru {plugin-name} remove-watcher mysite mysite+monit@mycompany.com
+        tsuru {plugin_name} remove-watcher mysite mysite+monit@mycompany.com
     """
     url = "/{}/watcher/{}".format(name, watcher)
     proxy_request(name, "DELETE", url)
@@ -146,14 +146,16 @@ def command(command_name):
     if command_name in commands:
         return commands[command_name]
 
-    sys.stdout.write("Usage: tsuru <plugin> command [args]\n\n")
-    sys.stdout.write("Available commands:\n")
+    plugin_name = get_env("TSURU_PLUGIN_NAME")
+    msg = "Usage: tsuru {plugin_name} command [args]\n\n"
+    sys.stderr.write(msg.format(plugin_name=plugin_name))
+    sys.stderr.write("Available commands:\n")
 
     for name in commands.keys():
-        sys.stdout.write("  {}\n".format(name))
+        sys.stderr.write("  {}\n".format(name))
 
-    msg = "Use tsuru <plugin> help <commandname> to get more information."
-    sys.stdout.write(msg)
+    msg = "Use tsuru {plugin_name} help <commandname> to get more information."
+    sys.stderr.write("\n" + msg.format(plugin_name=plugin_name) + "\n")
     sys.exit(2)
 
 

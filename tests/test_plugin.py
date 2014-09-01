@@ -16,9 +16,11 @@ class PluginTest(unittest.TestCase):
     def set_envs(self):
         os.environ["TSURU_TARGET"] = self.target = "https://cloud.tsuru.io/"
         os.environ["TSURU_TOKEN"] = self.token = "abc123"
+        os.environ["TSURU_PLUGIN_NAME"] = self.plugin_name = "hc"
 
     def delete_envs(self):
-        del os.environ["TSURU_TARGET"], os.environ["TSURU_TOKEN"]
+        del os.environ["TSURU_TARGET"], os.environ["TSURU_TOKEN"], \
+            os.environ["TSURU_PLUGIN_NAME"]
 
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
@@ -146,6 +148,26 @@ class PluginTest(unittest.TestCase):
         }
         for key, cmd in expected_commands.items():
             self.assertEqual(command(key), cmd)
+
+    @mock.patch("sys.stderr")
+    def test_command_not_found(self, stderr):
+        self.set_envs()
+        self.addCleanup(self.delete_envs)
+        with self.assertRaises(SystemExit) as cm:
+            command("waaaat")
+        exc = cm.exception
+        self.assertEqual(2, exc.code)
+        calls = [
+            mock.call("Usage: tsuru hc command [args]\n\n"),
+            mock.call("Available commands:\n"),
+            mock.call("  add-url\n"),
+            mock.call("  remove-url\n"),
+            mock.call("  add-watcher\n"),
+            mock.call("  remove-watcher\n"),
+            mock.call("\nUse tsuru hc help <commandname> to"
+                      " get more information\n"),
+        ]
+        stderr.has_calls(calls)
 
     @mock.patch("healthcheck.plugin.add_url")
     def test_main(self, add_url_mock):
