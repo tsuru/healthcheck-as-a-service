@@ -32,9 +32,9 @@ class Zabbix(object):
         self.storage = MongoStorage()
         self.storage.conn()
 
-    def add_url(self, name, url):
+    def add_url(self, name, url, expected_string=None):
         hc = self.storage.find_healthcheck_by_name(name)
-        item_id = self._add_item(name, url)
+        item_id = self._add_item(name, url, expected_string)
         trigger_id = self._add_trigger(name, url)
         action_id = self._add_action(url, trigger_id, hc.group_id)
         item = Item(
@@ -92,17 +92,16 @@ class Zabbix(object):
         self._remove_host(healthcheck.host_id)
         self.storage.remove_healthcheck(healthcheck)
 
-    def _add_item(self, healthcheck_name, url):
+    def _add_item(self, healthcheck_name, url, expected_string=None):
         hc = self.storage.find_healthcheck_by_name(healthcheck_name)
         item_name = "healthcheck for {}".format(url)
+        step = {"name": item_name, "url": url,
+                "status_codes": 200, "no": 1}
+        if expected_string:
+            step["required"] = expected_string
         item_result = self.zapi.httptest.create(
             name=item_name,
-            steps=[{
-                "name": item_name,
-                "url": url,
-                "status_codes": 200,
-                "no": 1,
-            }],
+            steps=[step],
             hostid=hc.host_id,
         )
         return item_result['httptestids'][0]

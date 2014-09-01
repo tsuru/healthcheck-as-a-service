@@ -74,6 +74,38 @@ class ZabbixTest(TestCase):
         self.backend._add_action.assert_called_with('http://mysite.com', 1, 13)
         self.backend._add_action = old_add_action
 
+    def test_add_url_expected_string(self):
+        url = "http://mysite.com"
+        hc_name = "hc_name"
+        item_name = "healthcheck for {}".format(url)
+
+        self.backend.zapi.httptest.create.return_value = {"httptestids": [1]}
+        self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
+        old_add_action = self.backend._add_action
+
+        def set_old_add_action():
+            self.backend._add_action = old_add_action
+        self.addCleanup(set_old_add_action)
+        self.backend._add_action = mock.Mock()
+        hmock = mock.Mock(host_id="1", group_id=13)
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
+
+        self.backend.add_url(hc_name, url, expected_string="WORKING")
+
+        self.backend.storage.find_healthcheck_by_name.assert_called_with(
+            hc_name)
+        self.backend.zapi.httptest.create.assert_called_with(
+            name=item_name,
+            steps=[{
+                "name": item_name,
+                "url": url,
+                "status_codes": 200,
+                "no": 1,
+                "required": "WORKING",
+            }],
+            hostid="1",
+        )
+
     def test_remove_url(self):
         url = "http://mysite.com"
         item_id = 1
