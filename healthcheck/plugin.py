@@ -79,7 +79,13 @@ def add_url(name, url, expected_string=None):
 
 def remove_url(name, url):
     """
-    remove_url removes the url checker
+    remove_url removes the specified url checker. Usage:
+
+        remove-url <name> <url>
+
+    Example:
+
+        tsuru {plugin-name} remove-url mysite http://mysite.com/hc
     """
     url = "/{}/url/{}".format(name, url)
     proxy_request(name, "DELETE", url)
