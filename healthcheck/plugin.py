@@ -149,7 +149,7 @@ def show_help(command_name=None, exit=0):
     The command-name is optional, when ommited the plugin will list all
     available commands.
     """
-    plugin_name = get_env("TSURU_PLUGIN_NAME")
+    plugin_name = os.environ.get("TSURU_PLUGIN_NAME", "hc")
     commands = _get_commands()
     if command_name and command_name in commands:
         command = commands[command_name]
