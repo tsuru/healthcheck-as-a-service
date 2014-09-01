@@ -46,9 +46,7 @@ def add_url():
     if "name" not in data or "url" not in data:
         return "name and url are required", 400
 
-    name = data["name"]
-    url = data["url"]
-    get_manager().add_url(name, url)
+    get_manager().add_url(**data)
 
     return "", 201
 

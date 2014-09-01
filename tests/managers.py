@@ -7,11 +7,18 @@ class FakeManager(object):
     def __init__(self):
         self.healthchecks = {}
 
-    def add_url(self, name, url):
-        self.healthchecks[name]["urls"].append(url)
+    def add_url(self, name, url, expected_string=None):
+        item = {"url": url, "expected_string": expected_string}
+        self.healthchecks[name]["urls"].append(item)
 
     def remove_url(self, name, url):
-        self.healthchecks[name]["urls"].remove(url)
+        index = -1
+        for i, u in enumerate(self.healthchecks[name]["urls"]):
+            if u["url"] == u:
+                index = i
+                break
+        if index > -1:
+            self.healthchecks[name]["urls"].pop(index)
 
     def new(self, name):
         self.healthchecks[name] = {"urls": [], "users": []}

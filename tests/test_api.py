@@ -33,7 +33,19 @@ class APITestCase(unittest.TestCase):
         )
         self.assertEqual(201, resp.status_code)
         self.assertIn(
-            "http://bla.com",
+            {"url": "http://bla.com", "expected_string": None},
+            self.manager.healthchecks["hc"]["urls"]
+        )
+
+    def test_add_url_expected_string(self):
+        resp = self.api.post(
+            "/url",
+            data=json.dumps({"name": "hc", "url": "http://blabla.com",
+                             "expected_string": "WORKING"})
+        )
+        self.assertEqual(201, resp.status_code)
+        self.assertIn(
+            {"url": "http://blabla.com", "expected_string": "WORKING"},
             self.manager.healthchecks["hc"]["urls"]
         )
 
