@@ -196,3 +196,8 @@ class PluginTest(unittest.TestCase):
     def test_main(self, add_url_mock):
         main("add-url", "myhc", "http://tsuru.io")
         add_url_mock.assert_called_with("myhc", "http://tsuru.io")
+
+    @mock.patch("healthcheck.plugin.show_help")
+    def test_main_wrong_params(self, show_help_mock):
+        main("add-url")
+        show_help_mock.assert_called_with("add-url", exit=2)

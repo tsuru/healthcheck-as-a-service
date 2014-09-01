@@ -188,7 +188,10 @@ def command(command_name):
 
 
 def main(cmd, *args):
-    command(cmd)(*args)
+    try:
+        command(cmd)(*args)
+    except TypeError:
+        show_help(cmd, exit=2)
 
 
 if __name__ == "__main__":
