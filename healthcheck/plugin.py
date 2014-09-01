@@ -60,7 +60,7 @@ def add_url(name, url, expected_string=None):
     expected_string is an optional parameter that represents the string that
     the healthcheck should expect to find in the body of the response. Example:
 
-        tsuru <plugin-name> add-url mysite http://mysite.com/hc WORKING
+        tsuru {plugin-name} add-url mysite http://mysite.com/hc WORKING
     """
     data = {
         "name": name,
