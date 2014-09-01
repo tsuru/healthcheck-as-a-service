@@ -53,7 +53,14 @@ def proxy_request(instance_name, method, path, body=None, headers=None):
 
 def add_url(name, url, expected_string=None):
     """
-    add_url creates a new url checker
+    add_url creates a new url checker, using the provided parameters. Usage:
+
+        add-url <name> <url> [expected_string]
+
+    expected_string is an optional parameter that represents the string that
+    the healthcheck should expect to find in the body of the response. Example:
+
+        tsuru <plugin-name> add-url mysite http://mysite.com/hc WORKING
     """
     data = {
         "name": name,
