@@ -136,27 +136,55 @@ def remove_watcher(name, watcher):
     sys.stdout.write(msg)
 
 
-def command(command_name):
-    commands = {
-        "add-url": add_url,
-        "remove-url": remove_url,
-        "add-watcher": add_watcher,
-        "remove-watcher": remove_watcher,
-    }
-    if command_name in commands:
-        return commands[command_name]
+def show_help(command_name=None, exit=0):
+    """
+    help displays the help of the specified command. Usage:
 
+        help <command-name>
+
+    Example:
+
+        tsuru {plugin_name} help [command-name]
+
+    The command-name is optional, when ommited the plugin will list all
+    available commands.
+    """
     plugin_name = get_env("TSURU_PLUGIN_NAME")
+    commands = _get_commands()
+    if command_name and command_name in commands:
+        command = commands[command_name]
+        doc = command.__doc__.format(plugin_name=plugin_name)
+        sys.stderr.write(doc.rstrip() + "\n")
+        sys.exit(exit)
     msg = "Usage: tsuru {plugin_name} command [args]\n\n"
     sys.stderr.write(msg.format(plugin_name=plugin_name))
     sys.stderr.write("Available commands:\n")
 
-    for name in commands.keys():
-        sys.stderr.write("  {}\n".format(name))
+    for name in sorted(commands.keys()):
+        if name != "help":
+            sys.stderr.write("  {}\n".format(name))
+    sys.stderr.write("  help\n")
 
-    msg = "Use tsuru {plugin_name} help <commandname> to get more information."
+    msg = "Use tsuru {plugin_name} help <commandname> to get more details."
     sys.stderr.write("\n" + msg.format(plugin_name=plugin_name) + "\n")
-    sys.exit(2)
+    sys.exit(exit)
+
+
+def _get_commands():
+    return {
+        "add-url": add_url,
+        "remove-url": remove_url,
+        "add-watcher": add_watcher,
+        "remove-watcher": remove_watcher,
+        "help": show_help,
+    }
+
+
+def command(command_name):
+    commands = _get_commands()
+    if command_name in commands:
+        return commands[command_name]
+    show_help(exit=2)
 
 
 def main(cmd, *args):

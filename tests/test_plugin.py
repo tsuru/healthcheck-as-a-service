@@ -8,7 +8,7 @@ import os
 import unittest
 
 from healthcheck.plugin import (add_url, add_watcher, command, main,
-                                remove_watcher, remove_url)
+                                remove_watcher, remove_url, show_help)
 
 
 class PluginTest(unittest.TestCase):
@@ -139,6 +139,28 @@ class PluginTest(unittest.TestCase):
                                               "bearer " + self.token)
         urlopen.assert_called_with(request, timeout=30)
 
+    @mock.patch("sys.stderr")
+    def test_help(self, stderr):
+        self.set_envs()
+        self.addCleanup(self.delete_envs)
+        with self.assertRaises(SystemExit) as cm:
+            show_help("add-url")
+        exc = cm.exception
+        self.assertEqual(0, exc.code)
+        doc = add_url.__doc__.format(plugin_name="hc")
+        stderr.write.assert_called_with(doc.rstrip() + "\n")
+
+    @mock.patch("sys.stderr")
+    def test_help_with_exit_code(self, stderr):
+        self.set_envs()
+        self.addCleanup(self.delete_envs)
+        with self.assertRaises(SystemExit) as cm:
+            show_help("add-watcher", exit=2)
+        exc = cm.exception
+        self.assertEqual(2, exc.code)
+        doc = add_watcher.__doc__.format(plugin_name="hc")
+        stderr.write.assert_called_with(doc.rstrip() + "\n")
+
     def test_commands(self):
         expected_commands = {
             "add-url": add_url,
@@ -161,13 +183,14 @@ class PluginTest(unittest.TestCase):
             mock.call("Usage: tsuru hc command [args]\n\n"),
             mock.call("Available commands:\n"),
             mock.call("  add-url\n"),
-            mock.call("  remove-url\n"),
             mock.call("  add-watcher\n"),
+            mock.call("  remove-url\n"),
             mock.call("  remove-watcher\n"),
+            mock.call("  help\n"),
             mock.call("\nUse tsuru hc help <commandname> to"
-                      " get more information\n"),
+                      " get more details.\n"),
         ]
-        stderr.has_calls(calls)
+        self.assertEqual(calls, stderr.write.call_args_list)
 
     @mock.patch("healthcheck.plugin.add_url")
     def test_main(self, add_url_mock):
