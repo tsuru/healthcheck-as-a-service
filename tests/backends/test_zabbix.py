@@ -7,7 +7,8 @@ import unittest
 
 import mock
 
-from healthcheck.backends import WatcherAlreadyRegisteredError
+from healthcheck.backends import (WatcherAlreadyRegisteredError,
+                                  WatcherNotInInstanceError)
 from healthcheck.storage import Item, User, UserNotFoundError
 
 
@@ -293,11 +294,36 @@ class ZabbixTest(unittest.TestCase):
         self.backend.zapi.action.delete.assert_called_with("id")
 
     def test_remove_watcher(self):
+        hmock = mock.Mock(group_id="group")
         user = User("123", "email@email.com", "group")
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
         self.backend.storage.find_user_by_email.return_value = user
         self.backend.remove_watcher("healthcheck", user.email)
         self.backend.zapi.user.delete.assert_called_with("123")
         self.backend.storage.remove_user.assert_called_with(user)
+
+    def test_remove_watcher_not_last_group(self):
+        hmock = mock.Mock(group_id="group1")
+        user = User("123", "email@email.com", "group1", "group2")
+        users = [mock.Mock(id="123"), mock.Mock(id="456"),
+                 mock.Mock(id="789")]
+        self.backend.storage.find_users_by_group.return_value = users
+        self.backend.storage.find_user_by_email.return_value = user
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
+        self.backend.remove_watcher("healthcheck", user.email)
+        self.backend.zapi.usergroup.update.asser_called_with(
+            usrgrpid="group1",
+            userids=["456", "789"],
+        )
+        self.backend.storage.remove_user_from_group.assert_called_with(user, "group1")
+
+    def test_remove_watcher_not_in_healthcheck(self):
+        hmock = mock.Mock(group_id="group1")
+        user = User("123", "email@email.com", "group2")
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
+        self.backend.storage.find_user_by_email.return_value = user
+        with self.assertRaises(WatcherNotInInstanceError):
+            self.backend.remove_watcher("healthcheck", user.email)
 
     def test_remove(self):
         name = "blah"

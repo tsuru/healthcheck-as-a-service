@@ -101,8 +101,26 @@ class Zabbix(object):
         self.storage.add_user(user)
 
     def remove_watcher(self, name, email):
+        hc = self.storage.find_healthcheck_by_name(name)
         user = self.storage.find_user_by_email(email)
-        self._remove_user(user.id)
+        if hc.group_id not in user.groups_id:
+            raise WatcherNotInInstanceError()
+        if len(user.groups_id) > 1:
+            self._remove_user_from_group(hc, user)
+        else:
+            self._remove_user(user)
+
+    def _remove_user_from_group(self, hc, user):
+        users = self.storage.find_users_by_group(hc.group_id)
+        ids = [u.id for u in users if u.id != user.id]
+        self.zapi.usergroup.update(
+            usrgrpid=hc.group_id,
+            userids=ids,
+        )
+        self.storage.remove_user_from_group(user, hc.group_id)
+
+    def _remove_user(self, user):
+        self.zapi.user.delete(user.id)
         self.storage.remove_user(user)
 
     def remove(self, name):
@@ -204,9 +222,10 @@ class Zabbix(object):
     def _remove_action(self, id):
         self.zapi.action.delete(id)
 
-    def _remove_user(self, id):
-        self.zapi.user.delete(id)
-
 
 class WatcherAlreadyRegisteredError(Exception):
+    pass
+
+
+class WatcherNotInInstanceError(Exception):
     pass
