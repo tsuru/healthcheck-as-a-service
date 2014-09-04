@@ -95,6 +95,8 @@ class MongoStorage(object):
         result = self.conn()[self.database_name]['users'].find_one(
             {"email": email}
         )
+        if not result:
+            raise UserNotFoundError()
         return User(result["id"], result["email"], *result["groups_id"])
 
     def find_users_by_group(self, group_id):
@@ -102,3 +104,7 @@ class MongoStorage(object):
             {"groups_id": group_id},
         )
         return [User(r["id"], r["email"], *r["groups_id"]) for r in items]
+
+
+class UserNotFoundError(Exception):
+    pass

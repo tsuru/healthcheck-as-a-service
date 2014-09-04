@@ -6,7 +6,8 @@ import unittest
 import mock
 import os
 
-from healthcheck.storage import Item, MongoStorage, User, HealthCheck, Jsonable
+from healthcheck.storage import (HealthCheck, Jsonable, Item, MongoStorage,
+                                 User, UserNotFoundError)
 
 
 class JsonableTest(unittest.TestCase):
@@ -159,6 +160,10 @@ class MongoStorageTest(unittest.TestCase):
         result = self.storage.find_user_by_email(self.user.email)
         self.assertEqual(result.email, self.user.email)
         self.storage.remove_user(self.user)
+
+    def test_find_user_by_email_not_found(self):
+        with self.assertRaises(UserNotFoundError):
+            self.storage.find_user_by_email("something@otherthing.io")
 
     def test_find_users_by_group(self):
         user1 = User("id1", "w@w.com", "group_id1", "group_id2", "group_id3")
