@@ -6,7 +6,7 @@ import unittest
 import mock
 import os
 
-from healthcheck.storage import (HealthCheck, Jsonable, Item, MongoStorage,
+from healthcheck.storage import (HealthCheck, Item, Jsonable, MongoStorage,
                                  User, UserNotFoundError)
 
 
