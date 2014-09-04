@@ -26,6 +26,11 @@ class User(Jsonable):
         self.groups_id = groups_id
         self.id = id
 
+    def __eq__(self, other):
+        return other.email == self.email and \
+            other.groups_id == self.groups_id and \
+            other.id == self.id
+
 
 class Item(Jsonable):
 
@@ -91,3 +96,9 @@ class MongoStorage(object):
             {"email": email}
         )
         return User(result["id"], result["email"], *result["groups_id"])
+
+    def find_users_by_group(self, group_id):
+        items = self.conn()[self.database_name]['users'].find(
+            {"groups_id": group_id},
+        )
+        return [User(r["id"], r["email"], *r["groups_id"]) for r in items]
