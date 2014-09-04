@@ -4,7 +4,7 @@
 
 import os
 
-from healthcheck.storage import Item, User, HealthCheck
+from healthcheck.storage import HealthCheck, Item, User, UserNotFoundError
 
 
 def get_value(key):
@@ -65,6 +65,24 @@ class Zabbix(object):
 
     def add_watcher(self, name, email):
         hc = self.storage.find_healthcheck_by_name(name)
+        try:
+            user = self.storage.find_user_by_email(email)
+            self._add_user_to_group(hc, user)
+        except UserNotFoundError:
+            self._add_new_user(hc, email)
+
+    def _add_user_to_group(self, hc, user):
+        users = self.storage.find_users_by_group(hc.group_id)
+        ids = [u.id for u in users]
+        if user.id in ids:
+            raise WatcherAlreadyRegisteredError()
+        ids.append(user.id)
+        self.zapi.usergroup.update(
+            usrgrpid=hc.group_id,
+            userids=ids,
+        )
+
+    def _add_new_user(self, hc, email):
         result = self.zapi.user.create(
             alias=email,
             passwd="",
@@ -187,3 +205,7 @@ class Zabbix(object):
 
     def _remove_user(self, id):
         self.zapi.user.delete(id)
+
+
+class WatcherAlreadyRegisteredError(Exception):
+    pass

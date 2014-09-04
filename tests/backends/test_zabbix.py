@@ -2,15 +2,16 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-from unittest import TestCase
-
-from healthcheck.storage import Item, User
+import os
+import unittest
 
 import mock
-import os
+
+from healthcheck.backends import WatcherAlreadyRegisteredError
+from healthcheck.storage import Item, User, UserNotFoundError
 
 
-class ZabbixTest(TestCase):
+class ZabbixTest(unittest.TestCase):
 
     @mock.patch("healthcheck.storage.MongoStorage")
     @mock.patch("pyzabbix.ZabbixAPI")
@@ -132,6 +133,7 @@ class ZabbixTest(TestCase):
         email = "andrews@corp.globo.com"
         name = "hc_name"
         hmock = mock.Mock(group_id="someid")
+        self.backend.storage.find_user_by_email.side_effect = UserNotFoundError
         self.backend.storage.find_healthcheck_by_name.return_value = hmock
         self.backend.zapi.user.create.return_value = {"userids": ["123"]}
 
@@ -151,6 +153,38 @@ class ZabbixTest(TestCase):
             }],
         )
         self.assertTrue(self.backend.storage.add_user.called)
+
+    def test_add_watcher_user_to_group(self):
+        email = "andrews@corp.globo.com"
+        name = "hc_name"
+        hmock = mock.Mock(group_id="someid")
+        umock = mock.Mock(id="userid3")
+        usersmock = [mock.Mock(id="userid1"), mock.Mock(id="userid2")]
+        self.backend.storage.find_user_by_email.return_value = umock
+        self.backend.storage.find_users_by_group.return_value = usersmock
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
+
+        self.backend.add_watcher(name, email)
+
+        self.backend.storage.find_healthcheck_by_name.assert_called_with(name)
+        self.backend.storage.find_user_by_email.assert_called_with(email)
+        self.backend.storage.find_users_by_group.assert_called_with("someid")
+        self.backend.zapi.usergroup.update.assert_called_with(
+            usrgrpid="someid",
+            userids=["userid1", "userid2", "userid3"],
+        )
+
+    def test_add_watcher_user_already_in_the_group(self):
+        email = "andrews@corp.globo.com"
+        name = "hc_name"
+        hmock = mock.Mock(group_id="someid")
+        umock = mock.Mock(id="userid2")
+        usersmock = [mock.Mock(id="userid1"), mock.Mock(id="userid2")]
+        self.backend.storage.find_user_by_email.return_value = umock
+        self.backend.storage.find_users_by_group.return_value = usersmock
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
+        with self.assertRaises(WatcherAlreadyRegisteredError):
+            self.backend.add_watcher(name, email)
 
     def test_add_action(self):
         self.backend.zapi.action.create.return_value = {"actionids": ["1"]}
