@@ -87,8 +87,9 @@ class MongoStorage(object):
         result = self.conn()[self.database_name].healthchecks.find_one(
             {"name": name}
         )
-        name = result.pop("name")
-        return HealthCheck(name, **result)
+        if not result:
+            raise HealthCheckNotFoundError()
+        return HealthCheck(**result)
 
     def find_user_by_email(self, email):
         result = self.conn()[self.database_name].users.find_one(
@@ -113,6 +114,10 @@ class MongoStorage(object):
         self.conn()[self.database_name].users.update({"id": user.id},
                                                      {"$pull":
                                                       {"groups_id": group}})
+
+
+class HealthCheckNotFoundError(Exception):
+    pass
 
 
 class UserNotFoundError(Exception):
