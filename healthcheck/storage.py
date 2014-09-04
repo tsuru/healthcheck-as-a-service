@@ -52,47 +52,46 @@ class MongoStorage(object):
         mongodb_uri = os.environ.get(
             "MONGODB_URI", "mongodb://localhost:27017/"
         )
-
         from pymongo import MongoClient
         return MongoClient(mongodb_uri)
 
     def add_item(self, item):
-        self.conn()[self.database_name]['items'].insert(item.to_json())
+        self.conn()[self.database_name]["items"].insert(item.to_json())
 
     def find_item_by_url(self, url):
-        result = self.conn()[self.database_name]['items'].find_one(
+        result = self.conn()[self.database_name]["items"].find_one(
             {"url": url}
         )
         return Item(**result)
 
     def remove_item(self, item):
-        self.conn()[self.database_name]['items'].remove({"url": item.url})
+        self.conn()[self.database_name]["items"].remove({"url": item.url})
 
     def add_user(self, user):
-        self.conn()[self.database_name]['users'].insert(user.to_json())
+        self.conn()[self.database_name]["users"].insert(user.to_json())
 
     def remove_user(self, user):
-        self.conn()[self.database_name]['users'].remove({"email": user.email})
+        self.conn()[self.database_name]["users"].remove({"email": user.email})
 
     def add_healthcheck(self, healthcheck):
-        self.conn()[self.database_name]['healthchecks'].insert(
+        self.conn()[self.database_name]["healthchecks"].insert(
             healthcheck.to_json()
         )
 
     def remove_healthcheck(self, healthcheck):
-        self.conn()[self.database_name]['healthchecks'].remove(
+        self.conn()[self.database_name]["healthchecks"].remove(
             {"name": healthcheck.name}
         )
 
     def find_healthcheck_by_name(self, name):
-        result = self.conn()[self.database_name]['healthchecks'].find_one(
+        result = self.conn()[self.database_name]["healthchecks"].find_one(
             {"name": name}
         )
         name = result.pop("name")
         return HealthCheck(name, **result)
 
     def find_user_by_email(self, email):
-        result = self.conn()[self.database_name]['users'].find_one(
+        result = self.conn()[self.database_name]["users"].find_one(
             {"email": email}
         )
         if not result:
@@ -100,7 +99,7 @@ class MongoStorage(object):
         return User(result["id"], result["email"], *result["groups_id"])
 
     def find_users_by_group(self, group_id):
-        items = self.conn()[self.database_name]['users'].find(
+        items = self.conn()[self.database_name]["users"].find(
             {"groups_id": group_id},
         )
         return [User(r["id"], r["email"], *r["groups_id"]) for r in items]
