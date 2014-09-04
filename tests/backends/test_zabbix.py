@@ -312,7 +312,8 @@ class ZabbixTest(unittest.TestCase):
         self.backend.storage.remove_user.assert_called_with(user)
 
     def test_remove_watcher_not_last_group(self):
-        hmock = mock.Mock(group_id="group1")
+        group = "group1"
+        hmock = mock.Mock(group_id=group)
         user = User("123", "email@email.com", "group1", "group2")
         users = [mock.Mock(id="123"), mock.Mock(id="456"),
                  mock.Mock(id="789")]
@@ -324,7 +325,8 @@ class ZabbixTest(unittest.TestCase):
             usrgrpid="group1",
             userids=["456", "789"],
         )
-        self.backend.storage.remove_user_from_group.assert_called_with(user, "group1")
+        self.backend.storage.remove_user_from_group.assert_called_with(user,
+                                                                       group)
 
     def test_remove_watcher_not_in_healthcheck(self):
         hmock = mock.Mock(group_id="group1")
