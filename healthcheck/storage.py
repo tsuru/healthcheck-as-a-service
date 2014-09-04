@@ -105,9 +105,14 @@ class MongoStorage(object):
         return [User(r["id"], r["email"], *r["groups_id"]) for r in items]
 
     def add_user_to_group(self, user, group):
-        self.conn()[self.database_name]["users"].update({"id": user.id},
-                                                        {"$push":
-                                                         {"groups_id": group}})
+        self.conn()[self.database_name].users.update({"id": user.id},
+                                                     {"$push":
+                                                      {"groups_id": group}})
+
+    def remove_user_from_group(self, user, group):
+        self.conn()[self.database_name].users.update({"id": user.id},
+                                                     {"$pull":
+                                                      {"groups_id": group}})
 
 
 class UserNotFoundError(Exception):

@@ -193,3 +193,17 @@ class MongoStorageTest(unittest.TestCase):
         user = self.storage.find_user_by_email(user.email)
         self.assertEqual(("group1", "group2", "group3", "group4", "group5"),
                          user.groups_id)
+
+    def test_remove_user_from_group(self):
+        user = User("userid", "w@w.com", "group1")
+        self.storage.add_user(user)
+        self.addCleanup(self.storage.remove_user, user)
+        self.storage.add_user_to_group(user, "group2")
+        self.storage.add_user_to_group(user, "group3")
+        self.storage.add_user_to_group(user, "group4")
+        self.storage.add_user_to_group(user, "group5")
+        self.storage.remove_user_from_group(user, "group4")
+        self.storage.remove_user_from_group(user, "group3")
+        user = self.storage.find_user_by_email(user.email)
+        self.assertEqual(("group1", "group2", "group5"),
+                         user.groups_id)
