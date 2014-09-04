@@ -21,9 +21,9 @@ class HealthCheck(Jsonable):
 
 class User(Jsonable):
 
-    def __init__(self, id, email, group_id):
+    def __init__(self, id, email, *groups_id):
         self.email = email
-        self.group_id = group_id
+        self.groups_id = groups_id
         self.id = id
 
 
@@ -90,4 +90,4 @@ class MongoStorage(object):
         result = self.conn()[self.database_name]['users'].find_one(
             {"email": email}
         )
-        return User(result["id"], result["email"], result["group_id"])
+        return User(result["id"], result["email"], *result["groups_id"])
