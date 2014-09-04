@@ -81,6 +81,7 @@ class Zabbix(object):
             usrgrpid=hc.group_id,
             userids=ids,
         )
+        self.storage.add_user_to_group(user, hc.group_id)
 
     def _add_new_user(self, hc, email):
         result = self.zapi.user.create(

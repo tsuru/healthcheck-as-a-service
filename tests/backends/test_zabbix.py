@@ -173,6 +173,8 @@ class ZabbixTest(unittest.TestCase):
             usrgrpid="someid",
             userids=["userid1", "userid2", "userid3"],
         )
+        self.backend.storage.add_user_to_group.assert_called_with(umock,
+                                                                  "someid")
 
     def test_add_watcher_user_already_in_the_group(self):
         email = "andrews@corp.globo.com"
