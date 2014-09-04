@@ -8,7 +8,7 @@ import unittest
 import mock
 
 from healthcheck.backends import (WatcherAlreadyRegisteredError,
-                                  WatcherNotInInstanceError)
+                                  WatcherNotInInstanceError, get_value)
 from healthcheck.storage import Item, User, UserNotFoundError
 
 
@@ -17,12 +17,9 @@ class ZabbixTest(unittest.TestCase):
     @mock.patch("healthcheck.storage.MongoStorage")
     @mock.patch("pyzabbix.ZabbixAPI")
     def setUp(self, zabbix_mock, mongo_mock):
-        url = "http://zbx.com"
-        user = "user"
-        password = "pass"
-        os.environ["ZABBIX_URL"] = url
-        os.environ["ZABBIX_USER"] = user
-        os.environ["ZABBIX_PASSWORD"] = password
+        os.environ["ZABBIX_URL"] = self.url = "http://zbx.com"
+        os.environ["ZABBIX_USER"] = self.user = "user"
+        os.environ["ZABBIX_PASSWORD"] = self.password = "pass"
         os.environ["ZABBIX_HOST"] = "1"
         os.environ["ZABBIX_HOST_GROUP"] = "2"
         zapi_mock = mock.Mock()
@@ -33,12 +30,24 @@ class ZabbixTest(unittest.TestCase):
 
         from healthcheck.backends import Zabbix
         self.backend = Zabbix()
-        zabbix_mock.assert_called_with(url)
-        zapi_mock.login.assert_called_with(user, password)
+        zabbix_mock.assert_called_with(self.url)
+        zapi_mock.login.assert_called_with(self.user, self.password)
 
         mongo_mock.assert_called_with()
         instance_mock.conn.assert_called_with()
         self.backend.storage = mock.Mock()
+
+    def test_get_value(self):
+        url = get_value("ZABBIX_URL")
+        self.assertEqual(self.url, url)
+
+    def test_get_value_failure(self):
+        with self.assertRaises(Exception) as cm:
+            get_value("ZABBIX_URL_URL_URL_URL_")
+        exc = cm.exception
+        expected = (u"You must define the ZABBIX_URL_URL_URL_URL_ environment"
+                    u" variable.")
+        self.assertEqual((expected,), exc.args)
 
     def test_add_url(self):
         url = "http://mysite.com"
