@@ -88,8 +88,9 @@ def remove_url(name, url):
 
         tsuru {plugin_name} remove-url mysite http://mysite.com/hc
     """
-    url = "/{}/url/{}".format(name, url)
-    proxy_request(name, "DELETE", url)
+    body = {"name": name, "url": url}
+    headers = {"Content-Type": "application/json"}
+    proxy_request(name, "DELETE", "/url", body=body, headers=headers)
     msg = "url {} successfully removed!\n".format(url)
     sys.stdout.write(msg)
 

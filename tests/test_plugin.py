@@ -86,11 +86,14 @@ class PluginTest(unittest.TestCase):
 
         Request.assert_called_with(
             'DELETE',
-            self.target + 'services/proxy/name?callback=/name/url/url',
-            data=None,
+            self.target + 'services/proxy/name?callback=/url',
+            data=json.dumps({"url": "url", "name": "name"}),
         )
-        request.add_header.assert_called_with("Authorization",
-                                              "bearer " + self.token)
+        calls = [
+            mock.call("Authorization", "bearer " + self.token),
+            mock.call("Content-Type", "application/json"),
+        ]
+        self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
     @mock.patch("urllib2.urlopen")
