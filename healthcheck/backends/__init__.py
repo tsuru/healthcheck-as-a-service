@@ -160,6 +160,9 @@ class Zabbix(object):
             recovery_msg=1,
             status=0,
             esc_period=3600,
+            def_shortdata="{TRIGGER.NAME}: {TRIGGER.STATUS}",
+            def_longdata=("{TRIGGER.NAME}: {TRIGGER.STATUS}\r\n"
+                          "Last value: {ITEM.LASTVALUE}\r\n\r\n{TRIGGER.URL}"),
             evaltype=0,
             conditions=[
                 # Maintenance status not in maintenance

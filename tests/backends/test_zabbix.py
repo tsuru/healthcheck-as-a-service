@@ -221,6 +221,9 @@ class ZabbixTest(unittest.TestCase):
             status=0,
             name='action for url url',
             esc_period=3600,
+            def_shortdata="{TRIGGER.NAME}: {TRIGGER.STATUS}",
+            def_longdata=("{TRIGGER.NAME}: {TRIGGER.STATUS}\r\n"
+                          "Last value: {ITEM.LASTVALUE}\r\n\r\n{TRIGGER.URL}"),
             evaltype=0,
             eventsource=0,
             conditions=[
