@@ -40,21 +40,23 @@ def get_manager():
 def add_url():
     if not request.data:
         return "name and url are required", 400
-
     data = json.loads(request.data)
-
     if "name" not in data or "url" not in data:
         return "name and url are required", 400
-
     get_manager().add_url(**data)
-
     return "", 201
 
 
-@app.route("/<name>/url/<path:url>", methods=["DELETE"])
+@app.route("/url", methods=["DELETE"])
 @auth.required
-def remove_url(name, url):
-    get_manager().remove_url(name, url)
+def remove_url():
+    if not request.data:
+        return "name and url are required", 400
+    data = json.loads(request.data)
+    data = json.loads(request.data)
+    if "name" not in data or "url" not in data:
+        return "name and url are required", 400
+    get_manager().remove_url(**data)
     return "", 204
 
 

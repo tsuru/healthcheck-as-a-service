@@ -71,13 +71,28 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(resp.data, 'name and url are required')
 
     def test_remove_url(self):
-        self.manager.add_url("hc", "http://bla.com")
-        resp = self.api.delete("/hc/url/http://bla.com")
+        self.manager.add_url("hc", "http://bla.com/")
+        resp = self.api.delete("/url",
+                               data=json.dumps({"name": "hc",
+                                                "url": "http://bla.com/"}))
         self.assertEqual(204, resp.status_code)
         self.assertNotIn(
-            "http://bla.com",
+            "http://bla.com/",
             self.manager.healthchecks["hc"]["urls"]
         )
+
+    def test_remove_url_no_data(self):
+        resp = self.api.delete("/url")
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual("name and url are required", resp.data)
+
+    def test_remove_url_invalid_data(self):
+        resp = self.api.delete("/url", data={"name": "hc"})
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual("name and url are required", resp.data)
+        resp = self.api.delete("/url", data={"url": "http://bla.com/"})
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual("name and url are required", resp.data)
 
     def test_add_watcher(self):
         resp = self.api.post(
