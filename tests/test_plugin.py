@@ -40,11 +40,11 @@ class PluginTest(unittest.TestCase):
         )
 
         calls = [
-            mock.call("authorization", "bearer {}".format(self.token)),
-            mock.call("content-type", "application/x-www-form-urlencoded"),
-            mock.call("accept", "text/plain"),
+            mock.call("Authorization", "bearer {}".format(self.token)),
+            mock.call("Content-Type", "application/json"),
+            mock.call("Accept", "text/plain"),
         ]
-        request.add_header.has_calls(calls)
+        self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
     @mock.patch("urllib2.urlopen")
@@ -66,11 +66,11 @@ class PluginTest(unittest.TestCase):
         )
 
         calls = [
-            mock.call("authorization", "bearer {}".format(self.token)),
-            mock.call("content-type", "application/x-www-form-urlencoded"),
-            mock.call("accept", "text/plain"),
+            mock.call("Authorization", "bearer {}".format(self.token)),
+            mock.call("Content-Type", "application/json"),
+            mock.call("Accept", "text/plain"),
         ]
-        request.add_header.has_calls(calls)
+        self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
     @mock.patch("urllib2.urlopen")
@@ -114,9 +114,9 @@ class PluginTest(unittest.TestCase):
         )
 
         calls = [
-            mock.call("authorization", "bearer {}".format(self.token)),
-            mock.call("content-type", "application/x-www-form-urlencoded"),
-            mock.call("accept", "text/plain"),
+            mock.call("Authorization", "bearer " + self.token),
+            mock.call("Content-Type", "application/json"),
+            mock.call("Accept", "text/plain"),
         ]
         request.add_header.has_calls(calls)
         urlopen.assert_called_with(request, timeout=30)

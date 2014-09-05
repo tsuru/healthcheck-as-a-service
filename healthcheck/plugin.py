@@ -69,7 +69,7 @@ def add_url(name, url, expected_string=None):
     if expected_string:
         data["expected_string"] = expected_string
     headers = {
-        "Content-type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json",
         "Accept": "text/plain"
     }
     proxy_request(name, "POST", "/url", data, headers)
@@ -112,7 +112,7 @@ def add_watcher(name, watcher):
         "watcher": watcher,
     }
     headers = {
-        "Content-type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json",
         "Accept": "text/plain"
     }
     proxy_request(name, "POST", "/watcher", data, headers)
