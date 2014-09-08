@@ -75,10 +75,13 @@ class ZabbixTest(unittest.TestCase):
             }],
             hostid="1",
         )
-        expression = "{{%s:web.test.rspcode[{},{}].last()}}#200" % hc_name
+        expression = ("{{hc_name:web.test.rspcode[{item_name},"
+                      "{item_name}].last()}}#200 | {{hc_name:web.test.fail["
+                      "{item_name}].last()}}#0 & {{hc_name:web.test.error["
+                      "{item_name}].str(required pattern not found)}}=1")
         self.backend.zapi.trigger.create.assert_called_with(
             description="trigger for url {}".format(url),
-            expression=expression.format(item_name, item_name),
+            expression=expression.format(item_name=item_name),
             priority=5,
         )
         self.assertTrue(self.backend.storage.add_item.called)
