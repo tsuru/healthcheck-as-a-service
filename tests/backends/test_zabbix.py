@@ -224,6 +224,9 @@ class ZabbixTest(unittest.TestCase):
             def_shortdata="{TRIGGER.STATUS}: {TRIGGER.NAME}",
             def_longdata=("{TRIGGER.NAME}: {TRIGGER.STATUS}\r\n"
                           "Last value: {ITEM.LASTVALUE}\r\n\r\n{TRIGGER.URL}"),
+            r_shortdata="{TRIGGER.STATUS}: {TRIGGER.NAME}",
+            r_longdata=("{TRIGGER.NAME}: {TRIGGER.STATUS}\r\n"
+                        "Last value: {ITEM.LASTVALUE}\r\n\r\n{TRIGGER.URL}"),
             evaltype=0,
             eventsource=0,
             conditions=[
