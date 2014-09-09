@@ -140,6 +140,7 @@ class Zabbix(object):
             name=item_name,
             steps=[step],
             hostid=hc.host_id,
+            retries=int(os.environ.get("ZABBIX_RETRIES", 3)),
         )
         return item_result['httptestids'][0]
 

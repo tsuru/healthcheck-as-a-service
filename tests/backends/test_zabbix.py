@@ -74,6 +74,7 @@ class ZabbixTest(unittest.TestCase):
                 "no": 1,
             }],
             hostid="1",
+            retries=3,
         )
         expression = ("{{hc_name:web.test.rspcode[{item_name},"
                       "{item_name}].last()}}#200 | {{hc_name:web.test.fail["
@@ -118,6 +119,7 @@ class ZabbixTest(unittest.TestCase):
                 "required": "WORKING",
             }],
             hostid="1",
+            retries=3,
         )
 
     def test_remove_url(self):
