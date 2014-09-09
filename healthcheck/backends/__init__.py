@@ -167,12 +167,13 @@ class Zabbix(object):
             recovery_msg=1,
             status=0,
             esc_period=3600,
-            def_shortdata="{TRIGGER.STATUS}: {TRIGGER.NAME}",
+            def_shortdata=("[hcaas {HOST.NAME} #{EVENT.ID}] {TRIGGER.STATUS}: "
+                           "{ITEM.VALUE3}"),
             def_longdata=("{TRIGGER.NAME}: {TRIGGER.STATUS}\r\n"
-                          "Last value: {ITEM.LASTVALUE}\r\n\r\n{TRIGGER.URL}"),
-            r_shortdata="{TRIGGER.STATUS}: {TRIGGER.NAME}",
+                          "HTTP status: {ITEM.VALUE1}"),
+            r_shortdata="[hcaas {HOST.NAME} #{EVENT.ID}] {TRIGGER.STATUS}",
             r_longdata=("{TRIGGER.NAME}: {TRIGGER.STATUS}\r\n"
-                        "Last value: {ITEM.LASTVALUE}\r\n\r\n{TRIGGER.URL}"),
+                        "HTTP status: {ITEM.VALUE1}"),
             evaltype=0,
             conditions=[
                 # Maintenance status not in maintenance
