@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright 2014 healthcheck-as-a-service authors. All rights reserved.
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
@@ -129,9 +130,15 @@ class Zabbix(object):
         self._remove_host(healthcheck.host_id)
         self.storage.remove_healthcheck(healthcheck)
 
+    def _create_item_name(self, url):
+        name = "hc for {}".format(url)
+        if len(name) > 64:
+            return name[:63] + "…"
+        return name
+
     def _add_item(self, healthcheck_name, url, expected_string=None):
         hc = self.storage.find_healthcheck_by_name(healthcheck_name)
-        item_name = "healthcheck for {}".format(url)
+        item_name = self._create_item_name(url)
         step = {"name": item_name, "url": url,
                 "status_codes": 200, "no": 1}
         if expected_string:
@@ -145,7 +152,7 @@ class Zabbix(object):
         return item_result['httptestids'][0]
 
     def _add_trigger(self, host_name, url):
-        item_name = "healthcheck for {}".format(url)
+        item_name = self._create_item_name(url)
         status_expression = ("{{%s:web.test.rspcode[{item_name},"
                              "{item_name}].last()}}#200") % host_name
         failed_expression = "{{%s:web.test.fail[{item_name}].last()}}#0" % \

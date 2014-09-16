@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright 2014 healthcheck-as-a-service authors. All rights reserved.
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
@@ -50,9 +51,9 @@ class ZabbixTest(unittest.TestCase):
         self.assertEqual((expected,), exc.args)
 
     def test_add_url(self):
-        url = "http://mysite.com"
+        url = "http://mysite.com/012345678901234567890123456789012345678"
         hc_name = "hc_name"
-        item_name = "healthcheck for {}".format(url)
+        item_name = "hc for {}".format(url)
 
         self.backend.zapi.httptest.create.return_value = {"httptestids": [1]}
         self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
@@ -86,13 +87,13 @@ class ZabbixTest(unittest.TestCase):
             priority=5,
         )
         self.assertTrue(self.backend.storage.add_item.called)
-        self.backend._add_action.assert_called_with('http://mysite.com', 1, 13)
+        self.backend._add_action.assert_called_with(url, 1, 13)
         self.backend._add_action = old_add_action
 
     def test_add_url_expected_string(self):
         url = "http://mysite.com"
         hc_name = "hc_name"
-        item_name = "healthcheck for {}".format(url)
+        item_name = "hc for {}".format(url)
 
         self.backend.zapi.httptest.create.return_value = {"httptestids": [1]}
         self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
@@ -121,6 +122,48 @@ class ZabbixTest(unittest.TestCase):
             hostid="1",
             retries=3,
         )
+
+    def test_add_url_big_url(self):
+        url = "http://mysite.com/01234567890123456789012345" \
+              "67890123456789012345678901234567890123456789"
+        hc_name = "hc_name"
+        item_name = "hc for http://mysite.com/" \
+                    "01234567890123456789012345678901234567…"
+
+        self.backend.zapi.httptest.create.return_value = {"httptestids": [1]}
+        self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
+        old_add_action = self.backend._add_action
+        self.backend._add_action = mock.Mock()
+        hmock = mock.Mock(host_id="1", group_id=13)
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
+
+        self.backend.add_url(hc_name, url)
+
+        self.backend.storage.find_healthcheck_by_name.assert_called_with(
+            hc_name)
+        self.backend.zapi.httptest.create.assert_called_with(
+            name=item_name,
+            steps=[{
+                "name": item_name,
+                "url": url,
+                "status_codes": 200,
+                "no": 1,
+            }],
+            hostid="1",
+            retries=3,
+        )
+        expression = ("{{hc_name:web.test.rspcode[{item_name},"
+                      "{item_name}].last()}}#200 | {{hc_name:web.test.fail["
+                      "{item_name}].last()}}#0 & {{hc_name:web.test.error["
+                      "{item_name}].str(required pattern not found)}}=1")
+        self.backend.zapi.trigger.create.assert_called_with(
+            description="trigger for url {}".format(url),
+            expression=expression.format(item_name=item_name),
+            priority=5,
+        )
+        self.assertTrue(self.backend.storage.add_item.called)
+        self.backend._add_action.assert_called_with(url, 1, 13)
+        self.backend._add_action = old_add_action
 
     def test_remove_url(self):
         url = "http://mysite.com"
