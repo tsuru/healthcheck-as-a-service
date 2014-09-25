@@ -133,7 +133,7 @@ class Zabbix(object):
     def _create_item_name(self, url):
         name = "hc for {}".format(url)
         if len(name) > 64:
-            return name[:63] + "…"
+            return name[:61] + "..."
         return name
 
     def _add_item(self, healthcheck_name, url, expected_string=None):

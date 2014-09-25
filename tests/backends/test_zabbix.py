@@ -128,7 +128,7 @@ class ZabbixTest(unittest.TestCase):
               "67890123456789012345678901234567890123456789"
         hc_name = "hc_name"
         item_name = "hc for http://mysite.com/" \
-                    "01234567890123456789012345678901234567…"
+                    "012345678901234567890123456789012345..."
 
         self.backend.zapi.httptest.create.return_value = {"httptestids": [1]}
         self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
