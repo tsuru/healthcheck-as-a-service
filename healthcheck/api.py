@@ -53,11 +53,22 @@ def remove_url():
     if not request.data:
         return "name and url are required", 400
     data = json.loads(request.data)
-    data = json.loads(request.data)
     if "name" not in data or "url" not in data:
         return "name and url are required", 400
     get_manager().remove_url(**data)
     return "", 204
+
+
+@app.route("/url", methods=["GET"])
+@auth.required
+def list_urls():
+    if not request.data:
+        return "name is required.", 400
+    data = json.loads(request.data)
+    if "name" not in data:
+        return "name is required.", 400
+    urls = get_manager().list_urls(**data)
+    return json.dumps(urls), 200
 
 
 @app.route("/watcher", methods=["POST"])

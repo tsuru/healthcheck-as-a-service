@@ -70,6 +70,23 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(400, resp.status_code)
         self.assertEqual(resp.data, 'name and url are required')
 
+    def test_list_urls(self):
+        self.manager.add_url("hc", "http://bla.com")
+        resp = self.api.get(
+            "/url",
+            data=json.dumps({"name": "hc"})
+        )
+        self.assertEqual(200, resp.status_code)
+        self.assertIn(
+            "http://bla.com",
+            resp.data
+        )
+
+    def test_list_urls_bad_request(self):
+        resp = self.api.get("/url")
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(resp.data, 'name is required.')
+
     def test_remove_url(self):
         self.manager.add_url("hc", "http://bla.com/")
         resp = self.api.delete("/url",
