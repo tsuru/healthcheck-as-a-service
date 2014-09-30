@@ -64,6 +64,14 @@ class MongoStorage(object):
         )
         return Item(**result)
 
+    def find_urls_by_healthcheck_name(self, name):
+        items = []
+        healthcheck = self.conn()[self.database_name].healthchecks.find_one({"name": name})
+        mgo_urls = self.conn()[self.database_name].items.find({"group_id": healthcheck['group_id']}, {"url": 1})
+        for url in mgo_urls:
+            items.append(url['url'])
+        return items
+
     def remove_item(self, item):
         self.conn()[self.database_name].items.remove({"url": item.url})
 

@@ -111,6 +111,16 @@ class MongoStorageTest(unittest.TestCase):
             self.assertEqual(getattr(self.item, attr), value)
         self.storage.remove_item(self.item)
 
+    def test_find_url_by_healthcheck_name(self):
+        self.healthcheck.group_id = 1
+        self.storage.add_healthcheck(self.healthcheck)
+        self.item.group_id = self.healthcheck.group_id
+        self.storage.add_item(self.item)
+        urls = self.storage.find_urls_by_healthcheck_name(self.healthcheck.name)
+        self.assertEqual(urls[0], self.item.url)
+        self.storage.remove_item(self.item)
+        self.storage.remove_healthcheck(self.healthcheck)
+
     def test_remove_item(self):
         self.storage.add_item(self.item)
         result = self.storage.find_item_by_url(self.item.url)
