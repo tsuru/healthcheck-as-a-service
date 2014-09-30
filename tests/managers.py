@@ -11,6 +11,9 @@ class FakeManager(object):
         item = {"url": url, "expected_string": expected_string}
         self.healthchecks[name]["urls"].append(item)
 
+    def list_urls(self, name):
+        return [item['url'] for item in self.healthchecks[name]['urls']]
+
     def remove_url(self, name, url):
         index = -1
         for i, u in enumerate(self.healthchecks[name]["urls"]):

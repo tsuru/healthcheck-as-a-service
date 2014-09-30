@@ -53,6 +53,9 @@ class Zabbix(object):
         self.zapi.httptest.delete(item.item_id)
         self.storage.remove_item(item)
 
+    def list_urls(self, name):
+        return self.storage.find_urls_by_healthcheck_name(name)
+
     def new(self, name):
         host = self._add_host(name, self.host_group_id)
         group = self._add_group(name, self.host_group_id)
