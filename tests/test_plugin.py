@@ -7,7 +7,7 @@ import json
 import os
 import unittest
 
-from healthcheck.plugin import (add_url, add_watcher, command, main,
+from healthcheck.plugin import (add_url, add_watcher, list_urls, command, main,
                                 remove_watcher, remove_url, show_help)
 
 
@@ -69,6 +69,34 @@ class PluginTest(unittest.TestCase):
             mock.call("Authorization", "bearer {}".format(self.token)),
             mock.call("Content-Type", "application/json"),
             mock.call("Accept", "text/plain"),
+        ]
+        self.assertEqual(calls, request.add_header.call_args_list)
+        urlopen.assert_called_with(request, timeout=30)
+
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
+    def test_list_urls(self, Request, urlopen):
+        self.set_envs()
+        self.addCleanup(self.delete_envs)
+
+        request = mock.Mock()
+        Request.return_value = request
+
+        response = mock.Mock()
+        response.read.return_value = json.dumps(['http://test.com'])
+        urlopen.return_value = response
+
+        list_urls("name")
+
+        Request.assert_called_with(
+            'GET',
+            self.target + 'services/proxy/name?callback=/url',
+            data=json.dumps({'name': 'name'})
+        )
+
+        calls = [
+            mock.call("Authorization", "bearer {}".format(self.token)),
+            mock.call("Content-Type", "application/json"),
         ]
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
@@ -187,6 +215,7 @@ class PluginTest(unittest.TestCase):
             mock.call("Available commands:\n"),
             mock.call("  add-url\n"),
             mock.call("  add-watcher\n"),
+            mock.call("  list-urls\n"),
             mock.call("  remove-url\n"),
             mock.call("  remove-watcher\n"),
             mock.call("  help\n"),

@@ -94,6 +94,25 @@ def remove_url(name, url):
     msg = "url {} successfully removed!\n".format(url)
     sys.stdout.write(msg)
 
+def list_urls(name):
+    """
+    list-urls list all urls from an instance.
+    Usage:
+
+        list-urls <name>
+
+    Example:
+
+        tsuru {plugin_name} list-urls mysite
+    """
+    body = {'name': name}
+    headers = {"Content-Type": "application/json"}
+    response = proxy_request(name, "GET", "/url", body, headers)
+    urls_json = response.read()
+    urls = json.loads(urls_json)
+    for url in urls:
+        sys.stdout.write(url + "\n")
+
 
 def add_watcher(name, watcher):
     """
@@ -177,6 +196,7 @@ def _get_commands():
         "remove-url": remove_url,
         "add-watcher": add_watcher,
         "remove-watcher": remove_watcher,
+        "list-urls": list_urls,
         "help": show_help,
     }
 
