@@ -66,8 +66,13 @@ class MongoStorage(object):
 
     def find_urls_by_healthcheck_name(self, name):
         items = []
-        healthcheck = self.conn()[self.database_name].healthchecks.find_one({"name": name})
-        mgo_urls = self.conn()[self.database_name].items.find({"group_id": healthcheck['group_id']}, {"url": 1})
+        db = self.conn()[self.database_name]
+        healthcheck = db.healthchecks.find_one({"name": name})
+        mgo_urls = db.items.find(
+            {
+                "group_id": healthcheck['group_id']
+            }, {"url": 1}
+        )
         for url in mgo_urls:
             items.append(url['url'])
         return items

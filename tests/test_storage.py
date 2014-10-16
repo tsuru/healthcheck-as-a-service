@@ -116,7 +116,8 @@ class MongoStorageTest(unittest.TestCase):
         self.storage.add_healthcheck(self.healthcheck)
         self.item.group_id = self.healthcheck.group_id
         self.storage.add_item(self.item)
-        urls = self.storage.find_urls_by_healthcheck_name(self.healthcheck.name)
+        urls = self.storage.find_urls_by_healthcheck_name(
+            self.healthcheck.name)
         self.assertEqual(urls[0], self.item.url)
         self.storage.remove_item(self.item)
         self.storage.remove_healthcheck(self.healthcheck)

@@ -94,6 +94,7 @@ def remove_url(name, url):
     msg = "url {} successfully removed!\n".format(url)
     sys.stdout.write(msg)
 
+
 def list_urls(name):
     """
     list-urls list all urls from an instance.
