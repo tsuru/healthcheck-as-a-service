@@ -73,7 +73,7 @@ class MongoStorageTest(unittest.TestCase):
         self.storage = MongoStorage()
         self.url = "http://myurl.com"
         self.item = Item(self.url)
-        self.user = User("id", "w@w.com", "group_id")
+        self.user = User("id", "w@w.com", ["group_id"])
         self.healthcheck = HealthCheck("bla")
 
     @mock.patch("pymongo.MongoClient")
@@ -120,6 +120,17 @@ class MongoStorageTest(unittest.TestCase):
             self.healthcheck.name)
         self.assertEqual(urls[0], self.item.url)
         self.storage.remove_item(self.item)
+        self.storage.remove_healthcheck(self.healthcheck)
+
+    def test_find_watcher_by_healthcheck_name(self):
+        self.healthcheck.group_id = 1
+        self.storage.add_healthcheck(self.healthcheck)
+        self.user.groups_id = [1]
+        self.storage.add_user(self.user)
+        watchers = self.storage.find_watchers_by_healthcheck_name(
+            self.healthcheck.name)
+        self.assertEqual(watchers[0], self.user.email)
+        self.storage.remove_user(self.user)
         self.storage.remove_healthcheck(self.healthcheck)
 
     def test_remove_item(self):

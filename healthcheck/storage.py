@@ -77,6 +77,11 @@ class MongoStorage(object):
             items.append(url['url'])
         return items
 
+    def find_watchers_by_healthcheck_name(self, name):
+        healthcheck = self.find_healthcheck_by_name(name)
+        watchers = self.find_users_by_group(healthcheck.group_id)
+        return [watcher.email for watcher in watchers]
+
     def remove_item(self, item):
         self.db.items.remove({"url": item.url})
 

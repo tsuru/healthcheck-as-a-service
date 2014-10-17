@@ -104,6 +104,9 @@ class Zabbix(object):
         user = User(user_id, email, hc.group_id)
         self.storage.add_user(user)
 
+    def list_watchers(self, name):
+        return self.storage.find_watchers_by_healthcheck_name(name)
+
     def remove_watcher(self, name, email):
         hc = self.storage.find_healthcheck_by_name(name)
         user = self.storage.find_user_by_email(email)
