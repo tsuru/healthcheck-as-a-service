@@ -47,6 +47,7 @@ class MongoStorage(object):
 
     def __init__(self):
         self.database_name = os.environ.get("MONGODB_DATABASE", "hcapi")
+        self.db = self.conn()[self.database_name]
 
     def conn(self):
         mongodb_uri = os.environ.get(
@@ -56,21 +57,20 @@ class MongoStorage(object):
         return MongoClient(mongodb_uri)
 
     def add_item(self, item):
-        self.conn()[self.database_name].items.insert(item.to_json())
+        self.db.items.insert(item.to_json())
 
     def find_item_by_url(self, url):
-        result = self.conn()[self.database_name].items.find_one(
+        result = self.db.items.find_one(
             {"url": url}
         )
         return Item(**result)
 
     def find_urls_by_healthcheck_name(self, name):
         items = []
-        db = self.conn()[self.database_name]
-        healthcheck = db.healthchecks.find_one({"name": name})
-        mgo_urls = db.items.find(
+        healthcheck = self.find_healthcheck_by_name(name)
+        mgo_urls = self.db.items.find(
             {
-                "group_id": healthcheck['group_id']
+                "group_id": healthcheck.group_id
             }, {"url": 1}
         )
         for url in mgo_urls:
@@ -78,26 +78,26 @@ class MongoStorage(object):
         return items
 
     def remove_item(self, item):
-        self.conn()[self.database_name].items.remove({"url": item.url})
+        self.db.items.remove({"url": item.url})
 
     def add_user(self, user):
-        self.conn()[self.database_name].users.insert(user.to_json())
+        self.db.users.insert(user.to_json())
 
     def remove_user(self, user):
-        self.conn()[self.database_name].users.remove({"email": user.email})
+        self.db.users.remove({"email": user.email})
 
     def add_healthcheck(self, healthcheck):
-        self.conn()[self.database_name].healthchecks.insert(
+        self.db.healthchecks.insert(
             healthcheck.to_json()
         )
 
     def remove_healthcheck(self, healthcheck):
-        self.conn()[self.database_name].healthchecks.remove(
+        self.db.healthchecks.remove(
             {"name": healthcheck.name}
         )
 
     def find_healthcheck_by_name(self, name):
-        result = self.conn()[self.database_name].healthchecks.find_one(
+        result = self.db.healthchecks.find_one(
             {"name": name}
         )
         if not result:
@@ -105,7 +105,7 @@ class MongoStorage(object):
         return HealthCheck(**result)
 
     def find_user_by_email(self, email):
-        result = self.conn()[self.database_name].users.find_one(
+        result = self.db.users.find_one(
             {"email": email}
         )
         if not result:
@@ -113,20 +113,16 @@ class MongoStorage(object):
         return User(result["id"], result["email"], *result["groups_id"])
 
     def find_users_by_group(self, group_id):
-        items = self.conn()[self.database_name].users.find(
+        items = self.db.users.find(
             {"groups_id": group_id},
         )
         return [User(r["id"], r["email"], *r["groups_id"]) for r in items]
 
     def add_user_to_group(self, user, group):
-        self.conn()[self.database_name].users.update({"id": user.id},
-                                                     {"$push":
-                                                      {"groups_id": group}})
+        self.db.users.update({"id": user.id}, {"$push": {"groups_id": group}})
 
     def remove_user_from_group(self, user, group):
-        self.conn()[self.database_name].users.update({"id": user.id},
-                                                     {"$pull":
-                                                      {"groups_id": group}})
+        self.db.users.update({"id": user.id}, {"$pull": {"groups_id": group}})
 
 
 class HealthCheckNotFoundError(Exception):
