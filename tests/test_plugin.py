@@ -8,7 +8,7 @@ import os
 import unittest
 
 from healthcheck.plugin import (add_url, add_watcher, list_urls, command, main,
-                                remove_watcher, remove_url, show_help)
+                                remove_watcher, remove_url, list_watchers, show_help)
 
 
 class PluginTest(unittest.TestCase):
@@ -22,12 +22,15 @@ class PluginTest(unittest.TestCase):
         del os.environ["TSURU_TARGET"], os.environ["TSURU_TOKEN"], \
             os.environ["TSURU_PLUGIN_NAME"]
 
+    def setUp(self):
+        self.set_envs()
+
+    def tearDown(self):
+        self.delete_envs()
+
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_add_url(self, Request, urlopen):
-        self.set_envs()
-        self.addCleanup(self.delete_envs)
-
         request = mock.Mock()
         Request.return_value = request
 
@@ -50,9 +53,6 @@ class PluginTest(unittest.TestCase):
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_add_url_three_args(self, Request, urlopen):
-        self.set_envs()
-        self.addCleanup(self.delete_envs)
-
         request = mock.Mock()
         Request.return_value = request
 
@@ -76,9 +76,6 @@ class PluginTest(unittest.TestCase):
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_list_urls(self, Request, urlopen):
-        self.set_envs()
-        self.addCleanup(self.delete_envs)
-
         request = mock.Mock()
         Request.return_value = request
 
@@ -104,9 +101,6 @@ class PluginTest(unittest.TestCase):
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_remove_url(self, Request, urlopen):
-        self.set_envs()
-        self.addCleanup(self.delete_envs)
-
         request = mock.Mock()
         Request.return_value = request
 
@@ -127,9 +121,6 @@ class PluginTest(unittest.TestCase):
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_add_watcher(self, Request, urlopen):
-        self.set_envs()
-        self.addCleanup(self.delete_envs)
-
         request = mock.Mock()
         Request.return_value = request
 
@@ -152,9 +143,6 @@ class PluginTest(unittest.TestCase):
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_remove_watcher(self, Request, urlopen):
-        self.set_envs()
-        self.addCleanup(self.delete_envs)
-
         request = mock.Mock()
         Request.return_value = request
 
@@ -170,10 +158,33 @@ class PluginTest(unittest.TestCase):
                                               "bearer " + self.token)
         urlopen.assert_called_with(request, timeout=30)
 
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
+    def test_list_watchers(self, Request, urlopen):
+        request = mock.Mock()
+        Request.return_value = request
+
+        response = mock.Mock()
+        response.read.return_value = json.dumps(['bla@test.com'])
+        urlopen.return_value = response
+
+        list_watchers("name")
+
+        Request.assert_called_with(
+            'GET',
+            self.target + 'services/proxy/name?callback=/watcher',
+            data=json.dumps({'name': 'name'})
+        )
+
+        calls = [
+            mock.call("Authorization", "bearer {}".format(self.token)),
+            mock.call("Content-Type", "application/json"),
+        ]
+        self.assertEqual(calls, request.add_header.call_args_list)
+        urlopen.assert_called_with(request, timeout=30)
+
     @mock.patch("sys.stderr")
     def test_help(self, stderr):
-        self.set_envs()
-        self.addCleanup(self.delete_envs)
         with self.assertRaises(SystemExit) as cm:
             show_help("add-url")
         exc = cm.exception
@@ -183,8 +194,6 @@ class PluginTest(unittest.TestCase):
 
     @mock.patch("sys.stderr")
     def test_help_with_exit_code(self, stderr):
-        self.set_envs()
-        self.addCleanup(self.delete_envs)
         with self.assertRaises(SystemExit) as cm:
             show_help("add-watcher", exit=2)
         exc = cm.exception
@@ -204,8 +213,6 @@ class PluginTest(unittest.TestCase):
 
     @mock.patch("sys.stderr")
     def test_command_not_found(self, stderr):
-        self.set_envs()
-        self.addCleanup(self.delete_envs)
         with self.assertRaises(SystemExit) as cm:
             command("waaaat")
         exc = cm.exception
@@ -216,6 +223,7 @@ class PluginTest(unittest.TestCase):
             mock.call("  add-url\n"),
             mock.call("  add-watcher\n"),
             mock.call("  list-urls\n"),
+            mock.call("  list-watchers\n"),
             mock.call("  remove-url\n"),
             mock.call("  remove-watcher\n"),
             mock.call("  help\n"),

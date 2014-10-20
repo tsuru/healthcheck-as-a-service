@@ -157,6 +157,26 @@ def remove_watcher(name, watcher):
     sys.stdout.write(msg)
 
 
+def list_watchers(name):
+    """
+    list-watchers list all watchers from an instance.
+    Usage:
+
+        list-watchers <name>
+
+    Example:
+
+        tsuru {plugin_name} list-watchers mysite
+    """
+    body = {'name': name}
+    headers = {"Content-Type": "application/json"}
+    response = proxy_request(name, "GET", "/watcher", body, headers)
+    watchers_json = response.read()
+    watchers = json.loads(watchers_json)
+    for watcher in watchers:
+        sys.stdout.write(watcher + "\n")
+
+
 def show_help(command_name=None, exit=0):
     """
     help displays the help of the specified command. Usage:
@@ -195,9 +215,10 @@ def _get_commands():
     return {
         "add-url": add_url,
         "remove-url": remove_url,
+        "list-urls": list_urls,
         "add-watcher": add_watcher,
         "remove-watcher": remove_watcher,
-        "list-urls": list_urls,
+        "list-watchers": list_watchers,
         "help": show_help,
     }
 
