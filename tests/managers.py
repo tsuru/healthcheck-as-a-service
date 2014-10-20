@@ -32,5 +32,8 @@ class FakeManager(object):
     def remove_watcher(self, name, email):
         self.healthchecks[name]["users"].remove(email)
 
+    def list_watchers(self, name):
+        return self.healthchecks[name]['users']
+
     def remove(self, name):
         del self.healthchecks[name]

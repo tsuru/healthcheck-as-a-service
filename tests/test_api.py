@@ -138,6 +138,23 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(400, resp.status_code)
         self.assertEqual(resp.data, "name and watcher are required")
 
+    def test_list_watchers(self):
+        self.manager.add_watcher("hc", "test@test.com")
+        resp = self.api.get(
+            "/watcher",
+            data=json.dumps({"name": "hc"})
+        )
+        self.assertEqual(200, resp.status_code)
+        self.assertIn(
+            "test@test.com",
+            resp.data
+        )
+
+    def test_list_watchers_bad_request(self):
+        resp = self.api.get("/watcher")
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(resp.data, 'name is required.')
+
     def test_new(self):
         resp = self.api.post(
             "/resources",

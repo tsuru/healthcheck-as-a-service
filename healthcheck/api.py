@@ -96,6 +96,18 @@ def remove_watcher(name, watcher):
     return "", 204
 
 
+@app.route("/watcher", methods=["GET"])
+@auth.required
+def list_watchers():
+    if not request.data:
+        return "name is required.", 400
+    data = json.loads(request.data)
+    if "name" not in data:
+        return "name is required.", 400
+    watchers = get_manager().list_watchers(**data)
+    return json.dumps(watchers), 200
+
+
 @app.route("/resources", methods=["POST"])
 @auth.required
 def new():
