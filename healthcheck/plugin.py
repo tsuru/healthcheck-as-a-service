@@ -106,9 +106,9 @@ def list_urls(name):
 
         tsuru {plugin_name} list-urls mysite
     """
-    body = {'name': name}
+    url = "/url?name={}".format(name)
     headers = {"Content-Type": "application/json"}
-    response = proxy_request(name, "GET", "/url", body, headers)
+    response = proxy_request(name, "GET", url, "", headers)
     urls_json = response.read()
     urls = json.loads(urls_json)
     for url in urls:
@@ -168,9 +168,9 @@ def list_watchers(name):
 
         tsuru {plugin_name} list-watchers mysite
     """
-    body = {'name': name}
+    url = '/watcher?name={}'.format(name)
     headers = {"Content-Type": "application/json"}
-    response = proxy_request(name, "GET", "/watcher", body, headers)
+    response = proxy_request(name, "GET", url, "", headers)
     watchers_json = response.read()
     watchers = json.loads(watchers_json)
     for watcher in watchers:

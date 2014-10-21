@@ -87,8 +87,8 @@ class PluginTest(unittest.TestCase):
 
         Request.assert_called_with(
             'GET',
-            self.target + 'services/proxy/name?callback=/url',
-            data=json.dumps({'name': 'name'})
+            self.target + 'services/proxy/name?callback=/url?name=name',
+            data=''
         )
 
         calls = [
@@ -172,8 +172,8 @@ class PluginTest(unittest.TestCase):
 
         Request.assert_called_with(
             'GET',
-            self.target + 'services/proxy/name?callback=/watcher',
-            data=json.dumps({'name': 'name'})
+            self.target + 'services/proxy/name?callback=/watcher?name=name',
+            data=''
         )
 
         calls = [
