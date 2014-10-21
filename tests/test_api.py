@@ -73,8 +73,7 @@ class APITestCase(unittest.TestCase):
     def test_list_urls(self):
         self.manager.add_url("hc", "http://bla.com")
         resp = self.api.get(
-            "/url",
-            data=json.dumps({"name": "hc"})
+            "/url?name=hc",
         )
         self.assertEqual(200, resp.status_code)
         self.assertIn(
@@ -141,8 +140,7 @@ class APITestCase(unittest.TestCase):
     def test_list_watchers(self):
         self.manager.add_watcher("hc", "test@test.com")
         resp = self.api.get(
-            "/watcher",
-            data=json.dumps({"name": "hc"})
+            "/watcher?name=hc",
         )
         self.assertEqual(200, resp.status_code)
         self.assertIn(
