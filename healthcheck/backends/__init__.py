@@ -131,6 +131,14 @@ class Zabbix(object):
         self.storage.remove_user(user)
 
     def remove(self, name):
+        urls = self.list_urls(name)
+        for url in urls:
+            self.remove_url(name, url)
+
+        watchers = self.list_watchers(name)
+        for watcher in watchers:
+            self.remove_watcher(name, watcher)
+
         healthcheck = self.storage.find_healthcheck_by_name(name)
         self._remove_group(healthcheck.group_id)
         self._remove_host(healthcheck.host_id)

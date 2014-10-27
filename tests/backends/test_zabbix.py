@@ -380,8 +380,7 @@ class ZabbixTest(unittest.TestCase):
             usrgrpid="group1",
             userids=["456", "789"],
         )
-        self.backend.storage.remove_user_from_group.assert_called_with(user,
-                                                                       group)
+        self.backend.storage.remove_user_from_group.assert_called_with(user, group)
 
     def test_remove_watcher_not_in_healthcheck(self):
         hmock = mock.Mock(group_id="group1")
@@ -394,11 +393,28 @@ class ZabbixTest(unittest.TestCase):
     def test_remove(self):
         name = "blah"
         id = "someid"
+
+        old_remove_url = self.backend.remove_url
+        self.backend.remove_url = mock.Mock()
+        old_remove_watcher = self.backend.remove_watcher
+        self.backend.remove_watcher = mock.Mock()
+
         hmock = mock.Mock(group_id=id, host_id=id)
         self.backend.storage.find_healthcheck_by_name.return_value = hmock
+        urls = ['http://test.com/healthcheck']
+        self.backend.storage.find_urls_by_healthcheck_name.return_value = urls
+        watchers = ['test@example.com']
+        self.backend.storage.find_watchers_by_healthcheck_name.return_value = watchers
+        user = User("123", "email@email.com", id)
+        self.backend.storage.find_user_by_email.return_value = user
 
         self.backend.remove(name)
 
         self.backend.zapi.usergroup.delete.assert_called_with(id)
         self.backend.zapi.host.delete.assert_called_with(id)
         self.backend.storage.remove_healthcheck.assert_called_with(hmock)
+        assert self.backend.remove_url.called
+        assert self.backend.remove_watcher.called
+
+        self.backend.remove_url = old_remove_url
+        self.backend.remove_watcher = old_remove_watcher
