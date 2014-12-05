@@ -51,16 +51,22 @@ def proxy_request(instance_name, method, path, body=None, headers=None):
     return urllib2.urlopen(request, timeout=30)
 
 
-def add_url(name, url, expected_string=None):
+def add_url(name, url, expected_string=None, comment=None):
     """
     add-url add a new url checker to the given instance. Usage:
 
-        add-url <instance-name> <url> [expected_string]
+        add-url <instance-name> <url> [expected_string] [comment]
 
     expected_string is an optional parameter that represents the string that
     the healthcheck should expect to find in the body of the response. Example:
 
         tsuru {plugin_name} add-url mysite http://mysite.com/hc WORKING
+
+    comment is an optional parameter that refers to what to do when a trigger
+    is triggered. Example:
+
+        tsuru {plugin_name} add-url mysite http://mysite.com/hc 'restart the app'
+
     """
     data = {
         "name": name,
@@ -68,6 +74,8 @@ def add_url(name, url, expected_string=None):
     }
     if expected_string:
         data["expected_string"] = expected_string
+    if comment:
+        data["comment"] = comment
     headers = {
         "Content-Type": "application/json",
         "Accept": "text/plain"

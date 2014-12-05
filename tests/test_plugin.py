@@ -52,7 +52,7 @@ class PluginTest(unittest.TestCase):
 
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
-    def test_add_url_three_args(self, Request, urlopen):
+    def test_add_url_with_expected_string_args(self, Request, urlopen):
         request = mock.Mock()
         Request.return_value = request
 
@@ -63,6 +63,29 @@ class PluginTest(unittest.TestCase):
             self.target + 'services/proxy/name?callback=/url',
             data=json.dumps({'url': 'url', 'name': 'name',
                              'expected_string': 'WORKING'})
+        )
+
+        calls = [
+            mock.call("Authorization", "bearer {}".format(self.token)),
+            mock.call("Content-Type", "application/json"),
+            mock.call("Accept", "text/plain"),
+        ]
+        self.assertEqual(calls, request.add_header.call_args_list)
+        urlopen.assert_called_with(request, timeout=30)
+
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
+    def test_add_url_with_comment_args(self, Request, urlopen):
+        request = mock.Mock()
+        Request.return_value = request
+
+        add_url("name", "url", comment="http://test.com")
+
+        Request.assert_called_with(
+            'POST',
+            self.target + 'services/proxy/name?callback=/url',
+            data=json.dumps({'url': 'url', 'name': 'name',
+                             'comment': 'http://test.com'})
         )
 
         calls = [

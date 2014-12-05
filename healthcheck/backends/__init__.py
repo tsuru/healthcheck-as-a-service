@@ -33,10 +33,10 @@ class Zabbix(object):
         self.storage = MongoStorage()
         self.storage.conn()
 
-    def add_url(self, name, url, expected_string=None):
+    def add_url(self, name, url, expected_string=None, comment=None):
         hc = self.storage.find_healthcheck_by_name(name)
         item_id = self._add_item(name, url, expected_string)
-        trigger_id = self._add_trigger(name, url)
+        trigger_id = self._add_trigger(name, url, comment)
         action_id = self._add_action(url, trigger_id, hc.group_id)
         item = Item(
             url,
@@ -46,6 +46,45 @@ class Zabbix(object):
             group_id=hc.group_id,
         )
         self.storage.add_item(item)
+
+    def _add_item(self, healthcheck_name, url, expected_string=None):
+        hc = self.storage.find_healthcheck_by_name(healthcheck_name)
+        item_name = self._create_item_name(url)
+        step = {"name": item_name, "url": url,
+                "status_codes": 200, "no": 1}
+        if expected_string:
+            step["required"] = expected_string
+        item_result = self.zapi.httptest.create(
+            name=item_name,
+            steps=[step],
+            hostid=hc.host_id,
+            retries=int(os.environ.get("ZABBIX_RETRIES", 3)),
+        )
+        return item_result['httptestids'][0]
+
+    def _create_item_name(self, url):
+        name = "hc for {}".format(url)
+        if len(name) > 64:
+            return name[:61] + "..."
+        return name
+
+    def _add_trigger(self, host_name, url, comment=None):
+        item_name = self._create_item_name(url)
+        status_expression = ("{{%s:web.test.rspcode[{item_name},"
+                             "{item_name}].last()}}#200") % host_name
+        failed_expression = "{{%s:web.test.fail[{item_name}].last()}}#0" % \
+            host_name
+        string_expression = ("{{%s:web.test.error[{item_name}]."
+                             "str(required pattern not found)}}=1") % host_name
+        expression = "%s | %s & %s" % (status_expression, failed_expression,
+                                       string_expression)
+        trigger_result = self.zapi.trigger.create(
+            description="trigger for url {}".format(url),
+            expression=expression.format(item_name=item_name),
+            priority=5,
+            comment=comment,
+        )
+        return trigger_result['triggerids'][0]
 
     def remove_url(self, name, url):
         item = self.storage.find_item_by_url(url)
@@ -143,44 +182,6 @@ class Zabbix(object):
         self._remove_group(healthcheck.group_id)
         self._remove_host(healthcheck.host_id)
         self.storage.remove_healthcheck(healthcheck)
-
-    def _create_item_name(self, url):
-        name = "hc for {}".format(url)
-        if len(name) > 64:
-            return name[:61] + "..."
-        return name
-
-    def _add_item(self, healthcheck_name, url, expected_string=None):
-        hc = self.storage.find_healthcheck_by_name(healthcheck_name)
-        item_name = self._create_item_name(url)
-        step = {"name": item_name, "url": url,
-                "status_codes": 200, "no": 1}
-        if expected_string:
-            step["required"] = expected_string
-        item_result = self.zapi.httptest.create(
-            name=item_name,
-            steps=[step],
-            hostid=hc.host_id,
-            retries=int(os.environ.get("ZABBIX_RETRIES", 3)),
-        )
-        return item_result['httptestids'][0]
-
-    def _add_trigger(self, host_name, url):
-        item_name = self._create_item_name(url)
-        status_expression = ("{{%s:web.test.rspcode[{item_name},"
-                             "{item_name}].last()}}#200") % host_name
-        failed_expression = "{{%s:web.test.fail[{item_name}].last()}}#0" % \
-            host_name
-        string_expression = ("{{%s:web.test.error[{item_name}]."
-                             "str(required pattern not found)}}=1") % host_name
-        expression = "%s | %s & %s" % (status_expression, failed_expression,
-                                       string_expression)
-        trigger_result = self.zapi.trigger.create(
-            description="trigger for url {}".format(url),
-            expression=expression.format(item_name=item_name),
-            priority=5,
-        )
-        return trigger_result['triggerids'][0]
 
     def _add_action(self, url, trigger_id, group_id):
         result = self.zapi.action.create(

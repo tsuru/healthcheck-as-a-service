@@ -85,6 +85,7 @@ class ZabbixTest(unittest.TestCase):
             description="trigger for url {}".format(url),
             expression=expression.format(item_name=item_name),
             priority=5,
+            comment=None,
         )
         self.assertTrue(self.backend.storage.add_item.called)
         self.backend._add_action.assert_called_with(url, 1, 13)
@@ -121,6 +122,31 @@ class ZabbixTest(unittest.TestCase):
             }],
             hostid="1",
             retries=3,
+        )
+
+    def test_add_url_comment(self):
+        url = "http://mysite.com"
+        hc_name = "hc_name"
+
+        self.backend.zapi.httptest.create.return_value = {"httptestids": [1]}
+        self.backend.zapi.trigger.create.return_value = {"triggerids": [1]}
+        old_add_action = self.backend._add_action
+
+        def set_old_add_action():
+            self.backend._add_action = old_add_action
+        self.addCleanup(set_old_add_action)
+        self.backend._add_action = mock.Mock()
+        hmock = mock.Mock(host_id="1", group_id=13)
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
+
+        self.backend.add_url(hc_name, url, comment="http://test.com")
+        self.backend.zapi.trigger.create.assert_called_with(
+            description="trigger for url {}".format(url),
+            expression='{hc_name:web.test.rspcode[hc for http://mysite.com,hc for http://mysite.com].last()}#200 \
+| {hc_name:web.test.fail[hc for http://mysite.com].last()}#0 & {hc_name:web.test.error\
+[hc for http://mysite.com].str(required pattern not found)}=1',
+            priority=5,
+            comment="http://test.com",
         )
 
     def test_add_url_big_url(self):
@@ -160,6 +186,7 @@ class ZabbixTest(unittest.TestCase):
             description="trigger for url {}".format(url),
             expression=expression.format(item_name=item_name),
             priority=5,
+            comment=None,
         )
         self.assertTrue(self.backend.storage.add_item.called)
         self.backend._add_action.assert_called_with(url, 1, 13)
