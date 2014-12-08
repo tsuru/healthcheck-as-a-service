@@ -82,7 +82,7 @@ class Zabbix(object):
             description="trigger for url {}".format(url),
             expression=expression.format(item_name=item_name),
             priority=5,
-            comment=comment,
+            comments=comment,
         )
         return trigger_result['triggerids'][0]
 

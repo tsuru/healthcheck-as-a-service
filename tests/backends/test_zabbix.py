@@ -85,7 +85,7 @@ class ZabbixTest(unittest.TestCase):
             description="trigger for url {}".format(url),
             expression=expression.format(item_name=item_name),
             priority=5,
-            comment=None,
+            comments=None,
         )
         self.assertTrue(self.backend.storage.add_item.called)
         self.backend._add_action.assert_called_with(url, 1, 13)
@@ -146,7 +146,7 @@ class ZabbixTest(unittest.TestCase):
 | {hc_name:web.test.fail[hc for http://mysite.com].last()}#0 & {hc_name:web.test.error\
 [hc for http://mysite.com].str(required pattern not found)}=1',
             priority=5,
-            comment="http://test.com",
+            comments="http://test.com",
         )
 
     def test_add_url_big_url(self):
@@ -186,7 +186,7 @@ class ZabbixTest(unittest.TestCase):
             description="trigger for url {}".format(url),
             expression=expression.format(item_name=item_name),
             priority=5,
-            comment=None,
+            comments=None,
         )
         self.assertTrue(self.backend.storage.add_item.called)
         self.backend._add_action.assert_called_with(url, 1, 13)
