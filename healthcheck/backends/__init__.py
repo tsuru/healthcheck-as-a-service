@@ -93,7 +93,15 @@ class Zabbix(object):
         self.storage.remove_item(item)
 
     def list_urls(self, name):
-        return self.storage.find_urls_by_healthcheck_name(name)
+        urls_comments = []
+        urls = self.storage.find_urls_by_healthcheck_name(name)
+        for url in urls:
+            url_comment = [url]
+            item = self.storage.find_item_by_url(url)
+            trigger = self.zapi.trigger.get(triggerids=item.trigger_id)
+            url_comment.append(trigger['result'][0]['comments'])
+            urls_comments.append(url_comment)
+        return urls_comments
 
     def new(self, name):
         host = self._add_host(name, self.host_group_id)

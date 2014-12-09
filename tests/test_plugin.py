@@ -103,7 +103,7 @@ class PluginTest(unittest.TestCase):
         Request.return_value = request
 
         response = mock.Mock()
-        response.read.return_value = json.dumps(['http://test.com'])
+        response.read.return_value = json.dumps([['http://test.com', ""]])
         urlopen.return_value = response
 
         list_urls("name")

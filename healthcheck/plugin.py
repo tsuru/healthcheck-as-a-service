@@ -9,6 +9,8 @@ import json
 import sys
 import urllib2
 
+from terminaltables import AsciiTable
+
 
 def get_env(name):
     env = os.environ.get(name)
@@ -119,8 +121,10 @@ def list_urls(name):
     response = proxy_request(name, "GET", url, "", headers)
     urls_json = response.read()
     urls = json.loads(urls_json)
-    for url in urls:
-        sys.stdout.write(url + "\n")
+    table_urls = [["Url", "Comment"]]
+    table_urls.extend(urls)
+    table = AsciiTable(table_urls)
+    sys.stdout.write(table.table)
 
 
 def add_watcher(name, watcher):

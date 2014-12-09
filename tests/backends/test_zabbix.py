@@ -24,6 +24,7 @@ class ZabbixTest(unittest.TestCase):
         os.environ["ZABBIX_HOST"] = "1"
         os.environ["ZABBIX_HOST_GROUP"] = "2"
         zapi_mock = mock.Mock()
+        zapi_mock.trigger.get.return_value = {"result": [{"comments": "teste"}]}
         zabbix_mock.return_value = zapi_mock
 
         instance_mock = mock.Mock()
