@@ -99,7 +99,7 @@ class Zabbix(object):
             url_comment = [url]
             item = self.storage.find_item_by_url(url)
             trigger = self.zapi.trigger.get(triggerids=item.trigger_id)
-            url_comment.append(trigger[0]['comments'])
+            url_comment.append(trigger[0].get('comments', ""))
             urls_comments.append(url_comment)
         return urls_comments
 
