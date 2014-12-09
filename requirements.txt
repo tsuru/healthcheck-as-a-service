@@ -4,3 +4,4 @@ honcho==0.4.2
 pyzabbix==0.6
 pymongo==2.6.3
 Flask-Admin==1.0.8
+terminaltables==1.1.1
