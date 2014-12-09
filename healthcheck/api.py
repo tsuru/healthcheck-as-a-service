@@ -4,6 +4,7 @@
 
 from flask import Flask, request
 from flask.ext.admin import Admin
+from terminaltables import AsciiTable
 
 from healthcheck import admin as hadmin
 from healthcheck import auth
@@ -65,7 +66,10 @@ def list_urls():
     if "name" not in request.args:
         return "name is required.", 400
     urls = get_manager().list_urls(request.args['name'])
-    return json.dumps(urls), 200
+    table_urls = [["Url", "Comment"]]
+    table_urls.extend(urls)
+    table = AsciiTable(table_urls)
+    return table.table, 200
 
 
 @app.route("/watcher", methods=["POST"])
