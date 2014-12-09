@@ -118,7 +118,7 @@ def list_urls(name):
     headers = {"Content-Type": "application/json"}
     response = proxy_request(name, "GET", url, "", headers)
     urls = response.read()
-    sys.stdout.write(url)
+    sys.stdout.write(urls)
 
 
 def add_watcher(name, watcher):
