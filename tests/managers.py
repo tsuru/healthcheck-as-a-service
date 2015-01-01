@@ -7,12 +7,12 @@ class FakeManager(object):
     def __init__(self):
         self.healthchecks = {}
 
-    def add_url(self, name, url, expected_string=None):
-        item = {"url": url, "expected_string": expected_string}
+    def add_url(self, name, url, expected_string=None, comment=""):
+        item = {"url": url, "expected_string": expected_string, "comment": comment}
         self.healthchecks[name]["urls"].append(item)
 
     def list_urls(self, name):
-        return [item['url'] for item in self.healthchecks[name]['urls']]
+        return [[item['url'], item['comment']] for item in self.healthchecks[name]['urls']]
 
     def remove_url(self, name, url):
         index = -1
