@@ -10,7 +10,7 @@ import mock
 
 from healthcheck.backends import (WatcherAlreadyRegisteredError,
                                   WatcherNotInInstanceError, get_value)
-from healthcheck.storage import Item, User, UserNotFoundError
+from healthcheck.storage import Item, User, HealthCheck, UserNotFoundError
 
 
 class ZabbixTest(unittest.TestCase):
@@ -421,14 +421,13 @@ class ZabbixTest(unittest.TestCase):
     def test_remove(self):
         name = "blah"
         id = "someid"
+        url = 'http://test.com/healthcheck'
 
         old_remove_url = self.backend.remove_url
         self.backend.remove_url = mock.Mock()
         old_remove_watcher = self.backend.remove_watcher
         self.backend.remove_watcher = mock.Mock()
-        old_list_urls = self.backend.list_urls
-        self.backend.list_urls = mock.Mock()
-        self.backend.list_urls.return_value = [['http://test.com/healthcheck', "comment"]]
+        self.backend.storage.find_urls_by_healthcheck_name.return_value = [url]
 
         hmock = mock.Mock(group_id=id, host_id=id)
         self.backend.storage.find_healthcheck_by_name.return_value = hmock
@@ -439,7 +438,7 @@ class ZabbixTest(unittest.TestCase):
 
         self.backend.remove(name)
 
-        self.backend.list_urls.assert_called_with(name)
+        self.backend.storage.find_urls_by_healthcheck_name.assert_called_with(name)
         self.backend.zapi.usergroup.delete.assert_called_with(id)
         self.backend.zapi.host.delete.assert_called_with(id)
         self.backend.storage.remove_healthcheck.assert_called_with(hmock)
@@ -448,4 +447,84 @@ class ZabbixTest(unittest.TestCase):
 
         self.backend.remove_url = old_remove_url
         self.backend.remove_watcher = old_remove_watcher
-        self.backend.list_urls = old_list_urls
+
+    def test_remove_with_urls(self):
+        name = "blah"
+        url = "http://mysite.com"
+        item_id = 1
+        trigger_id = 2
+        action_id = 3
+        group_id = "4"
+        host_id = "5"
+        user_id = "6"
+        item = Item(
+            url,
+            item_id=item_id,
+            trigger_id=trigger_id,
+            action_id=action_id
+        )
+
+        self.backend.storage.find_item_by_url.return_value = item
+        self.backend.storage.find_urls_by_healthcheck_name.return_value = [url]
+        hc = HealthCheck(name, group_id=group_id, host_id=host_id)
+        self.backend.storage.find_healthcheck_by_name.return_value = hc
+        watchers = ['test@example.com']
+        self.backend.storage.find_watchers_by_healthcheck_name.return_value = watchers
+        user = User(user_id, "email@email.com", group_id)
+        self.backend.storage.find_user_by_email.return_value = user
+        self.backend.zapi.trigger.get.return_value = [{"comments": "xxx"}]
+
+        self.backend.remove(name)
+
+        self.backend.zapi.usergroup.delete.assert_called_with(group_id)
+        self.backend.zapi.host.delete.assert_called_with(host_id)
+        self.backend.zapi.action.delete.assert_called_with(action_id)
+        self.backend.zapi.httptest.delete.assert_called_with(item_id)
+        self.backend.zapi.user.delete.assert_called_with(user_id)
+        self.backend.storage.remove_healthcheck.assert_called_with(hc)
+        self.backend.storage.remove_item.assert_called_with(item)
+        self.backend.storage.find_healthcheck_by_name.assert_called_with(name)
+        self.backend.storage.find_urls_by_healthcheck_name.assert_called_with(name)
+        self.backend.storage.find_item_by_url.assert_called_with(url)
+
+    def test_remove_with_urls_more_than_one_group(self):
+        name = "blah"
+        url = "http://mysite.com"
+        item_id = 1
+        trigger_id = 2
+        action_id = 3
+        group_id = "4"
+        another_group_id = "4-2"
+        host_id = "5"
+        user_id = "6"
+        item = Item(
+            url,
+            item_id=item_id,
+            trigger_id=trigger_id,
+            action_id=action_id
+        )
+
+        self.backend.storage.find_item_by_url.return_value = item
+        self.backend.storage.find_urls_by_healthcheck_name.return_value = [url]
+        hc = HealthCheck(name, group_id=group_id, host_id=host_id)
+        self.backend.storage.find_healthcheck_by_name.return_value = hc
+        watchers = ['test@example.com']
+        self.backend.storage.find_watchers_by_healthcheck_name.return_value = watchers
+        user = User(user_id, "email@email.com", group_id, another_group_id)
+        self.backend.storage.find_user_by_email.return_value = user
+        self.backend.storage.find_users_by_group.return_value = [user]
+        self.backend.zapi.trigger.get.return_value = [{"comments": "xxx"}]
+
+        self.backend.remove(name)
+
+        self.backend.zapi.usergroup.delete.assert_called_with(group_id)
+        self.backend.zapi.host.delete.assert_called_with(host_id)
+        self.backend.zapi.action.delete.assert_called_with(action_id)
+        self.backend.zapi.httptest.delete.assert_called_with(item_id)
+        self.backend.zapi.usergroup.update.assert_called_with(usrgrpid=group_id, userids=[])
+        self.backend.storage.remove_healthcheck.assert_called_with(hc)
+        self.backend.storage.remove_item.assert_called_with(item)
+        self.backend.storage.find_healthcheck_by_name.assert_called_with(name)
+        self.backend.storage.find_urls_by_healthcheck_name.assert_called_with(name)
+        self.backend.storage.find_item_by_url.assert_called_with(url)
+        self.backend.storage.find_users_by_group.assert_called_with(group_id)

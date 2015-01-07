@@ -178,7 +178,7 @@ class Zabbix(object):
         self.storage.remove_user(user)
 
     def remove(self, name):
-        urls = self.list_urls(name)
+        urls = self.storage.find_urls_by_healthcheck_name(name)
         for url in urls:
             self.remove_url(name, url)
 
