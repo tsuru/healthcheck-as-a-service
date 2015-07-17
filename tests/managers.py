@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
+from healthcheck.storage import ItemNotFoundError
+
 
 class FakeManager(object):
     def __init__(self):
@@ -17,11 +19,13 @@ class FakeManager(object):
     def remove_url(self, name, url):
         index = -1
         for i, u in enumerate(self.healthchecks[name]["urls"]):
-            if u["url"] == u:
+            if u["url"] == url:
                 index = i
                 break
         if index > -1:
             self.healthchecks[name]["urls"].pop(index)
+        else:
+            raise ItemNotFoundError
 
     def new(self, name):
         self.healthchecks[name] = {"urls": [], "users": []}

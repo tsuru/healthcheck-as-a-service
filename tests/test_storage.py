@@ -8,7 +8,7 @@ import os
 
 from healthcheck.storage import (HealthCheck, HealthCheckNotFoundError, Item,
                                  Jsonable, MongoStorage, User,
-                                 UserNotFoundError)
+                                 UserNotFoundError, ItemNotFoundError)
 
 
 class JsonableTest(unittest.TestCase):
@@ -110,6 +110,10 @@ class MongoStorageTest(unittest.TestCase):
         for attr, value in result.__dict__.items():
             self.assertEqual(getattr(self.item, attr), value)
         self.storage.remove_item(self.item)
+
+    def test_find_item_by_url_dont_exists(self):
+        with self.assertRaises(ItemNotFoundError):
+            self.storage.find_item_by_url("url-not-found.com")
 
     def test_find_url_by_healthcheck_name(self):
         self.healthcheck.group_id = 1

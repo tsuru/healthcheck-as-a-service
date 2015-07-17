@@ -121,6 +121,13 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(400, resp.status_code)
         self.assertEqual("name and url are required", resp.data)
 
+    def test_remove_url_invalid_url(self):
+        resp = self.api.delete("/url",
+                               data=json.dumps({"name": "hc",
+                                                "url": "http://url-not-exist.com/"}))
+        self.assertEqual(404, resp.status_code)
+        self.assertEqual("URL not found.", resp.data)
+
     def test_add_watcher(self):
         resp = self.api.post(
             "/watcher",

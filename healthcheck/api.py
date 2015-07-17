@@ -8,6 +8,7 @@ from terminaltables import AsciiTable
 
 from healthcheck import admin as hadmin
 from healthcheck import auth
+from healthcheck.storage import ItemNotFoundError
 
 import json
 import inspect
@@ -56,7 +57,10 @@ def remove_url():
     data = json.loads(request.data)
     if "name" not in data or "url" not in data:
         return "name and url are required", 400
-    get_manager().remove_url(**data)
+    try:
+        get_manager().remove_url(**data)
+    except ItemNotFoundError:
+        return "URL not found.", 404
     return "", 204
 
 

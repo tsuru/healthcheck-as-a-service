@@ -63,6 +63,8 @@ class MongoStorage(object):
         result = self.db.items.find_one(
             {"url": url}
         )
+        if not result:
+            raise ItemNotFoundError()
         return Item(**result)
 
     def find_urls_by_healthcheck_name(self, name):
@@ -128,6 +130,10 @@ class MongoStorage(object):
 
     def remove_user_from_group(self, user, group):
         self.db.users.update({"id": user.id}, {"$pull": {"groups_id": group}})
+
+
+class ItemNotFoundError(Exception):
+    pass
 
 
 class HealthCheckNotFoundError(Exception):
