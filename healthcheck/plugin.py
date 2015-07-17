@@ -98,7 +98,11 @@ def remove_url(name, url):
     """
     body = {"name": name, "url": url}
     headers = {"Content-Type": "application/json"}
-    proxy_request(name, "DELETE", "/url", body=body, headers=headers)
+    try:
+        proxy_request(name, "DELETE", "/url", body=body, headers=headers)
+    except urllib2.HTTPError:
+        sys.stdout.write("URL %s not found.\n" % url)
+        return
     msg = "url {} successfully removed!\n".format(url)
     sys.stdout.write(msg)
 
