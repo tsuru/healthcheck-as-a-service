@@ -1,1 +1,1 @@
-web: gunicorn healthcheck.api:app -b 0.0.0.0:8888
+web: gunicorn healthcheck.api:app -b 0.0.0.0:8888 -k gevent
