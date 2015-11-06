@@ -179,6 +179,22 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(201, resp.status_code)
         self.assertIn("other", self.manager.healthchecks)
 
+    def test_bind_unit(self):
+        resp = self.api.post("/resources/name/bind")
+        self.assertEqual(201, resp.status_code)
+
+    def test_bind_app(self):
+        resp = self.api.post("/resources/name/bind-app")
+        self.assertEqual(200, resp.status_code)
+
+    def test_unbind_unit(self):
+        resp = self.api.delete("/resources/name/bind")
+        self.assertEqual(200, resp.status_code)
+
+    def test_unbind_app(self):
+        resp = self.api.delete("/resources/name/bind-app")
+        self.assertEqual(200, resp.status_code)
+
     def test_remove(self):
         self.manager.new("blabla")
         resp = self.api.delete("/resources/blabla")

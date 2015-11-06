@@ -132,5 +132,25 @@ def plugin():
     return source, 200
 
 
+@app.route("/resources/<name>/bind", methods=["POST"])
+def bind_unit(name):
+    return "", 201
+
+
+@app.route("/resources/<name>/bind-app", methods=["POST"])
+def bind_app(name):
+    return "{}", 200
+
+
+@app.route("/resources/<name>/bind", methods=["DELETE"])
+def unbind_unit(name):
+    return "", 200
+
+
+@app.route("/resources/<name>/bind-app", methods=["DELETE"])
+def unbind_app(name):
+    return "", 200
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8888, debug=True)
