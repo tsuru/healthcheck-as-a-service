@@ -6,6 +6,8 @@ from flask import Flask, request
 from flask.ext.admin import Admin
 from terminaltables import AsciiTable
 
+from raven.contrib.flask import Sentry
+
 from healthcheck import admin as hadmin
 from healthcheck import auth
 from healthcheck.storage import ItemNotFoundError
@@ -21,6 +23,7 @@ app.debug = os.environ.get("API_DEBUG", "0") in ("True", "true", "1")
 SENTRY_DSN = os.environ.get("SENTRY_DSN")
 if SENTRY_DSN:
     app.config['SENTRY_DSN'] = SENTRY_DSN
+    sentry = Sentry(app)
 
 admin = Admin(app, name="Tsuru healthcheck service")
 admin.add_view(
