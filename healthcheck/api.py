@@ -18,6 +18,10 @@ import os
 app = Flask(__name__)
 app.debug = os.environ.get("API_DEBUG", "0") in ("True", "true", "1")
 
+SENTRY_DSN = os.environ.get("SENTRY_DSN")
+if SENTRY_DSN:
+    app.config['SENTRY_DSN'] = SENTRY_DSN
+
 admin = Admin(app, name="Tsuru healthcheck service")
 admin.add_view(
     hadmin.HealthcheckAdmin(name='healthchecks', endpoint='healthchecks'))

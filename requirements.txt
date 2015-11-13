@@ -6,3 +6,5 @@ pymongo==2.6.3
 Flask-Admin==1.0.8
 terminaltables==1.1.1
 gevent==1.0.2
+raven==4.2.3
+blinker==1.4
