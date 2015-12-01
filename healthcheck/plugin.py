@@ -247,6 +247,6 @@ def main(cmd, *args):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 2:
         show_help(exit=2)
     main(sys.argv[1], *sys.argv[2:])
