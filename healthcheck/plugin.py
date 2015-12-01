@@ -28,15 +28,14 @@ class Request(urllib2.Request):
         return self._method
 
 
-def proxy_request(instance_name, method, path, body=None, headers=None):
+def proxy_request(service_name, instance_name, method, path, body=None, headers=None):
     target = get_env("TSURU_TARGET").rstrip("/")
     token = get_env("TSURU_TOKEN")
 
     if not target.startswith("http://") and not target.startswith("https://"):
         target = "http://{}".format(target)
 
-    url = "{}/services/proxy/{}?callback={}".format(target, instance_name,
-                                                    path)
+    url = "{}/services/{}/proxy/{}?callback={}".format(target, service_name, instance_name, path)
 
     if body:
         body = json.dumps(body)
@@ -51,21 +50,21 @@ def proxy_request(instance_name, method, path, body=None, headers=None):
     return urllib2.urlopen(request, timeout=30)
 
 
-def add_url(name, url, expected_string=None, comment=None):
+def add_url(service_name, name, url, expected_string=None, comment=None):
     """
     add-url add a new url checker to the given instance. Usage:
 
-        add-url <instance-name> <url> [expected_string] [comment]
+        add-url <service-name> <instance-name> <url> [expected_string] [comment]
 
     expected_string is an optional parameter that represents the string that
     the healthcheck should expect to find in the body of the response. Example:
 
-        tsuru {plugin_name} add-url mysite http://mysite.com/hc WORKING
+        tsuru {plugin_name} add-url hcaas mysite http://mysite.com/hc WORKING
 
     comment is an optional parameter that refers to what to do when a trigger
     is triggered. Example:
 
-        tsuru {plugin_name} add-url mysite http://mysite.com/hc 'restart the app'
+        tsuru {plugin_name} add-url hcaas mysite http://mysite.com/hc 'restart the app'
 
     """
     data = {
@@ -80,26 +79,26 @@ def add_url(name, url, expected_string=None, comment=None):
         "Content-Type": "application/json",
         "Accept": "text/plain"
     }
-    proxy_request(name, "POST", "/url", data, headers)
+    proxy_request(service_name, name, "POST", "/url", data, headers)
     msg = "url {} successfully added!\n".format(url)
     sys.stdout.write(msg)
 
 
-def remove_url(name, url):
+def remove_url(service_name, name, url):
     """
     remove-url removes the specified url checker from the specified instance.
     Usage:
 
-        remove-url <name> <url>
+        remove-url <service_name> <name> <url>
 
     Example:
 
-        tsuru {plugin_name} remove-url mysite http://mysite.com/hc
+        tsuru {plugin_name} remove-url hcaas mysite http://mysite.com/hc
     """
     body = {"name": name, "url": url}
     headers = {"Content-Type": "application/json"}
     try:
-        proxy_request(name, "DELETE", "/url", body=body, headers=headers)
+        proxy_request(service_name, name, "DELETE", "/url", body=body, headers=headers)
     except urllib2.HTTPError:
         sys.stdout.write("URL %s not found.\n" % url)
         return
@@ -107,35 +106,35 @@ def remove_url(name, url):
     sys.stdout.write(msg)
 
 
-def list_urls(name):
+def list_urls(service_name, name):
     """
     list-urls list all urls from an instance.
     Usage:
 
-        list-urls <name>
+        list-urls <service_name> <name>
 
     Example:
 
-        tsuru {plugin_name} list-urls mysite
+        tsuru {plugin_name} list-urls hcaas mysite
     """
     url = "/url?name={}".format(name)
     headers = {"Content-Type": "application/json"}
-    response = proxy_request(name, "GET", url, "", headers)
+    response = proxy_request(service_name, name, "GET", url, "", headers)
     urls = response.read()
     sys.stdout.write(urls + "\n")
 
 
-def add_watcher(name, watcher):
+def add_watcher(service_name, name, watcher):
     """
     add-watcher creates a new watcher for the given monitoring instance. A
     watcher is an email address that will receive notifications for this
     instance. Usage:
 
-        add-watcher <instance-name> <email>
+        add-watcher <service_name> <instance-name> <email>
 
     Example:
 
-        tsuru {plugin_name} add-watcher mysite mysite+monit@mycompany.com
+        tsuru {plugin_name} add-watcher hcaas mysite mysite+monit@mycompany.com
     """
     data = {
         "name": name,
@@ -145,42 +144,42 @@ def add_watcher(name, watcher):
         "Content-Type": "application/json",
         "Accept": "text/plain"
     }
-    proxy_request(name, "POST", "/watcher", data, headers)
+    proxy_request(service_name, name, "POST", "/watcher", data, headers)
     msg = "watcher {} successfully added!\n".format(watcher)
     sys.stdout.write(msg)
 
 
-def remove_watcher(name, watcher):
+def remove_watcher(service_name, name, watcher):
     """
     remove-watcher removes the specified watcher from the given monitoring
     instance. Usage:
 
-        remove-watcher <instance-name> <email>
+        remove-watcher <service_name> <instance-name> <email>
 
     Example:
 
-        tsuru {plugin_name} remove-watcher mysite mysite+monit@mycompany.com
+        tsuru {plugin_name} remove-watcher hcaas mysite mysite+monit@mycompany.com
     """
     url = "/{}/watcher/{}".format(name, watcher)
-    proxy_request(name, "DELETE", url)
+    proxy_request(service_name, name, "DELETE", url)
     msg = "watcher {} successfully removed!\n".format(watcher)
     sys.stdout.write(msg)
 
 
-def list_watchers(name):
+def list_watchers(service_name, name):
     """
     list-watchers list all watchers from an instance.
     Usage:
 
-        list-watchers <name>
+        list-watchers <service_name> <name>
 
     Example:
 
-        tsuru {plugin_name} list-watchers mysite
+        tsuru {plugin_name} list-watchers hcaas mysite
     """
     url = '/watcher?name={}'.format(name)
     headers = {"Content-Type": "application/json"}
-    response = proxy_request(name, "GET", url, "", headers)
+    response = proxy_request(service_name, name, "GET", url, "", headers)
     watchers_json = response.read()
     watchers = json.loads(watchers_json)
     for watcher in watchers:
@@ -248,6 +247,6 @@ def main(cmd, *args):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         show_help(exit=2)
     main(sys.argv[1], *sys.argv[2:])

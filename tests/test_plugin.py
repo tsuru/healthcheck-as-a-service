@@ -34,11 +34,11 @@ class PluginTest(unittest.TestCase):
         request = mock.Mock()
         Request.return_value = request
 
-        add_url("name", "url")
+        add_url("service_name", "name", "url")
 
         Request.assert_called_with(
             'POST',
-            self.target + 'services/proxy/name?callback=/url',
+            self.target + 'services/service_name/proxy/name?callback=/url',
             data=json.dumps({'url': 'url', 'name': 'name'})
         )
 
@@ -56,11 +56,11 @@ class PluginTest(unittest.TestCase):
         request = mock.Mock()
         Request.return_value = request
 
-        add_url("name", "url", "WORKING")
+        add_url("service_name", "name", "url", "WORKING")
 
         Request.assert_called_with(
             'POST',
-            self.target + 'services/proxy/name?callback=/url',
+            self.target + 'services/service_name/proxy/name?callback=/url',
             data=json.dumps({'url': 'url', 'name': 'name',
                              'expected_string': 'WORKING'})
         )
@@ -79,11 +79,11 @@ class PluginTest(unittest.TestCase):
         request = mock.Mock()
         Request.return_value = request
 
-        add_url("name", "url", comment="http://test.com")
+        add_url("service_name", "name", "url", comment="http://test.com")
 
         Request.assert_called_with(
             'POST',
-            self.target + 'services/proxy/name?callback=/url',
+            self.target + 'services/service_name/proxy/name?callback=/url',
             data=json.dumps({'url': 'url', 'name': 'name',
                              'comment': 'http://test.com'})
         )
@@ -106,11 +106,11 @@ class PluginTest(unittest.TestCase):
         response.read.return_value = json.dumps([['http://test.com', ""]])
         urlopen.return_value = response
 
-        list_urls("name")
+        list_urls("service_name", "name")
 
         Request.assert_called_with(
             'GET',
-            self.target + 'services/proxy/name?callback=/url?name=name',
+            self.target + 'services/service_name/proxy/name?callback=/url?name=name',
             data=''
         )
 
@@ -127,11 +127,11 @@ class PluginTest(unittest.TestCase):
         request = mock.Mock()
         Request.return_value = request
 
-        remove_url("name", "url")
+        remove_url("service_name", "name", "url")
 
         Request.assert_called_with(
             'DELETE',
-            self.target + 'services/proxy/name?callback=/url',
+            self.target + 'services/service_name/proxy/name?callback=/url',
             data=json.dumps({"url": "url", "name": "name"}),
         )
         calls = [
@@ -147,11 +147,11 @@ class PluginTest(unittest.TestCase):
         request = mock.Mock()
         Request.return_value = request
 
-        add_watcher("name", "watcher@watcher.com")
+        add_watcher("service_name", "name", "watcher@watcher.com")
 
         Request.assert_called_with(
             'POST',
-            self.target + 'services/proxy/name?callback=/watcher',
+            self.target + 'services/service_name/proxy/name?callback=/watcher',
             data=json.dumps({'watcher': 'watcher@watcher.com', 'name': 'name'})
         )
 
@@ -169,9 +169,9 @@ class PluginTest(unittest.TestCase):
         request = mock.Mock()
         Request.return_value = request
 
-        remove_watcher("name", "watcher@watcher.com")
+        remove_watcher("service_name", "name", "watcher@watcher.com")
 
-        uri = 'services/proxy/name?callback=/name/watcher/watcher@watcher.com'
+        uri = 'services/service_name/proxy/name?callback=/name/watcher/watcher@watcher.com'
         Request.assert_called_with(
             'DELETE',
             self.target + uri,
@@ -191,11 +191,11 @@ class PluginTest(unittest.TestCase):
         response.read.return_value = json.dumps(['bla@test.com'])
         urlopen.return_value = response
 
-        list_watchers("name")
+        list_watchers("service_name", "name")
 
         Request.assert_called_with(
             'GET',
-            self.target + 'services/proxy/name?callback=/watcher?name=name',
+            self.target + 'services/service_name/proxy/name?callback=/watcher?name=name',
             data=''
         )
 
@@ -262,5 +262,5 @@ class PluginTest(unittest.TestCase):
 
     @mock.patch("healthcheck.plugin.show_help")
     def test_main_wrong_params(self, show_help_mock):
-        main("add-url")
-        show_help_mock.assert_called_with("add-url", exit=2)
+        main("add-url name")
+        show_help_mock.assert_called_with("add-url name", exit=2)
