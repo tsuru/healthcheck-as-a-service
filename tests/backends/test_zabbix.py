@@ -297,11 +297,11 @@ class ZabbixTest(unittest.TestCase):
             status=0,
             name='action for url url',
             esc_period=3600,
-            def_shortdata=("[hcaas {HOST.NAME} #{EVENT.ID}] {TRIGGER.STATUS}: "
+            def_shortdata=("hcaas {HOST.NAME} #{EVENT.ID} {TRIGGER.STATUS}: "
                            "{ITEM.VALUE3}"),
             def_longdata=("{TRIGGER.NAME}: {TRIGGER.STATUS}\r\n"
                           "HTTP status code: {ITEM.VALUE1}"),
-            r_shortdata="[hcaas {HOST.NAME} #{EVENT.ID}] {TRIGGER.STATUS}",
+            r_shortdata="hcaas {HOST.NAME} #{EVENT.ID} {TRIGGER.STATUS}",
             r_longdata=("{TRIGGER.NAME}: {TRIGGER.STATUS}\r\n"
                         "HTTP status code: {ITEM.VALUE1}"),
             evaltype=0,

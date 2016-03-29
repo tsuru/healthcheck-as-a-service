@@ -198,11 +198,11 @@ class Zabbix(object):
             recovery_msg=1,
             status=0,
             esc_period=3600,
-            def_shortdata=("[hcaas {HOST.NAME} #{EVENT.ID}] {TRIGGER.STATUS}: "
+            def_shortdata=("hcaas {HOST.NAME} #{EVENT.ID} {TRIGGER.STATUS}: "
                            "{ITEM.VALUE3}"),
             def_longdata=("{TRIGGER.NAME}: {TRIGGER.STATUS}\r\n"
                           "HTTP status code: {ITEM.VALUE1}"),
-            r_shortdata="[hcaas {HOST.NAME} #{EVENT.ID}] {TRIGGER.STATUS}",
+            r_shortdata="hcaas {HOST.NAME} #{EVENT.ID} {TRIGGER.STATUS}",
             r_longdata=("{TRIGGER.NAME}: {TRIGGER.STATUS}\r\n"
                         "HTTP status code: {ITEM.VALUE1}"),
             evaltype=0,
