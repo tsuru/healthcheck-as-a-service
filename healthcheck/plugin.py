@@ -196,7 +196,7 @@ def show_help(command_name=None, exit=0):
 
         tsuru {plugin_name} help [command-name]
 
-    The command-name is optional, when ommited the plugin will list all
+    The command-name is optional, when omitted the plugin will list all
     available commands.
     """
     plugin_name = os.environ.get("TSURU_PLUGIN_NAME", "hc")
