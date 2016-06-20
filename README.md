@@ -34,11 +34,11 @@ tsuru plugin-install hc <API-URL>/plugin
 
 ### creating a new healtcheck
 
-    $ tsuru hc new <healthcheck-name>
+    $ tsuru service-instance-add <healthcheck-service> <healthcheck-name>
 
 ### removing a healthcheck
 
-    $ tsuru hc remove <healthcheck-name>
+    $ tsuru service-instance-remove <healthcheck-service> <healthcheck-name>
 
 ### adding a new url to be monitored
 
