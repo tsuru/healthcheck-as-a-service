@@ -28,8 +28,8 @@ class APITestCase(unittest.TestCase):
 
     def test_add_url(self):
         resp = self.api.post(
-            "/url",
-            data=json.dumps({"name": "hc", "url": "http://bla.com"})
+            "/resources/hc/url",
+            data=json.dumps({"url": "http://bla.com"})
         )
         self.assertEqual(201, resp.status_code)
         self.assertIn(
@@ -39,8 +39,8 @@ class APITestCase(unittest.TestCase):
 
     def test_add_url_expected_string(self):
         resp = self.api.post(
-            "/url",
-            data=json.dumps({"name": "hc", "url": "http://blabla.com",
+            "/resources/hc/url",
+            data=json.dumps({"url": "http://blabla.com",
                              "expected_string": "WORKING"})
         )
         self.assertEqual(201, resp.status_code)
@@ -51,8 +51,8 @@ class APITestCase(unittest.TestCase):
 
     def test_add_url_comment(self):
         resp = self.api.post(
-            "/url",
-            data=json.dumps({"name": "hc", "url": "http://blabla.com", "comment": "ble"})
+            "/resources/hc/url",
+            data=json.dumps({"url": "http://blabla.com", "comment": "ble"})
         )
         self.assertEqual(201, resp.status_code)
         self.assertIn(
@@ -62,29 +62,22 @@ class APITestCase(unittest.TestCase):
 
     def test_add_url_bad_request(self):
         resp = self.api.post(
-            "/url",
+            "/resources/hc/url",
         )
         self.assertEqual(400, resp.status_code)
-        self.assertEqual(resp.data, 'name and url are required')
+        self.assertEqual(resp.data, 'url is required')
 
         resp = self.api.post(
-            "/url",
-            data=json.dumps({"name": "hc"})
+            "/resources/hc/url",
+            data=json.dumps({})
         )
         self.assertEqual(400, resp.status_code)
-        self.assertEqual(resp.data, 'name and url are required')
-
-        resp = self.api.post(
-            "/url",
-            data=json.dumps({"url": "http://bla.com"})
-        )
-        self.assertEqual(400, resp.status_code)
-        self.assertEqual(resp.data, 'name and url are required')
+        self.assertEqual(resp.data, 'url is required')
 
     def test_list_urls(self):
         self.manager.add_url("hc", "http://bla.com")
         resp = self.api.get(
-            "/url?name=hc",
+            "/resources/hc/url",
         )
         self.assertEqual(200, resp.status_code)
         self.assertIn(
@@ -92,16 +85,10 @@ class APITestCase(unittest.TestCase):
             resp.data
         )
 
-    def test_list_urls_bad_request(self):
-        resp = self.api.get("/url")
-        self.assertEqual(400, resp.status_code)
-        self.assertEqual(resp.data, 'name is required.')
-
     def test_remove_url(self):
         self.manager.add_url("hc", "http://bla.com/")
-        resp = self.api.delete("/url",
-                               data=json.dumps({"name": "hc",
-                                                "url": "http://bla.com/"}))
+        resp = self.api.delete("/resources/hc/url",
+                               data=json.dumps({"url": "http://bla.com/"}))
         self.assertEqual(204, resp.status_code)
         self.assertNotIn(
             "http://bla.com/",
@@ -109,29 +96,25 @@ class APITestCase(unittest.TestCase):
         )
 
     def test_remove_url_no_data(self):
-        resp = self.api.delete("/url")
+        resp = self.api.delete("/resources/hc/url")
         self.assertEqual(400, resp.status_code)
-        self.assertEqual("name and url are required", resp.data)
+        self.assertEqual("url is required", resp.data)
 
     def test_remove_url_invalid_data(self):
-        resp = self.api.delete("/url", data={"name": "hc"})
+        resp = self.api.delete("/resources/hc/url", data={})
         self.assertEqual(400, resp.status_code)
-        self.assertEqual("name and url are required", resp.data)
-        resp = self.api.delete("/url", data={"url": "http://bla.com/"})
-        self.assertEqual(400, resp.status_code)
-        self.assertEqual("name and url are required", resp.data)
+        self.assertEqual("url is required", resp.data)
 
     def test_remove_url_invalid_url(self):
-        resp = self.api.delete("/url",
-                               data=json.dumps({"name": "hc",
-                                                "url": "http://url-not-exist.com/"}))
+        resp = self.api.delete("/resources/hc/url",
+                               data=json.dumps({"url": "http://url-not-exist.com/"}))
         self.assertEqual(404, resp.status_code)
         self.assertEqual("URL not found.", resp.data)
 
     def test_add_watcher(self):
         resp = self.api.post(
-            "/watcher",
-            data=json.dumps({"name": "hc", "watcher": "watcher@watcher.com"})
+            "/resources/hc/watcher",
+            data=json.dumps({"watcher": "watcher@watcher.com"})
         )
         self.assertEqual(201, resp.status_code)
         self.assertIn(
@@ -140,36 +123,24 @@ class APITestCase(unittest.TestCase):
         )
 
     def test_add_watcher_bad_request(self):
-        resp = self.api.post("/watcher")
+        resp = self.api.post("/resources/hc/watcher")
         self.assertEqual(400, resp.status_code)
-        self.assertEqual(resp.data, "name and watcher are required")
+        self.assertEqual(resp.data, "watcher is required")
 
-        resp = self.api.post("/watcher", data=json.dumps({"name": "hc"}))
+        resp = self.api.post("/resources/hc/watcher", data=json.dumps({}))
         self.assertEqual(400, resp.status_code)
-        self.assertEqual(resp.data, "name and watcher are required")
-
-        resp = self.api.post(
-            "/watcher",
-            data=json.dumps({"watcher": "watcher@watcher.com"})
-        )
-        self.assertEqual(400, resp.status_code)
-        self.assertEqual(resp.data, "name and watcher are required")
+        self.assertEqual(resp.data, "watcher is required")
 
     def test_list_watchers(self):
         self.manager.add_watcher("hc", "test@test.com")
         resp = self.api.get(
-            "/watcher?name=hc",
+            "/resources/hc/watcher",
         )
         self.assertEqual(200, resp.status_code)
         self.assertIn(
             "test@test.com",
             resp.data
         )
-
-    def test_list_watchers_bad_request(self):
-        resp = self.api.get("/watcher")
-        self.assertEqual(400, resp.status_code)
-        self.assertEqual(resp.data, 'name is required.')
 
     def test_new(self):
         resp = self.api.post(
@@ -201,9 +172,18 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(204, resp.status_code)
         self.assertNotIn("blabla", self.manager.healthchecks)
 
+    def test_remove_watcher_compat(self):
+        self.manager.add_watcher("hc", "watcher@watcher.com")
+        resp = self.api.delete("/resources/hc/XanythingX/watcher/watcher@watcher.com")
+        self.assertEqual(204, resp.status_code)
+        self.assertNotIn(
+            "watcher@watcher.com",
+            self.manager.healthchecks["hc"]["users"]
+        )
+
     def test_remove_watcher(self):
         self.manager.add_watcher("hc", "watcher@watcher.com")
-        resp = self.api.delete("/hc/watcher/watcher@watcher.com")
+        resp = self.api.delete("/resources/hc/watcher/watcher@watcher.com")
         self.assertEqual(204, resp.status_code)
         self.assertNotIn(
             "watcher@watcher.com",
