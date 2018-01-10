@@ -13,7 +13,7 @@ clean:
 
 test: test-deps clean
 	@PYTHONPATH=. py.test -s --cov-report term-missing --cov .
-	@flake8 --max-line-length 100 .
+	@flake8 --max-line-length 150 .
 
 run: deps
 	@honcho start

@@ -38,8 +38,8 @@ class PluginTest(unittest.TestCase):
 
         Request.assert_called_with(
             'POST',
-            self.target + 'services/service_name/proxy/name?callback=/url',
-            data=json.dumps({'url': 'url', 'name': 'name'})
+            self.target + 'services/service_name/proxy/name?callback=/resources/name/url',
+            data=json.dumps({'url': 'url'})
         )
 
         calls = [
@@ -60,8 +60,8 @@ class PluginTest(unittest.TestCase):
 
         Request.assert_called_with(
             'POST',
-            self.target + 'services/service_name/proxy/name?callback=/url',
-            data=json.dumps({'url': 'url', 'name': 'name',
+            self.target + 'services/service_name/proxy/name?callback=/resources/name/url',
+            data=json.dumps({'url': 'url',
                              'expected_string': 'WORKING'})
         )
 
@@ -83,8 +83,8 @@ class PluginTest(unittest.TestCase):
 
         Request.assert_called_with(
             'POST',
-            self.target + 'services/service_name/proxy/name?callback=/url',
-            data=json.dumps({'url': 'url', 'name': 'name',
+            self.target + 'services/service_name/proxy/name?callback=/resources/name/url',
+            data=json.dumps({'url': 'url',
                              'comment': 'http://test.com'})
         )
 
@@ -110,7 +110,7 @@ class PluginTest(unittest.TestCase):
 
         Request.assert_called_with(
             'GET',
-            self.target + 'services/service_name/proxy/name?callback=/url?name=name',
+            self.target + 'services/service_name/proxy/name?callback=/resources/name/url',
             data=''
         )
 
@@ -131,8 +131,8 @@ class PluginTest(unittest.TestCase):
 
         Request.assert_called_with(
             'DELETE',
-            self.target + 'services/service_name/proxy/name?callback=/url',
-            data=json.dumps({"url": "url", "name": "name"}),
+            self.target + 'services/service_name/proxy/name?callback=/resources/name/url',
+            data=json.dumps({"url": "url"}),
         )
         calls = [
             mock.call("Authorization", "bearer " + self.token),
@@ -151,8 +151,8 @@ class PluginTest(unittest.TestCase):
 
         Request.assert_called_with(
             'POST',
-            self.target + 'services/service_name/proxy/name?callback=/watcher',
-            data=json.dumps({'watcher': 'watcher@watcher.com', 'name': 'name'})
+            self.target + 'services/service_name/proxy/name?callback=/resources/name/watcher',
+            data=json.dumps({'watcher': 'watcher@watcher.com'})
         )
 
         calls = [
@@ -171,7 +171,7 @@ class PluginTest(unittest.TestCase):
 
         remove_watcher("service_name", "name", "watcher@watcher.com")
 
-        uri = 'services/service_name/proxy/name?callback=/name/watcher/watcher@watcher.com'
+        uri = 'services/service_name/proxy/name?callback=/resources/name/watcher/watcher@watcher.com'
         Request.assert_called_with(
             'DELETE',
             self.target + uri,
@@ -195,7 +195,7 @@ class PluginTest(unittest.TestCase):
 
         Request.assert_called_with(
             'GET',
-            self.target + 'services/service_name/proxy/name?callback=/watcher?name=name',
+            self.target + 'services/service_name/proxy/name?callback=/resources/name/watcher',
             data=''
         )
 

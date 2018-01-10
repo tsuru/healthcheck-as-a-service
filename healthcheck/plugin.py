@@ -35,7 +35,7 @@ def proxy_request(service_name, instance_name, method, path, body=None, headers=
     if not target.startswith("http://") and not target.startswith("https://"):
         target = "http://{}".format(target)
 
-    url = "{}/services/{}/proxy/{}?callback={}".format(target, service_name, instance_name, path)
+    url = "{}/services/{}/proxy/{}?callback=/resources/{}/{}".format(target, service_name, instance_name, instance_name, path.lstrip("/"))
 
     if body:
         body = json.dumps(body)
@@ -68,7 +68,6 @@ def add_url(service_name, name, url, expected_string=None, comment=None):
 
     """
     data = {
-        "name": name,
         "url": url,
     }
     if expected_string:
@@ -95,7 +94,7 @@ def remove_url(service_name, name, url):
 
         tsuru {plugin_name} remove-url hcaas mysite http://mysite.com/hc
     """
-    body = {"name": name, "url": url}
+    body = {"url": url}
     headers = {"Content-Type": "application/json"}
     try:
         proxy_request(service_name, name, "DELETE", "/url", body=body, headers=headers)
@@ -117,7 +116,7 @@ def list_urls(service_name, name):
 
         tsuru {plugin_name} list-urls hcaas mysite
     """
-    url = "/url?name={}".format(name)
+    url = "/url"
     headers = {"Content-Type": "application/json"}
     response = proxy_request(service_name, name, "GET", url, "", headers)
     urls = response.read()
@@ -137,7 +136,6 @@ def add_watcher(service_name, name, watcher):
         tsuru {plugin_name} add-watcher hcaas mysite mysite+monit@mycompany.com
     """
     data = {
-        "name": name,
         "watcher": watcher,
     }
     headers = {
@@ -160,7 +158,7 @@ def remove_watcher(service_name, name, watcher):
 
         tsuru {plugin_name} remove-watcher hcaas mysite mysite+monit@mycompany.com
     """
-    url = "/{}/watcher/{}".format(name, watcher)
+    url = "/watcher/{}".format(watcher)
     proxy_request(service_name, name, "DELETE", url)
     msg = "watcher {} successfully removed!\n".format(watcher)
     sys.stdout.write(msg)
@@ -177,7 +175,7 @@ def list_watchers(service_name, name):
 
         tsuru {plugin_name} list-watchers hcaas mysite
     """
-    url = '/watcher?name={}'.format(name)
+    url = '/watcher'
     headers = {"Content-Type": "application/json"}
     response = proxy_request(service_name, name, "GET", url, "", headers)
     watchers_json = response.read()
