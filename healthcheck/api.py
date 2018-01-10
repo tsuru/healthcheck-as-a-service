@@ -44,26 +44,28 @@ def get_manager():
     raise ValueError("{0} is not a valid manager".format(manager))
 
 
-@app.route("/url", methods=["POST"])
+@app.route("/resources/<name>/url", methods=["POST"])
 @auth.required
-def add_url():
+def add_url(name):
     if not request.data:
-        return "name and url are required", 400
+        return "url is required", 400
     data = json.loads(request.data)
-    if "name" not in data or "url" not in data:
-        return "name and url are required", 400
+    if "url" not in data:
+        return "url is required", 400
+    data["name"] = name
     get_manager().add_url(**data)
     return "", 201
 
 
-@app.route("/url", methods=["DELETE"])
+@app.route("/resources/<name>/url", methods=["DELETE"])
 @auth.required
-def remove_url():
+def remove_url(name):
     if not request.data:
-        return "name and url are required", 400
+        return "url is required", 400
     data = json.loads(request.data)
-    if "name" not in data or "url" not in data:
-        return "name and url are required", 400
+    if "url" not in data:
+        return "url is required", 400
+    data["name"] = name
     try:
         get_manager().remove_url(**data)
     except ItemNotFoundError:
@@ -71,49 +73,53 @@ def remove_url():
     return "", 204
 
 
-@app.route("/url", methods=["GET"])
+@app.route("/resources/<name>/url", methods=["GET"])
 @auth.required
-def list_urls():
-    if "name" not in request.args:
-        return "name is required.", 400
-    urls = get_manager().list_urls(request.args['name'])
+def list_urls(name):
+    urls = get_manager().list_urls(name)
     table_urls = [["Url", "Comment"]]
     table_urls.extend(urls)
     table = AsciiTable(table_urls)
     return table.table, 200
 
 
-@app.route("/watcher", methods=["POST"])
+@app.route("/resources/<name>/watcher", methods=["POST"])
 @auth.required
-def add_watcher():
+def add_watcher(name):
     if not request.data:
-        return "name and watcher are required", 400
+        return "watcher is required", 400
 
     data = json.loads(request.data)
 
-    if "name" not in data or "watcher" not in data:
-        return "name and watcher are required", 400
+    if "watcher" not in data:
+        return "watcher is required", 400
 
-    name = data["name"]
     watcher = data["watcher"]
     get_manager().add_watcher(name, watcher)
 
     return "", 201
 
 
-@app.route("/<name>/watcher/<watcher>", methods=["DELETE"])
+# This route only exists for compatibility with old plugin versions and its an
+# alias to /resources/<name>/watcher/<watcher>
+@auth.required
+@app.route("/resources/<name>/<ignored>/watcher/<watcher>", methods=["DELETE"])
+def remove_watcher_compat(name, ignored, watcher):
+    get_manager().remove_watcher(name, watcher)
+    return "", 204
+
+
+@app.route("/resources/<name>/watcher/<watcher>", methods=["DELETE"])
 @auth.required
 def remove_watcher(name, watcher):
     get_manager().remove_watcher(name, watcher)
     return "", 204
 
 
-@app.route("/watcher", methods=["GET"])
+@app.route("/resources/<name>/watcher", methods=["GET"])
 @auth.required
-def list_watchers():
-    if "name" not in request.args:
-        return "name is required.", 400
-    watchers = get_manager().list_watchers(request.args['name'])
+def list_watchers(name):
+    watchers = get_manager().list_watchers(name)
     return json.dumps(watchers), 200
 
 
