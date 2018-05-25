@@ -15,10 +15,17 @@ from healthcheck.storage import ItemNotFoundError
 import json
 import inspect
 import os
-
+import logging
 
 app = Flask(__name__)
 app.debug = os.environ.get("API_DEBUG", "0") in ("True", "true", "1")
+handler = logging.StreamHandler()
+if app.debug:
+    logging.basicConfig(level=logging.DEBUG)
+    handler.setLevel(logging.DEBUG)
+else:
+    handler.setLevel(logging.WARN)
+app.logger.addHandler(handler)
 
 SENTRY_DSN = os.environ.get("SENTRY_DSN")
 if SENTRY_DSN:
