@@ -3,7 +3,7 @@
 # license that can be found in the LICENSE file.
 
 from flask import Flask, request
-from flask.ext.admin import Admin
+from flask_admin import Admin
 from terminaltables import AsciiTable
 
 from raven.contrib.flask import Sentry

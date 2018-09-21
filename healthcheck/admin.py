@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-from flask.ext.admin import BaseView, expose
+from flask_admin import BaseView, expose
 
 
 class HealthcheckAdmin(BaseView):

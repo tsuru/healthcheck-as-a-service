@@ -1,9 +1,9 @@
-Flask==0.10.1
-gunicorn==18.0
+Flask==1.0.2
+gunicorn==19.9.0
 honcho==0.4.2
 pyzabbix==0.7.4
 pymongo==3.3.0
-Flask-Admin==1.0.8
+Flask-Admin==1.5.2
 terminaltables==1.1.1
 gevent==1.0.2
 raven==4.2.3
