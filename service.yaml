@@ -1,4 +1,5 @@
 id: healthcheck
 password: abc123
+team: admin
 endpoint:
   production: uri
