@@ -21,16 +21,39 @@ This project is a http API to abstract healthcheck operations, like verify if a 
 * `ZABBIX_HOST_GROUP` - host group used to create the web monitoring
 * `ZABBIX_HOST` - host used to create the web monitoring
 
+### mongodb storage
+
+* `MONGODB_DATABASE` - default is hcapi
+* `MONGODB_URI` - mongodb full address
 
 ## deploying
 
-TODO
+### zabbix (optional)
+
+    $ git clone git@github.com:zabbix/zabbix-docker.git
+    $ cd zabbix-docker
+    $ docker-compose -f docker-compose_v3_alpine_mysql_latest.yaml up -d
+
+### hcaas
+
+    $ git clone git@github.com:tsuru/healthcheck-as-a-service.git
+    $ cd healthcheck-as-a-service
+    $ tsuru app-create hcaas python
+    $ tsuru env-set -a hcaas API_DEBUG=true ZABBIX_URL=$ZABBIX_URL MONGODB_URI=$MONGODB_URI
+    $ tsuru app-deploy -a hcaas .
+    $ export API_URL=$(tsuru app-info -a hcaas | grep Address: |awk '{print $2}')
 
 ## installing healthcheck tsuru plugin
 
-tsuru plugin-install hc <API-URL>/plugin
+    $ tsuru plugin-install hc <API-URL>/plugin
 
-## using healtch tsuru plugin
+## using healthcheck tsuru plugin
+
+### creating new service
+
+edit `service.yaml` `endpoint:production` with hcaas address
+
+    $ tsuru service create service.yaml
 
 ### creating a new healtcheck
 
@@ -42,7 +65,7 @@ tsuru plugin-install hc <API-URL>/plugin
 
 ### adding a new url to be monitored
 
-    $ tsuru hc add-url <healthcheck-name> <url> [expected string]
+    $ tsuru hc add-url <healthcheck-service> <healthcheck-name> <url> [expected string]
 
 ## removing a url
 
@@ -50,7 +73,7 @@ tsuru plugin-install hc <API-URL>/plugin
 
 ## adding a new watcher
 
-    $ tsuru hc add-watcher <healthcheck-name> <email>
+    $ tsuru hc add-watcher <healthcheck-service> <healthcheck-name> <email>
 
 ## removing a watcher
 
