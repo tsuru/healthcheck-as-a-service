@@ -51,7 +51,7 @@ class Zabbix(object):
         hc = self.storage.find_healthcheck_by_name(healthcheck_name)
         item_name = self._create_item_name(url)
         step = {"name": item_name, "url": url,
-                "status_codes": 200, "no": 1}
+                "status_codes": "200", "no": 1}
         if expected_string:
             step["required"] = expected_string
         item_result = self.zapi.httptest.create(
@@ -71,13 +71,15 @@ class Zabbix(object):
     def _add_trigger(self, host_name, url, comment=None):
         item_name = self._create_item_name(url)
         status_expression = ("{{%s:web.test.rspcode[{item_name},"
-                             "{item_name}].last()}}#200") % host_name
-        failed_expression = "{{%s:web.test.fail[{item_name}].last()}}#0" % \
+                             "{item_name}].last()}}<>200") % host_name
+        failed_expression = "{{%s:web.test.fail[{item_name}].last()}}<>0" % \
             host_name
         string_expression = ("{{%s:web.test.error[{item_name}]."
                              "str(required pattern not found)}}=1") % host_name
-        expression = "%s | %s & %s" % (status_expression, failed_expression,
+        expression = "%s or %s and %s" % (status_expression, failed_expression,
                                        string_expression)
+
+        p_expression=expression.format(item_name=item_name)
         trigger_result = self.zapi.trigger.create(
             description="trigger for url {}".format(url),
             expression=expression.format(item_name=item_name),

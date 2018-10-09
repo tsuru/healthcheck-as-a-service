@@ -72,7 +72,7 @@ class ZabbixTest(unittest.TestCase):
             steps=[{
                 "name": item_name,
                 "url": url,
-                "status_codes": 200,
+                "status_codes": "200",
                 "no": 1,
             }],
             hostid="1",
@@ -117,7 +117,7 @@ class ZabbixTest(unittest.TestCase):
             steps=[{
                 "name": item_name,
                 "url": url,
-                "status_codes": 200,
+                "status_codes": "200",
                 "no": 1,
                 "required": "WORKING",
             }],
@@ -173,7 +173,7 @@ class ZabbixTest(unittest.TestCase):
             steps=[{
                 "name": item_name,
                 "url": url,
-                "status_codes": 200,
+                "status_codes": "200",
                 "no": 1,
             }],
             hostid="1",
