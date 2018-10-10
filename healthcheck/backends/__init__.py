@@ -17,6 +17,12 @@ def get_value(key):
         raise Exception(msg)
     return value
 
+def get_value_or_default(key, default):
+    try:
+        value = os.environ[key]
+    except KeyError:
+        value = default
+    return value
 
 class Zabbix(object):
     def __init__(self):
@@ -24,6 +30,7 @@ class Zabbix(object):
         user = get_value("ZABBIX_USER")
         password = get_value("ZABBIX_PASSWORD")
         self.host_group_id = get_value("ZABBIX_HOST_GROUP")
+        self.watcher_default_password = get_value_or_default("WATCHER_PASSWORD", "watcher")
 
         from pyzabbix import ZabbixAPI
         self.zapi = ZabbixAPI(url)
@@ -116,13 +123,16 @@ class Zabbix(object):
         )
         self.storage.add_healthcheck(hc)
 
-    def add_watcher(self, name, email):
+    def add_watcher(self, name, email, password=None):
         hc = self.storage.find_healthcheck_by_name(name)
         try:
             user = self.storage.find_user_by_email(email)
             self._add_user_to_group(hc, user)
         except UserNotFoundError:
-            self._add_new_user(hc, email)
+            if not password:
+                password = self.watcher_default_password
+
+            self._add_new_user(hc, email, password)
 
     def _add_user_to_group(self, hc, user):
         users = self.storage.find_users_by_group(hc.group_id)
@@ -136,11 +146,13 @@ class Zabbix(object):
         )
         self.storage.add_user_to_group(user, hc.group_id)
 
-    def _add_new_user(self, hc, email):
+    def _add_new_user(self, hc, email, password):
         result = self.zapi.user.create(
             alias=email,
-            passwd="",
-            usrgrps=[hc.group_id],
+            passwd=password,
+            usrgrps=[{
+                "usrgrpid": hc.group_id,
+            }],
             user_medias=[{
                 "mediatypeid": "1",
                 "sendto": email,

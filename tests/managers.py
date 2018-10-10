@@ -30,7 +30,7 @@ class FakeManager(object):
     def new(self, name):
         self.healthchecks[name] = {"urls": [], "users": []}
 
-    def add_watcher(self, name, email):
+    def add_watcher(self, name, email, password=None):
         self.healthchecks[name]["users"].append(email)
 
     def remove_watcher(self, name, email):

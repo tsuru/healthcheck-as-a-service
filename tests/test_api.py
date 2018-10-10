@@ -122,6 +122,20 @@ class APITestCase(unittest.TestCase):
             self.manager.healthchecks["hc"]["users"]
         )
 
+    def test_add_watcher_with_password(self):
+        resp = self.api.post(
+            "/resources/hc/watcher",
+            data=json.dumps({
+                "watcher": "watcher@watcher.com",
+                "password": "teste",
+            })
+        )
+        self.assertEqual(201, resp.status_code)
+        self.assertIn(
+            "watcher@watcher.com",
+            self.manager.healthchecks["hc"]["users"]
+        )
+
     def test_add_watcher_bad_request(self):
         resp = self.api.post("/resources/hc/watcher")
         self.assertEqual(400, resp.status_code)

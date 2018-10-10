@@ -165,6 +165,28 @@ class PluginTest(unittest.TestCase):
 
     @mock.patch("urllib2.urlopen")
     @mock.patch("healthcheck.plugin.Request")
+    def test_add_watcher_with_password(self, Request, urlopen):
+        request = mock.Mock()
+        Request.return_value = request
+
+        add_watcher("service_name", "name", "watcher@watcher.com", "teste")
+
+        Request.assert_called_with(
+            'POST',
+            self.target + 'services/service_name/proxy/name?callback=/resources/name/watcher',
+            data=json.dumps({'watcher': 'watcher@watcher.com', 'password': 'teste'})
+        )
+
+        calls = [
+            mock.call("Authorization", "bearer " + self.token),
+            mock.call("Content-Type", "application/json"),
+            mock.call("Accept", "text/plain"),
+        ]
+        request.add_header.has_calls(calls)
+        urlopen.assert_called_with(request, timeout=30)
+
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
     def test_remove_watcher(self, Request, urlopen):
         request = mock.Mock()
         Request.return_value = request

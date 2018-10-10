@@ -79,8 +79,8 @@ class ZabbixTest(unittest.TestCase):
             retries=3,
         )
         expression = ("{{hc_name:web.test.rspcode[{item_name},"
-                      "{item_name}].last()}}#200 | {{hc_name:web.test.fail["
-                      "{item_name}].last()}}#0 & {{hc_name:web.test.error["
+                      "{item_name}].last()}}<>200 or {{hc_name:web.test.fail["
+                      "{item_name}].last()}}<>0 and {{hc_name:web.test.error["
                       "{item_name}].str(required pattern not found)}}=1")
         self.backend.zapi.trigger.create.assert_called_with(
             description="trigger for url {}".format(url),
@@ -143,8 +143,8 @@ class ZabbixTest(unittest.TestCase):
         self.backend.add_url(hc_name, url, comment="http://test.com")
         self.backend.zapi.trigger.create.assert_called_with(
             description="trigger for url {}".format(url),
-            expression='{hc_name:web.test.rspcode[hc for http://mysite.com,hc for http://mysite.com].last()}#200 \
-| {hc_name:web.test.fail[hc for http://mysite.com].last()}#0 & {hc_name:web.test.error\
+            expression='{hc_name:web.test.rspcode[hc for http://mysite.com,hc for http://mysite.com].last()}<>200 \
+or {hc_name:web.test.fail[hc for http://mysite.com].last()}<>0 and {hc_name:web.test.error\
 [hc for http://mysite.com].str(required pattern not found)}=1',
             priority=5,
             comments="http://test.com",
@@ -180,8 +180,8 @@ class ZabbixTest(unittest.TestCase):
             retries=3,
         )
         expression = ("{{hc_name:web.test.rspcode[{item_name},"
-                      "{item_name}].last()}}#200 | {{hc_name:web.test.fail["
-                      "{item_name}].last()}}#0 & {{hc_name:web.test.error["
+                      "{item_name}].last()}}<>200 or {{hc_name:web.test.fail["
+                      "{item_name}].last()}}<>0 and {{hc_name:web.test.error["
                       "{item_name}].str(required pattern not found)}}=1")
         self.backend.zapi.trigger.create.assert_called_with(
             description="trigger for url {}".format(url),
@@ -218,18 +218,19 @@ class ZabbixTest(unittest.TestCase):
     def test_add_watcher(self):
         email = "andrews@corp.globo.com"
         name = "hc_name"
+        password = "teste"
         hmock = mock.Mock(group_id="someid")
         self.backend.storage.find_user_by_email.side_effect = UserNotFoundError
         self.backend.storage.find_healthcheck_by_name.return_value = hmock
         self.backend.zapi.user.create.return_value = {"userids": ["123"]}
 
-        self.backend.add_watcher(name, email)
+        self.backend.add_watcher(name, email, password)
 
         self.backend.storage.find_healthcheck_by_name.assert_called_with(name)
         self.backend.zapi.user.create.assert_called_with(
             alias=email,
-            passwd="",
-            usrgrps=["someid"],
+            passwd=password,
+            usrgrps=[{"usrgrpid": "someid"}],
             user_medias=[{
                 "mediatypeid": "1",
                 "sendto": email,
