@@ -17,12 +17,14 @@ def get_value(key):
         raise Exception(msg)
     return value
 
+
 def get_value_or_default(key, default):
     try:
         value = os.environ[key]
     except KeyError:
         value = default
     return value
+
 
 class Zabbix(object):
     def __init__(self):
@@ -83,10 +85,9 @@ class Zabbix(object):
             host_name
         string_expression = ("{{%s:web.test.error[{item_name}]."
                              "str(required pattern not found)}}=1") % host_name
-        expression = "%s or %s and %s" % (status_expression, failed_expression,
-                                       string_expression)
+        expression = ("%s or %s and %s") % \
+            (status_expression, failed_expression, string_expression)
 
-        p_expression=expression.format(item_name=item_name)
         trigger_result = self.zapi.trigger.create(
             description="trigger for url {}".format(url),
             expression=expression.format(item_name=item_name),
