@@ -102,9 +102,7 @@ def add_watcher(name):
         return "watcher is required", 400
 
     watcher = data["watcher"]
-    password = None
-    if "password" in data:
-        password = data["password"]
+    password = data.get("password")
 
     get_manager().add_watcher(name, watcher, password)
 

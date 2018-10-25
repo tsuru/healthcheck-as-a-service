@@ -19,11 +19,7 @@ def get_value(key):
 
 
 def get_value_or_default(key, default):
-    try:
-        value = os.environ[key]
-    except KeyError:
-        value = default
-    return value
+    return os.environ.get(key) or default
 
 
 class Zabbix(object):
