@@ -123,21 +123,25 @@ def list_urls(service_name, name):
     sys.stdout.write(urls + "\n")
 
 
-def add_watcher(service_name, name, watcher):
+def add_watcher(service_name, name, watcher, password=None):
     """
     add-watcher creates a new watcher for the given monitoring instance. A
     watcher is an email address that will receive notifications for this
     instance. Usage:
 
-        add-watcher <service_name> <instance-name> <email>
+        add-watcher <service_name> <instance-name> <email> [password]
 
-    Example:
+    password is an optional parameter used to create a user when email does
+    not exists in zabbix. Example:
 
         tsuru {plugin_name} add-watcher hcaas mysite mysite+monit@mycompany.com
     """
     data = {
         "watcher": watcher,
     }
+    if password:
+        data["password"] = password
+
     headers = {
         "Content-Type": "application/json",
         "Accept": "text/plain"
