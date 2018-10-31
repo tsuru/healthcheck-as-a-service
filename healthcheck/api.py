@@ -38,6 +38,9 @@ admin.add_view(
 admin.add_view(hadmin.UrlAdmin(name='urls', endpoint='urls'))
 admin.add_view(hadmin.WatcherAdmin(name='watchers', endpoint='watchers'))
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return "", 404
 
 def get_manager():
     from healthcheck.backends import Zabbix
