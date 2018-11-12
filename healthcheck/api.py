@@ -146,6 +146,7 @@ def list_groups(name):
     groups = get_manager().list_groups(name)
     return json.dumps(groups), 200
 
+
 @app.route("/resources/<name>/groups", methods=["POST"])
 @auth.required
 def add_group(name):
@@ -162,6 +163,7 @@ def add_group(name):
 
     return "", 201
 
+
 @app.route("/resources/<name>/groups/<group>", methods=["DELETE"])
 @auth.required
 def remove_group(name, group):
@@ -171,6 +173,7 @@ def remove_group(name, group):
         return "Group not in Instance", 400
 
     return "", 204
+
 
 @app.route("/resources", methods=["POST"])
 @auth.required

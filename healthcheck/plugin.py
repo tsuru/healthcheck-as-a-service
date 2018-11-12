@@ -252,8 +252,8 @@ def remove_group(service_name, name, group):
     """
     url = "/groups/{}".format(group)
     try:
-       proxy_request(service_name, name, "DELETE", url)
-    except urllib2.HTTPError as error:
+        proxy_request(service_name, name, "DELETE", url)
+    except urllib2.HTTPError:
         sys.stdout.write("group not found in the instance.\n")
         return
 
