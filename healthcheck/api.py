@@ -11,6 +11,7 @@ from raven.contrib.flask import Sentry
 from healthcheck import admin as hadmin
 from healthcheck import auth
 from healthcheck.storage import ItemNotFoundError
+from healthcheck.backends import GroupNotInInstanceError
 
 import json
 import inspect
@@ -131,6 +132,45 @@ def list_watchers(name):
     watchers = get_manager().list_watchers(name)
     return json.dumps(watchers), 200
 
+
+@app.route("/resources/groups", methods=["GET"])
+@auth.required
+def list_service_groups():
+    groups = get_manager().list_service_groups()
+    return json.dumps(groups), 200
+
+
+@app.route("/resources/<name>/groups", methods=["GET"])
+@auth.required
+def list_groups(name):
+    groups = get_manager().list_groups(name)
+    return json.dumps(groups), 200
+
+@app.route("/resources/<name>/groups", methods=["POST"])
+@auth.required
+def add_group(name):
+    if not request.data:
+        return "group is required", 400
+
+    data = json.loads(request.data)
+
+    if "group" not in data:
+        return "group is required", 400
+
+    group = data["group"]
+    get_manager().add_group(name, group)
+
+    return "", 201
+
+@app.route("/resources/<name>/groups/<group>", methods=["DELETE"])
+@auth.required
+def remove_group(name, group):
+    try:
+        get_manager().remove_group(name, group)
+    except GroupNotInInstanceError:
+        return "Group not in Instance", 400
+
+    return "", 204
 
 @app.route("/resources", methods=["POST"])
 @auth.required

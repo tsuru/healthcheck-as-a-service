@@ -28,7 +28,7 @@ class FakeManager(object):
             raise ItemNotFoundError
 
     def new(self, name):
-        self.healthchecks[name] = {"urls": [], "users": []}
+        self.healthchecks[name] = {"urls": [], "users": [], "host_groups": []}
 
     def add_watcher(self, name, email, password=None):
         self.healthchecks[name]["users"].append(email)
@@ -38,6 +38,18 @@ class FakeManager(object):
 
     def list_watchers(self, name):
         return self.healthchecks[name]['users']
+
+    def list_service_groups(self):
+        return ['mygroup', 'myothergroup', 'anothergroup']
+
+    def add_group(self, name, group):
+        self.healthchecks[name]["host_groups"].append(group)
+
+    def remove_group(self, name, group):
+        self.healthchecks[name]["host_groups"].remove(group)
+
+    def list_groups(self, name):
+        return self.healthchecks[name]['host_groups']
 
     def remove(self, name):
         del self.healthchecks[name]

@@ -211,6 +211,56 @@ class APITestCase(unittest.TestCase):
         expected_source = inspect.getsource(plugin)
         self.assertEqual(expected_source, resp.data)
 
+    def test_add_group(self):
+        resp = self.api.post(
+            "/resources/hc/groups",
+            data=json.dumps({"group": "mygroup"})
+        )
+        self.assertEqual(201, resp.status_code)
+        self.assertIn(
+            "mygroup",
+            self.manager.healthchecks["hc"]["host_groups"]
+        )
+
+    def test_add_group_bad_request(self):
+        resp = self.api.post("/resources/hc/groups")
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(resp.data, "group is required")
+
+        resp = self.api.post("/resources/hc/groups", data=json.dumps({}))
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(resp.data, "group is required")
+
+    def test_list_service_groups(self):
+        resp = self.api.get(
+            "/resources/groups",
+        )
+        self.assertEqual(200, resp.status_code)
+        self.assertIn(
+            "mygroup",
+            resp.data
+        )
+
+    def test_list_groups(self):
+        self.manager.add_group("hc", "mygroup")
+        resp = self.api.get(
+            "/resources/hc/groups",
+        )
+        self.assertEqual(200, resp.status_code)
+        self.assertIn(
+            "mygroup",
+            resp.data
+        )
+
+    def test_remove_group(self):
+        self.manager.add_group("hc", "mygroup")
+        resp = self.api.delete("/resources/hc/groups/mygroup")
+        self.assertEqual(204, resp.status_code)
+        self.assertNotIn(
+            "mygroup",
+            self.manager.healthchecks["hc"]["host_groups"]
+        )
+
 
 class GetManagerTestCase(unittest.TestCase):
 

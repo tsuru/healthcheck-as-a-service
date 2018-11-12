@@ -35,7 +35,10 @@ def proxy_request(service_name, instance_name, method, path, body=None, headers=
     if not target.startswith("http://") and not target.startswith("https://"):
         target = "http://{}".format(target)
 
-    url = "{}/services/{}/proxy/{}?callback=/resources/{}/{}".format(target, service_name, instance_name, instance_name, path.lstrip("/"))
+    if instance_name:
+        url = "{}/services/{}/proxy/{}?callback=/resources/{}/{}".format(target, service_name, instance_name, instance_name, path.lstrip("/"))
+    else:
+        url = "{}/services/proxy/service/{}?callback=/resources/{}".format(target, service_name, path.lstrip("/"))
 
     if body:
         body = json.dumps(body)
@@ -78,7 +81,12 @@ def add_url(service_name, name, url, expected_string=None, comment=None):
         "Content-Type": "application/json",
         "Accept": "text/plain"
     }
-    proxy_request(service_name, name, "POST", "/url", data, headers)
+    try:
+        proxy_request(service_name, name, "POST", "/url", data, headers)
+    except urllib2.HTTPError as error:
+        sys.stdout.write("error: %s.\n" % error.reason)
+        return
+
     msg = "url {} successfully added!\n".format(url)
     sys.stdout.write(msg)
 
@@ -188,6 +196,91 @@ def list_watchers(service_name, name):
         sys.stdout.write(watcher + "\n")
 
 
+def list_service_groups(service_name):
+    """
+    list-service-groups list disponible hostgroups from service.
+    Usage:
+
+        list-service-groups <service_name>
+
+    Example:
+
+        tsuru {plugin_name} list-service-groups hcaas
+    """
+    url = "/groups"
+    headers = {"Content-Type": "application/json"}
+    response = proxy_request(service_name, "", "GET", url, "", headers)
+    groups_json = response.read()
+    groups = json.loads(groups_json)
+    for group in groups:
+        sys.stdout.write(group + "\n")
+
+
+def add_group(service_name, name, group):
+    """
+    add-group inserts the given monitoring instances to a new hostgroup. A
+    group is a zabbix hostgroup that will receive notifications for this
+    instance. Usage:
+
+        add-group <service_name> <instance-name> <hostgroup>
+
+        tsuru {plugin_name} add-group hcaas mysite MyZabbixHostGroup
+    """
+    data = {
+        "group": group,
+    }
+
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "text/plain"
+    }
+    proxy_request(service_name, name, "POST", "/groups", data, headers)
+    msg = "group {} successfully added!\n".format(group)
+    sys.stdout.write(msg)
+
+
+def remove_group(service_name, name, group):
+    """
+    remove-group removes the specified group from the given monitoring
+    instance. Usage:
+
+        remove-group <service_name> <instance-name> <group>
+
+    Example:
+
+        tsuru {plugin_name} remove-group hcaas mysite MyZabbixHostGroup
+    """
+    url = "/groups/{}".format(group)
+    try:
+       proxy_request(service_name, name, "DELETE", url)
+    except urllib2.HTTPError as error:
+        sys.stdout.write("group not found in the instance.\n")
+        return
+
+    msg = "group {} successfully removed!\n".format(group)
+    sys.stdout.write(msg)
+
+
+def list_groups(service_name, name):
+    """
+    list-groups list all hostgroups from an instance.
+    Usage:
+
+        list-groups <service_name> <instance-name>
+
+    Example:
+
+        tsuru {plugin_name} list-groups hcaas mysite
+    """
+    url = "/groups"
+    headers = {"Content-Type": "application/json"}
+    response = proxy_request(service_name, name, "GET", url, "", headers)
+    groups_json = response.read()
+    groups = json.loads(groups_json)
+    for group in groups:
+        sys.stdout.write(group + "\n")
+
+
 def show_help(command_name=None, exit=0):
     """
     help displays the help of the specified command. Usage:
@@ -230,6 +323,10 @@ def _get_commands():
         "add-watcher": add_watcher,
         "remove-watcher": remove_watcher,
         "list-watchers": list_watchers,
+        "list-service-groups": list_service_groups,
+        "add-group": add_group,
+        "remove-group": remove_group,
+        "list-groups": list_groups,
         "help": show_help,
     }
 

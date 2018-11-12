@@ -30,7 +30,7 @@ class HealthCheckTest(unittest.TestCase):
 
     def test_to_json(self):
         hc = HealthCheck("myhc", id=1)
-        self.assertDictEqual(hc.to_json(), {"name": "myhc", "id": 1})
+        self.assertDictEqual(hc.to_json(), {"name": "myhc", "host_groups": [], "id": 1})
 
 
 class UserTest(unittest.TestCase):
@@ -238,3 +238,22 @@ class MongoStorageTest(unittest.TestCase):
         user = self.storage.find_user_by_email(user.email)
         self.assertEqual(("group1", "group2", "group5"),
                          user.groups_id)
+
+    def test_add_group_to_instance(self):
+        self.storage.add_healthcheck(self.healthcheck)
+        self.storage.add_group_to_instance(self.healthcheck, "group1")
+        self.storage.add_group_to_instance(self.healthcheck, "group2")
+        result = self.storage.find_healthcheck_by_name(self.healthcheck.name)
+        self.assertEqual(["group1", "group2"], result.host_groups)
+        self.storage.remove_healthcheck(self.healthcheck)
+
+    def test_remove_group_from_instance(self):
+        self.storage.add_healthcheck(self.healthcheck)
+        self.storage.add_group_to_instance(self.healthcheck, "group1")
+        self.storage.add_group_to_instance(self.healthcheck, "group2")
+        self.storage.add_group_to_instance(self.healthcheck, "group3")
+        self.storage.remove_group_from_instance(self.healthcheck, "group1")
+        self.storage.remove_group_from_instance(self.healthcheck, "group2")
+        result = self.storage.find_healthcheck_by_name(self.healthcheck.name)
+        self.assertEqual(["group3"], result.host_groups)
+        self.storage.remove_healthcheck(self.healthcheck)
