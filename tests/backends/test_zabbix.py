@@ -325,11 +325,11 @@ or {hc_name:web.test.fail[hc for http://mysite.com].last()}<>0 and {hc_name:web.
             recovery_msg=1
         )
 
-    def test_add_group(self):
+    def test_create_user_group(self):
         name = "group name"
         host_group = "host group name"
         self.backend.zapi.usergroup.create.return_value = {"usrgrpids": [2]}
-        self.backend._add_group(name, host_group)
+        self.backend._create_user_group(name, host_group)
         self.backend.zapi.usergroup.create.assert_called_with(
             name=name,
             rights={"permission": 2, "id": host_group},
@@ -359,27 +359,85 @@ or {hc_name:web.test.fail[hc for http://mysite.com].last()}<>0 and {hc_name:web.
         self.backend._remove_host(id)
         self.backend.zapi.host.delete.assert_called_with("id")
 
+    def test_add_group(self):
+        name = "hc_name"
+        group = "mygroup"
+        hmock = mock.Mock(group_id="someid", host_id="somehostid", host_groups=[])
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
+        self.backend.zapi.hostgroup.get.return_value = [{"groupid": 1}]
+
+        self.backend.add_group(name, group)
+
+        self.backend.storage.find_healthcheck_by_name.assert_called_with(name)
+        self.backend.zapi.hostgroup.get.assert_called_with(
+            filter={"name": [group]},
+        )
+        self.backend.zapi.usergroup.update.assert_called_with(
+                usrgrpid="someid",
+                rights=[{"permission": 2, "id": 1}]
+        )
+        self.backend.zapi.host.update.assert_called_with(
+                hostid="somehostid",
+                groups=[{"groupid": 1}]
+        )
+        self.assertTrue(self.backend.storage.add_group_to_instance.called)
+
+    def test_remove_group(self):
+        hmock = mock.Mock(group_id="someid", host_id="somehostid", host_groups=[1, 2])
+        group = "mygroup"
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
+        self.backend.zapi.hostgroup.get.return_value = [{"groupid": 2}]
+
+        self.backend.remove_group("healthcheck", group)
+        self.backend.zapi.usergroup.update.assert_called_with(
+                usrgrpid="someid",
+                rights=[{"permission": 2, "id": 1}]
+        )
+        self.backend.zapi.host.update.assert_called_with(
+                hostid="somehostid",
+                groups=[{"groupid": 1}]
+        )
+        self.assertTrue(self.backend.storage.remove_group_from_instance.called)
+
+    def test_list_groups(self):
+        hmock = mock.Mock(host_groups=[1, 2])
+        self.backend.storage.find_healthcheck_by_name.return_value = hmock
+        self.backend.zapi.hostgroup.get.return_value = [{"name": "mygroup1"}, {"name": "mygroup2"}]
+
+        groups = self.backend.list_groups("healthcheck")
+        self.backend.zapi.hostgroup.get.assert_called_with(
+                groupids=[1, 2]
+        )
+        self.assertEqual(groups, ["mygroup1", "mygroup2"])
+
+    def test_list_service_groups(self):
+        self.backend.zapi.hostgroup.get.return_value = [{"name": "mygroup1"}, {"name": "mygroup2"}]
+
+        groups = self.backend.list_service_groups()
+        self.backend.zapi.hostgroup.get.assert_called_with()
+        self.assertEqual(groups, ["mygroup1", "mygroup2"])
+
     def test_new(self):
         name = "blah"
 
-        old_add_group = self.backend._add_group
-        self.backend._add_group = mock.Mock()
+        old_create_user_group = self.backend._create_user_group
+        self.backend._create_user_group = mock.Mock()
 
         old_add_host = self.backend._add_host
         self.backend._add_host = mock.Mock()
 
         self.backend.new(name)
 
-        self.backend._add_group.assert_called_with(name, "2")
-        self.backend._add_group = old_add_group
+        self.backend._create_user_group.assert_called_with(name, "2")
+        self.backend._create_user_group = old_create_user_group
 
         self.backend._add_host.assert_called_with(name, "2")
         self.backend._add_host = old_add_host
 
         self.assertTrue(self.backend.storage.add_healthcheck.called)
 
-    def test_remove_group(self):
-        self.backend._remove_group("id")
+    def test_remove_user_group(self):
+        self.backend._remove_user_group("id")
         self.backend.zapi.usergroup.delete.assert_called_with("id")
 
     def test_remove_action(self):

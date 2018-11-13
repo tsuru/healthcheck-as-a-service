@@ -111,10 +111,11 @@ class Zabbix(object):
 
     def new(self, name):
         host = self._add_host(name, self.host_group_id)
-        group = self._add_group(name, self.host_group_id)
+        group = self._create_user_group(name, self.host_group_id)
         hc = HealthCheck(
             name=name,
             host_group_id=self.host_group_id,
+            host_groups=[self.host_group_id],
             host_id=host,
             group_id=group
         )
@@ -198,9 +199,67 @@ class Zabbix(object):
             self.remove_watcher(name, watcher)
 
         healthcheck = self.storage.find_healthcheck_by_name(name)
-        self._remove_group(healthcheck.group_id)
+        self._remove_user_group(healthcheck.group_id)
         self._remove_host(healthcheck.host_id)
         self.storage.remove_healthcheck(healthcheck)
+
+    def list_service_groups(self):
+        groups = self.zapi.hostgroup.get()
+        group_names = [group.get('name') for group in groups]
+        return group_names
+
+    def list_groups(self, name):
+        hc = self.storage.find_healthcheck_by_name(name)
+        groups = self.zapi.hostgroup.get(groupids=hc.host_groups)
+        group_names = [group.get('name') for group in groups]
+        return group_names
+
+    def add_group(self, name, group):
+        hc = self.storage.find_healthcheck_by_name(name)
+        host_group_id = self._get_host_group_id(group)
+        self._add_group_to_instance(hc, host_group_id)
+
+    def _add_group_to_instance(self, hc, host_group_id):
+        groups = [{"permission": 2, "id": gid} for gid in hc.host_groups]
+        groups.append({"permission": 2, "id": host_group_id})
+        self.zapi.usergroup.update(
+            usrgrpid=hc.group_id,
+            rights=groups,
+        )
+        groups = [{"groupid": gid} for gid in hc.host_groups]
+        groups.append({"groupid": host_group_id})
+        self.zapi.host.update(
+            hostid=hc.host_id,
+            groups=groups,
+        )
+        return self.storage.add_group_to_instance(hc, host_group_id)
+
+    def remove_group(self, name, group):
+        hc = self.storage.find_healthcheck_by_name(name)
+        host_group_id = self._get_host_group_id(group)
+        if host_group_id not in hc.host_groups:
+            raise GroupNotInInstanceError()
+
+        self._remove_group_from_instance(hc, host_group_id)
+
+    def _remove_group_from_instance(self, hc, host_group_id):
+        groups = [{"permission": 2, "id": gid}
+                  for gid in hc.host_groups if gid != host_group_id]
+        self.zapi.usergroup.update(
+            usrgrpid=hc.group_id,
+            rights=groups,
+        )
+        groups = [{"groupid": gid}
+                  for gid in hc.host_groups if gid != host_group_id]
+        self.zapi.host.update(
+            hostid=hc.host_id,
+            groups=groups,
+        )
+        self.storage.remove_group_from_instance(hc, host_group_id)
+
+    def _get_host_group_id(self, group):
+        result = self.zapi.hostgroup.get(filter={"name": [group]})
+        return result[0]["groupid"]
 
     def _add_action(self, url, trigger_id, group_id):
         result = self.zapi.action.create(
@@ -247,7 +306,7 @@ class Zabbix(object):
         )
         return result["actionids"][0]
 
-    def _add_group(self, name, host_group):
+    def _create_user_group(self, name, host_group):
         result = self.zapi.usergroup.create(
             name=name,
             rights={"permission": 2, "id": host_group},
@@ -272,7 +331,7 @@ class Zabbix(object):
     def _remove_host(self, id):
         self.zapi.host.delete(id)
 
-    def _remove_group(self, id):
+    def _remove_user_group(self, id):
         self.zapi.usergroup.delete(id)
 
     def _remove_action(self, id):
@@ -284,4 +343,8 @@ class WatcherAlreadyRegisteredError(Exception):
 
 
 class WatcherNotInInstanceError(Exception):
+    pass
+
+
+class GroupNotInInstanceError(Exception):
     pass

@@ -15,6 +15,7 @@ class HealthCheck(Jsonable):
 
     def __init__(self, name, **kwargs):
         self.name = name
+        self.host_groups = []
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -97,6 +98,14 @@ class MongoStorage(object):
         self.db.healthchecks.insert(
             healthcheck.to_json()
         )
+
+    def add_group_to_instance(self, healthcheck, group):
+        self.db.healthchecks.update_one({"name": healthcheck.name},
+                                        {"$push": {"host_groups": group}})
+
+    def remove_group_from_instance(self, healthcheck, group):
+        self.db.healthchecks.update_one({"name": healthcheck.name},
+                                        {"$pull": {"host_groups": group}})
 
     def remove_healthcheck(self, healthcheck):
         self.db.healthchecks.remove(

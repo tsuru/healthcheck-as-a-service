@@ -79,6 +79,22 @@ edit `service.yaml` `endpoint:production` with hcaas address
 
     $ tsuru hc remove-watcher <healthcheck-name> <email>
 
+## listing service hostgroups
+
+    $ tsuru hc list-service-groups <healthcheck-service>
+
+## adding instance to a hostgroup
+
+    $ tsuru hc add-group <healthcheck-service> <healthcheck-name> <hostgroup-name>
+
+## removing instance from a hostgroup
+
+    $ tsuru hc-remove-group <healthcheck-service> <healthcheck-name> <hostgroup-name>
+
+## listing instance hostgroups
+
+    $ tsuru hc list-groups <healthcheck-service> <healthcheck-name>
+
 ## development
 
  * [Source hosted at GitHub](http://github.com/tsuru/healthcheck-as-a-service)

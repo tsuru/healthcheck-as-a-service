@@ -8,7 +8,8 @@ import os
 import unittest
 
 from healthcheck.plugin import (add_url, add_watcher, list_urls, command, main,
-                                remove_watcher, remove_url, list_watchers, show_help)
+                                remove_watcher, remove_url, list_watchers, show_help,
+                                add_group, remove_group, list_groups, list_service_groups)
 
 
 class PluginTest(unittest.TestCase):
@@ -228,6 +229,96 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
+    def test_add_group(self, Request, urlopen):
+        request = mock.Mock()
+        Request.return_value = request
+
+        add_group("service_name", "name", "group")
+
+        Request.assert_called_with(
+            'POST',
+            self.target + 'services/service_name/proxy/name?callback=/resources/name/groups',
+            data=json.dumps({'group': 'group'})
+        )
+
+        calls = [
+            mock.call("Authorization", "bearer " + self.token),
+            mock.call("Content-Type", "application/json"),
+            mock.call("Accept", "text/plain"),
+        ]
+        request.add_header.has_calls(calls)
+        urlopen.assert_called_with(request, timeout=30)
+
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
+    def test_remove_group(self, Request, urlopen):
+        request = mock.Mock()
+        Request.return_value = request
+
+        remove_group("service_name", "name", "group")
+
+        uri = 'services/service_name/proxy/name?callback=/resources/name/groups/group'
+        Request.assert_called_with(
+            'DELETE',
+            self.target + uri,
+            data=None,
+        )
+        request.add_header.assert_called_with("Authorization",
+                                              "bearer " + self.token)
+        urlopen.assert_called_with(request, timeout=30)
+
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
+    def test_list_groups(self, Request, urlopen):
+        request = mock.Mock()
+        Request.return_value = request
+
+        response = mock.Mock()
+        response.read.return_value = json.dumps(['group'])
+        urlopen.return_value = response
+
+        list_groups("service_name", "name")
+
+        Request.assert_called_with(
+            'GET',
+            self.target + 'services/service_name/proxy/name?callback=/resources/name/groups',
+            data=''
+        )
+
+        calls = [
+            mock.call("Authorization", "bearer {}".format(self.token)),
+            mock.call("Content-Type", "application/json"),
+        ]
+        self.assertEqual(calls, request.add_header.call_args_list)
+        urlopen.assert_called_with(request, timeout=30)
+
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
+    def test_list_service_groups(self, Request, urlopen):
+        request = mock.Mock()
+        Request.return_value = request
+
+        response = mock.Mock()
+        response.read.return_value = json.dumps(['group', 'othergroup'])
+        urlopen.return_value = response
+
+        list_service_groups("service_name")
+
+        Request.assert_called_with(
+            'GET',
+            self.target + 'services/proxy/service/service_name?callback=/resources/groups',
+            data=''
+        )
+
+        calls = [
+            mock.call("Authorization", "bearer {}".format(self.token)),
+            mock.call("Content-Type", "application/json"),
+        ]
+        self.assertEqual(calls, request.add_header.call_args_list)
+        urlopen.assert_called_with(request, timeout=30)
+
     @mock.patch("sys.stderr")
     def test_help(self, stderr):
         with self.assertRaises(SystemExit) as cm:
@@ -265,10 +356,14 @@ class PluginTest(unittest.TestCase):
         calls = [
             mock.call("Usage: tsuru hc command [args]\n\n"),
             mock.call("Available commands:\n"),
+            mock.call("  add-group\n"),
             mock.call("  add-url\n"),
             mock.call("  add-watcher\n"),
+            mock.call("  list-groups\n"),
+            mock.call("  list-service-groups\n"),
             mock.call("  list-urls\n"),
             mock.call("  list-watchers\n"),
+            mock.call("  remove-group\n"),
             mock.call("  remove-url\n"),
             mock.call("  remove-watcher\n"),
             mock.call("  help\n"),
