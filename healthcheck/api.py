@@ -141,7 +141,12 @@ def list_watchers(name):
 @app.route("/resources/groups", methods=["GET"])
 @auth.required
 def list_service_groups():
-    groups = get_manager().list_service_groups()
+    keyword = request.args.get('keyword')
+    if keyword:
+        groups = get_manager().list_service_groups(keyword)
+    else:
+        groups = get_manager().list_service_groups()
+
     return json.dumps(groups), 200
 
 

@@ -196,18 +196,25 @@ def list_watchers(service_name, name):
         sys.stdout.write(watcher + "\n")
 
 
-def list_service_groups(service_name):
+def list_service_groups(service_name, keyword=None):
     """
-    list-service-groups list disponible hostgroups from service.
+    list-service-groups list available hostgroups from service.
     Usage:
 
-        list-service-groups <service_name>
+        list-service-groups <service_name> [keyword]
 
-    Example:
+    keyword is an optional parameter that represents a prefix string to search.
+
+    Examples:
 
         tsuru {plugin_name} list-service-groups hcaas
+
+        tsuru {plugin_name} list-service-groups hcaas projects
     """
     url = "/groups"
+    if keyword:
+        url += "?keyword=" + keyword
+
     headers = {"Content-Type": "application/json"}
     response = proxy_request(service_name, "", "GET", url, "", headers)
     groups_json = response.read()

@@ -417,6 +417,13 @@ or {hc_name:web.test.fail[hc for http://mysite.com].last()}<>0 and {hc_name:web.
         self.backend.zapi.hostgroup.get.assert_called_with()
         self.assertEqual(groups, ["mygroup1", "mygroup2"])
 
+    def test_list_service_groups_keyword(self):
+        self.backend.zapi.hostgroup.get.return_value = [{"name": "mygroup1"}, {"name": "mygroup2"}]
+
+        groups = self.backend.list_service_groups("my")
+        self.backend.zapi.hostgroup.get.assert_called_with(search={'name': ['my']}, startSearch=True)
+        self.assertEqual(groups, ["mygroup1", "mygroup2"])
+
     def test_new(self):
         name = "blah"
 

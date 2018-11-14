@@ -39,8 +39,12 @@ class FakeManager(object):
     def list_watchers(self, name):
         return self.healthchecks[name]['users']
 
-    def list_service_groups(self):
-        return ['mygroup', 'myothergroup', 'anothergroup']
+    def list_service_groups(self, keyword=None):
+        groups = ['mygroup', 'myothergroup', 'anothergroup']
+        if keyword:
+            return [g for g in groups if g.startswith(keyword)]
+
+        return groups
 
     def add_group(self, name, group):
         self.healthchecks[name]["host_groups"].append(group)
