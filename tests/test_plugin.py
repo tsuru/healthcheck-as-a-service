@@ -344,7 +344,6 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
-
     @mock.patch("sys.stderr")
     def test_help(self, stderr):
         with self.assertRaises(SystemExit) as cm:
