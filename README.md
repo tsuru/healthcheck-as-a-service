@@ -81,7 +81,7 @@ edit `service.yaml` `endpoint:production` with hcaas address
 
 ## listing service hostgroups
 
-    $ tsuru hc list-service-groups <healthcheck-service>
+    $ tsuru hc list-service-groups <healthcheck-service> [search-keyword]
 
 ## adding instance to a hostgroup
 
