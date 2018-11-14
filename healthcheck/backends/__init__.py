@@ -203,8 +203,11 @@ class Zabbix(object):
         self._remove_host(healthcheck.host_id)
         self.storage.remove_healthcheck(healthcheck)
 
-    def list_service_groups(self):
-        groups = self.zapi.hostgroup.get()
+    def list_service_groups(self, keyword=None):
+        if keyword:
+            groups = self.zapi.hostgroup.get(search={"name": [keyword]}, startSearch=True)
+        else:
+            groups = self.zapi.hostgroup.get()
         group_names = [group.get('name') for group in groups]
         return group_names
 

@@ -319,6 +319,32 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
+    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.Request")
+    def test_list_service_groups_keyword(self, Request, urlopen):
+        request = mock.Mock()
+        Request.return_value = request
+
+        response = mock.Mock()
+        response.read.return_value = json.dumps(['group', 'othergroup'])
+        urlopen.return_value = response
+
+        list_service_groups("service_name", "other")
+
+        Request.assert_called_with(
+            'GET',
+            self.target + 'services/proxy/service/service_name?callback=/resources/groups?keyword=other',
+            data=''
+        )
+
+        calls = [
+            mock.call("Authorization", "bearer {}".format(self.token)),
+            mock.call("Content-Type", "application/json"),
+        ]
+        self.assertEqual(calls, request.add_header.call_args_list)
+        urlopen.assert_called_with(request, timeout=30)
+
+
     @mock.patch("sys.stderr")
     def test_help(self, stderr):
         with self.assertRaises(SystemExit) as cm:

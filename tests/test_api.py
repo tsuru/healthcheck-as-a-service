@@ -241,6 +241,20 @@ class APITestCase(unittest.TestCase):
             resp.data
         )
 
+    def test_list_service_groups_keyword(self):
+        resp = self.api.get(
+            "/resources/groups?keyword=my",
+        )
+        self.assertEqual(200, resp.status_code)
+        self.assertIn(
+            "mygroup",
+            resp.data
+        )
+        self.assertNotIn(
+            "anothergroup",
+            resp.data
+        )
+
     def test_list_groups(self):
         self.manager.add_group("hc", "mygroup")
         resp = self.api.get(
