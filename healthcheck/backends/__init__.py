@@ -239,9 +239,12 @@ class Zabbix(object):
 
     def remove_group(self, name, group):
         hc = self.storage.find_healthcheck_by_name(name)
-        host_group_id = self._get_host_group_id(group)
-        if host_group_id not in hc.host_groups:
-            raise GroupNotInInstanceError()
+        try:
+            host_group_id = self._get_host_group_id(group)
+            if host_group_id not in hc.host_groups:
+                raise GroupNotInInstanceError()
+        except GroupNotExists:
+            raise
 
         self._remove_group_from_instance(hc, host_group_id)
 
@@ -262,7 +265,10 @@ class Zabbix(object):
 
     def _get_host_group_id(self, group):
         result = self.zapi.hostgroup.get(filter={"name": [group]})
-        return result[0]["groupid"]
+        if result:
+            return result[0]["groupid"]
+        else:
+            raise GroupNotExists()
 
     def _add_action(self, url, trigger_id, group_id):
         result = self.zapi.action.create(
@@ -350,4 +356,8 @@ class WatcherNotInInstanceError(Exception):
 
 
 class GroupNotInInstanceError(Exception):
+    pass
+
+
+class GroupNotExists(Exception):
     pass

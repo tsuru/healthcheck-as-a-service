@@ -257,9 +257,10 @@ def remove_group(service_name, name, group):
 
         tsuru {plugin_name} remove-group hcaas mysite MyZabbixHostGroup
     """
-    url = "/groups/{}".format(group)
+    body = {"group": group}
+    headers = {"Content-Type": "application/json"}
     try:
-        proxy_request(service_name, name, "DELETE", url)
+        proxy_request(service_name, name, "DELETE", "/groups", body=body, headers=headers)
     except urllib2.HTTPError:
         sys.stdout.write("group not found in the instance.\n")
         return

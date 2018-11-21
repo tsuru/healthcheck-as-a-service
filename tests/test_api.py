@@ -268,7 +268,8 @@ class APITestCase(unittest.TestCase):
 
     def test_remove_group(self):
         self.manager.add_group("hc", "mygroup")
-        resp = self.api.delete("/resources/hc/groups/mygroup")
+        resp = self.api.delete("/resources/hc/groups",
+                               data=json.dumps({"group": "mygroup"}))
         self.assertEqual(204, resp.status_code)
         self.assertNotIn(
             "mygroup",
