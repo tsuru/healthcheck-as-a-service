@@ -259,14 +259,17 @@ class PluginTest(unittest.TestCase):
 
         remove_group("service_name", "name", "group")
 
-        uri = 'services/service_name/proxy/name?callback=/resources/name/groups/group'
+        uri = 'services/service_name/proxy/name?callback=/resources/name/groups'
         Request.assert_called_with(
             'DELETE',
             self.target + uri,
-            data=None,
+            data=json.dumps({"group": "group"}),
         )
-        request.add_header.assert_called_with("Authorization",
-                                              "bearer " + self.token)
+        calls = [
+            mock.call("Authorization", "bearer " + self.token),
+            mock.call("Content-Type", "application/json"),
+        ]
+        self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
     @mock.patch("urllib2.urlopen")
