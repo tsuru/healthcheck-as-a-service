@@ -8,7 +8,9 @@ import json
 import os
 import sys
 import urllib2
+import ssl
 
+ssl._create_default_https_context = ssl._create_unverified_context
 
 def get_env(name):
     env = os.environ.get(name)
