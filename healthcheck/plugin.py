@@ -7,7 +7,12 @@
 import json
 import os
 import sys
-import urllib2
+
+try:
+    from urllib2 import urlopen, Request, HTTPError
+except ImportError:
+    from urllib.request import urlopen, Request
+    from urllib.error import HTTPError
 
 
 def get_env(name):
@@ -18,11 +23,11 @@ def get_env(name):
     return env
 
 
-class Request(urllib2.Request):
+class DoRequest(Request):
 
     def __init__(self, method, *args, **kwargs):
         self._method = method
-        urllib2.Request.__init__(self, *args, **kwargs)
+        Request.__init__(self, *args, **kwargs)
 
     def get_method(self):
         return self._method
@@ -43,14 +48,14 @@ def proxy_request(service_name, instance_name, method, path, body=None, headers=
     if body:
         body = json.dumps(body)
 
-    request = Request(method, url, data=body)
+    request = DoRequest(method, url, data=body)
     request.add_header("Authorization", "bearer " + token)
 
     if headers:
         for header, value in headers.items():
             request.add_header(header, value)
 
-    return urllib2.urlopen(request, timeout=30)
+    return urlopen(request, timeout=30)
 
 
 def add_url(service_name, name, url, expected_string=None, comment=None):
@@ -83,7 +88,7 @@ def add_url(service_name, name, url, expected_string=None, comment=None):
     }
     try:
         proxy_request(service_name, name, "POST", "/url", data, headers)
-    except urllib2.HTTPError as error:
+    except HTTPError as error:
         sys.stdout.write("error: %s.\n" % error.reason)
         return
 
@@ -106,7 +111,7 @@ def remove_url(service_name, name, url):
     headers = {"Content-Type": "application/json"}
     try:
         proxy_request(service_name, name, "DELETE", "/url", body=body, headers=headers)
-    except urllib2.HTTPError:
+    except HTTPError:
         sys.stdout.write("URL %s not found.\n" % url)
         return
     msg = "url {} successfully removed!\n".format(url)
@@ -126,7 +131,11 @@ def list_urls(service_name, name):
     """
     url = "/url"
     headers = {"Content-Type": "application/json"}
-    response = proxy_request(service_name, name, "GET", url, "", headers)
+    try:
+        response = proxy_request(service_name, name, "GET", url, "", headers)
+    except HTTPError as error:
+        sys.stdout.write("error: %s.\n" % error.reason)
+        return
     urls = response.read()
     sys.stdout.write(urls + "\n")
 
@@ -154,7 +163,12 @@ def add_watcher(service_name, name, watcher, password=None):
         "Content-Type": "application/json",
         "Accept": "text/plain"
     }
-    proxy_request(service_name, name, "POST", "/watcher", data, headers)
+    try:
+        proxy_request(service_name, name, "POST", "/watcher", data, headers)
+    except HTTPError as error:
+        sys.stdout.write("error: %s.\n" % error.reason)
+        return
+
     msg = "watcher {} successfully added!\n".format(watcher)
     sys.stdout.write(msg)
 
@@ -171,7 +185,12 @@ def remove_watcher(service_name, name, watcher):
         tsuru {plugin_name} remove-watcher hcaas mysite mysite+monit@mycompany.com
     """
     url = "/watcher/{}".format(watcher)
-    proxy_request(service_name, name, "DELETE", url)
+    try:
+        proxy_request(service_name, name, "DELETE", url)
+    except HTTPError as error:
+        sys.stdout.write("error: %s.\n" % error.reason)
+        return
+
     msg = "watcher {} successfully removed!\n".format(watcher)
     sys.stdout.write(msg)
 
@@ -189,34 +208,44 @@ def list_watchers(service_name, name):
     """
     url = '/watcher'
     headers = {"Content-Type": "application/json"}
-    response = proxy_request(service_name, name, "GET", url, "", headers)
+    try:
+        response = proxy_request(service_name, name, "GET", url, "", headers)
+    except HTTPError as error:
+        sys.stdout.write("error: %s.\n" % error.reason)
+        return
+
     watchers_json = response.read()
     watchers = json.loads(watchers_json)
     for watcher in watchers:
         sys.stdout.write(watcher + "\n")
 
 
-def list_service_groups(service_name, keyword=None):
+def list_service_groups(service_name, name, keyword=None):
     """
     list-service-groups list available hostgroups from service.
     Usage:
 
-        list-service-groups <service_name> [keyword]
+        list-service-groups <service_name> <instance-name> [keyword]
 
     keyword is an optional parameter that represents a prefix string to search.
 
     Examples:
 
-        tsuru {plugin_name} list-service-groups hcaas
+        tsuru {plugin_name} list-service-groups hcaas mysite
 
-        tsuru {plugin_name} list-service-groups hcaas projects
+        tsuru {plugin_name} list-service-groups hcaas mysite projects
     """
-    url = "/groups"
+    url = "/servicegroups"
     if keyword:
         url += "?keyword=" + keyword
 
     headers = {"Content-Type": "application/json"}
-    response = proxy_request(service_name, "", "GET", url, "", headers)
+    try:
+        response = proxy_request(service_name, name, "GET", url, "", headers)
+    except HTTPError as error:
+        sys.stdout.write("error: %s.\n" % error.reason)
+        return
+
     groups_json = response.read()
     groups = json.loads(groups_json)
     for group in groups:
@@ -241,7 +270,12 @@ def add_group(service_name, name, group):
         "Content-Type": "application/json",
         "Accept": "text/plain"
     }
-    proxy_request(service_name, name, "POST", "/groups", data, headers)
+    try:
+        proxy_request(service_name, name, "POST", "/groups", data, headers)
+    except HTTPError as error:
+        sys.stdout.write("error: %s.\n" % error.reason)
+        return
+
     msg = "group {} successfully added!\n".format(group)
     sys.stdout.write(msg)
 
@@ -261,7 +295,7 @@ def remove_group(service_name, name, group):
     headers = {"Content-Type": "application/json"}
     try:
         proxy_request(service_name, name, "DELETE", "/groups", body=body, headers=headers)
-    except urllib2.HTTPError:
+    except HTTPError:
         sys.stdout.write("group not found in the instance.\n")
         return
 
@@ -282,7 +316,12 @@ def list_groups(service_name, name):
     """
     url = "/groups"
     headers = {"Content-Type": "application/json"}
-    response = proxy_request(service_name, name, "GET", url, "", headers)
+    try:
+        response = proxy_request(service_name, name, "GET", url, "", headers)
+    except HTTPError as error:
+        sys.stdout.write("error: %s.\n" % error.reason)
+        return
+
     groups_json = response.read()
     groups = json.loads(groups_json)
     for group in groups:
@@ -357,3 +396,4 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         show_help(exit=2)
     main(sys.argv[1], *sys.argv[2:])
+
