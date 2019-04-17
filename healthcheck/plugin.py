@@ -14,6 +14,11 @@ except ImportError:
     from urllib.request import urlopen, Request
     from urllib.error import HTTPError
 
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
+
 
 def get_env(name):
     env = os.environ.get(name)
@@ -21,16 +26,6 @@ def get_env(name):
         sys.stderr.write("ERROR: missing {}\n".format(name))
         sys.exit(5)
     return env
-
-
-class DoRequest(Request):
-
-    def __init__(self, method, *args, **kwargs):
-        self._method = method
-        Request.__init__(self, *args, **kwargs)
-
-    def get_method(self):
-        return self._method
 
 
 def proxy_request(service_name, instance_name, method, path, body=None, headers=None):
@@ -45,17 +40,26 @@ def proxy_request(service_name, instance_name, method, path, body=None, headers=
     else:
         url = "{}/services/proxy/service/{}?callback=/resources/{}".format(target, service_name, path.lstrip("/"))
 
+    request = Request(url)
+    request.add_header("Authorization", "bearer " + token)
+    request.get_method = lambda: method
     if body:
         body = json.dumps(body)
-
-    request = DoRequest(method, url, data=body)
-    request.add_header("Authorization", "bearer " + token)
+        try:
+            request.add_data(body)
+        except AttributeError:
+            request.data = body.encode('utf-8')
 
     if headers:
         for header, value in headers.items():
             request.add_header(header, value)
 
-    return urlopen(request, timeout=30)
+    try:
+        return urlopen(request, timeout=30)
+    except HTTPError as error:
+        return error
+    except Exception:
+        raise
 
 
 def add_url(service_name, name, url, expected_string=None, comment=None):
@@ -75,6 +79,11 @@ def add_url(service_name, name, url, expected_string=None, comment=None):
         tsuru {plugin_name} add-url hcaas mysite http://mysite.com/hc 'restart the app'
 
     """
+    parsed_url = urlparse(url)
+    if parsed_url.scheme == '':
+        sys.stderr.write("ERROR: missing url scheme\n")
+        sys.exit(2)
+
     data = {
         "url": url,
     }
@@ -86,14 +95,15 @@ def add_url(service_name, name, url, expected_string=None, comment=None):
         "Content-Type": "application/json",
         "Accept": "text/plain"
     }
-    try:
-        proxy_request(service_name, name, "POST", "/url", data, headers)
-    except HTTPError as error:
-        sys.stdout.write("error: %s.\n" % error.reason)
-        return
 
-    msg = "url {} successfully added!\n".format(url)
-    sys.stdout.write(msg)
+    result = proxy_request(service_name, name, "POST", "/url", data, headers)
+    if result.getcode() == 201:
+        msg = "url {} successfully added!\n".format(url)
+        sys.stdout.write(msg)
+    else:
+        msg = result.read().decode('utf-8').rstrip("\n")
+        sys.stderr.write("ERROR: " + msg + "\n")
+        sys.exit(1)
 
 
 def remove_url(service_name, name, url):
@@ -109,13 +119,14 @@ def remove_url(service_name, name, url):
     """
     body = {"url": url}
     headers = {"Content-Type": "application/json"}
-    try:
-        proxy_request(service_name, name, "DELETE", "/url", body=body, headers=headers)
-    except HTTPError:
-        sys.stdout.write("URL %s not found.\n" % url)
-        return
-    msg = "url {} successfully removed!\n".format(url)
-    sys.stdout.write(msg)
+    result = proxy_request(service_name, name, "DELETE", "/url", body=body, headers=headers)
+    if result.getcode() == 204:
+        msg = "url {} successfully removed!\n".format(url)
+        sys.stdout.write(msg)
+    else:
+        msg = result.read().decode('utf-8').rstrip("\n")
+        sys.stderr.write("ERROR: " + msg + "\n")
+        sys.exit(1)
 
 
 def list_urls(service_name, name):
@@ -131,13 +142,14 @@ def list_urls(service_name, name):
     """
     url = "/url"
     headers = {"Content-Type": "application/json"}
-    try:
-        response = proxy_request(service_name, name, "GET", url, "", headers)
-    except HTTPError as error:
-        sys.stdout.write("error: %s.\n" % error.reason)
-        return
-    urls = response.read()
-    sys.stdout.write(urls + "\n")
+    result = proxy_request(service_name, name, "GET", url, "", headers)
+    if result.getcode() == 200:
+        urls = result.read()
+        sys.stdout.write(urls + "\n")
+    else:
+        msg = result.read().decode('utf-8').rstrip("\n")
+        sys.stderr.write("ERROR: " + msg + "\n")
+        sys.exit(1)
 
 
 def add_watcher(service_name, name, watcher, password=None):
@@ -163,14 +175,14 @@ def add_watcher(service_name, name, watcher, password=None):
         "Content-Type": "application/json",
         "Accept": "text/plain"
     }
-    try:
-        proxy_request(service_name, name, "POST", "/watcher", data, headers)
-    except HTTPError as error:
-        sys.stdout.write("error: %s.\n" % error.reason)
-        return
-
-    msg = "watcher {} successfully added!\n".format(watcher)
-    sys.stdout.write(msg)
+    result = proxy_request(service_name, name, "POST", "/watcher", data, headers)
+    if result.getcode() == 201:
+        msg = "watcher {} successfully added!\n".format(watcher)
+        sys.stdout.write(msg)
+    else:
+        msg = result.read().decode('utf-8').rstrip("\n")
+        sys.stderr.write("ERROR: " + msg + "\n")
+        sys.exit(1)
 
 
 def remove_watcher(service_name, name, watcher):
@@ -185,14 +197,14 @@ def remove_watcher(service_name, name, watcher):
         tsuru {plugin_name} remove-watcher hcaas mysite mysite+monit@mycompany.com
     """
     url = "/watcher/{}".format(watcher)
-    try:
-        proxy_request(service_name, name, "DELETE", url)
-    except HTTPError as error:
-        sys.stdout.write("error: %s.\n" % error.reason)
-        return
-
-    msg = "watcher {} successfully removed!\n".format(watcher)
-    sys.stdout.write(msg)
+    result = proxy_request(service_name, name, "DELETE", url)
+    if result.getcode() == 204:
+        msg = "watcher {} successfully removed!\n".format(watcher)
+        sys.stdout.write(msg)
+    else:
+        msg = result.read().decode('utf-8').rstrip("\n")
+        sys.stderr.write("ERROR: " + msg + "\n")
+        sys.exit(1)
 
 
 def list_watchers(service_name, name):
@@ -208,16 +220,16 @@ def list_watchers(service_name, name):
     """
     url = '/watcher'
     headers = {"Content-Type": "application/json"}
-    try:
-        response = proxy_request(service_name, name, "GET", url, "", headers)
-    except HTTPError as error:
-        sys.stdout.write("error: %s.\n" % error.reason)
-        return
-
-    watchers_json = response.read()
-    watchers = json.loads(watchers_json)
-    for watcher in watchers:
-        sys.stdout.write(watcher + "\n")
+    result = proxy_request(service_name, name, "GET", url, "", headers)
+    if result.getcode() == 200:
+        watchers_json = result.read()
+        watchers = json.loads(watchers_json)
+        for watcher in watchers:
+            sys.stdout.write(watcher + "\n")
+    else:
+        msg = result.read().decode('utf-8').rstrip("\n")
+        sys.stderr.write("ERROR: " + msg + "\n")
+        sys.exit(1)
 
 
 def list_service_groups(service_name, name, keyword=None):
@@ -240,16 +252,16 @@ def list_service_groups(service_name, name, keyword=None):
         url += "?keyword=" + keyword
 
     headers = {"Content-Type": "application/json"}
-    try:
-        response = proxy_request(service_name, name, "GET", url, "", headers)
-    except HTTPError as error:
-        sys.stdout.write("error: %s.\n" % error.reason)
-        return
-
-    groups_json = response.read()
-    groups = json.loads(groups_json)
-    for group in groups:
-        sys.stdout.write(group + "\n")
+    result = proxy_request(service_name, name, "GET", url, "", headers)
+    if result.getcode() == 200:
+        groups_json = result.read()
+        groups = json.loads(groups_json)
+        for group in groups:
+            sys.stdout.write(group + "\n")
+    else:
+        msg = result.read().decode('utf-8').rstrip("\n")
+        sys.stderr.write("ERROR: " + msg + "\n")
+        sys.exit(1)
 
 
 def add_group(service_name, name, group):
@@ -270,14 +282,14 @@ def add_group(service_name, name, group):
         "Content-Type": "application/json",
         "Accept": "text/plain"
     }
-    try:
-        proxy_request(service_name, name, "POST", "/groups", data, headers)
-    except HTTPError as error:
-        sys.stdout.write("error: %s.\n" % error.reason)
-        return
-
-    msg = "group {} successfully added!\n".format(group)
-    sys.stdout.write(msg)
+    result = proxy_request(service_name, name, "POST", "/groups", data, headers)
+    if result.getcode() == 201:
+        msg = "group {} successfully added!\n".format(group)
+        sys.stdout.write(msg)
+    else:
+        msg = result.read().decode('utf-8').rstrip("\n")
+        sys.stderr.write("ERROR: " + msg + "\n")
+        sys.exit(1)
 
 
 def remove_group(service_name, name, group):
@@ -293,14 +305,14 @@ def remove_group(service_name, name, group):
     """
     body = {"group": group}
     headers = {"Content-Type": "application/json"}
-    try:
-        proxy_request(service_name, name, "DELETE", "/groups", body=body, headers=headers)
-    except HTTPError:
-        sys.stdout.write("group not found in the instance.\n")
-        return
-
-    msg = "group {} successfully removed!\n".format(group)
-    sys.stdout.write(msg)
+    result = proxy_request(service_name, name, "DELETE", "/groups", body=body, headers=headers)
+    if result.getcode() == 204:
+        msg = "group {} successfully removed!\n".format(group)
+        sys.stdout.write(msg)
+    else:
+        msg = result.read().decode('utf-8').rstrip("\n")
+        sys.stderr.write("ERROR: " + msg + "\n")
+        sys.exit(1)
 
 
 def list_groups(service_name, name):
@@ -316,16 +328,16 @@ def list_groups(service_name, name):
     """
     url = "/groups"
     headers = {"Content-Type": "application/json"}
-    try:
-        response = proxy_request(service_name, name, "GET", url, "", headers)
-    except HTTPError as error:
-        sys.stdout.write("error: %s.\n" % error.reason)
-        return
-
-    groups_json = response.read()
-    groups = json.loads(groups_json)
-    for group in groups:
-        sys.stdout.write(group + "\n")
+    result = proxy_request(service_name, name, "GET", url, "", headers)
+    if result.getcode() == 200:
+        groups_json = result.read()
+        groups = json.loads(groups_json)
+        for group in groups:
+            sys.stdout.write(group + "\n")
+    else:
+        msg = result.read().decode('utf-8').rstrip("\n")
+        sys.stderr.write("ERROR: " + msg + "\n")
+        sys.exit(1)
 
 
 def show_help(command_name=None, exit=0):
@@ -396,4 +408,3 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         show_help(exit=2)
     main(sys.argv[1], *sys.argv[2:])
-
