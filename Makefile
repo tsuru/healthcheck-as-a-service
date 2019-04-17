@@ -13,7 +13,10 @@ clean:
 
 test: test-deps clean
 	@PYTHONPATH=. py.test -s --cov-report term-missing --cov .
-	@flake8 --max-line-length 150 .
+	@flake8 --exclude=lib,lib64,dist --max-line-length 150 .
 
 run: deps
 	@honcho start
+
+dist:
+	@python ./setup.py sdist upload
