@@ -233,7 +233,7 @@ class APITestCase(unittest.TestCase):
 
     def test_list_service_groups(self):
         resp = self.api.get(
-            "/resources/groups",
+            "/resources/hc/servicegroups",
         )
         self.assertEqual(200, resp.status_code)
         self.assertIn(
@@ -243,7 +243,7 @@ class APITestCase(unittest.TestCase):
 
     def test_list_service_groups_keyword(self):
         resp = self.api.get(
-            "/resources/groups?keyword=my",
+            "/resources/hc/servicegroups?keyword=my",
         )
         self.assertEqual(200, resp.status_code)
         self.assertIn(

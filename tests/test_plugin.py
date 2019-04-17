@@ -29,19 +29,23 @@ class PluginTest(unittest.TestCase):
     def tearDown(self):
         self.delete_envs()
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_add_url(self, Request, urlopen):
         request = mock.Mock()
         Request.return_value = request
 
-        add_url("service_name", "name", "url")
+        result = mock.Mock()
+        result.getcode.return_value = 201
+        urlopen.return_value = result
+
+        add_url("service_name", "name", "http://example.com/hc")
 
         Request.assert_called_with(
-            'POST',
             self.target + 'services/service_name/proxy/name?callback=/resources/name/url',
-            data=json.dumps({'url': 'url'})
         )
+        request.add_data.assert_called_with(json.dumps({'url': 'http://example.com/hc'}))
+        self.assertEqual(request.get_method(), 'POST')
 
         calls = [
             mock.call("Authorization", "bearer {}".format(self.token)),
@@ -51,20 +55,24 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_add_url_with_expected_string_args(self, Request, urlopen):
         request = mock.Mock()
         Request.return_value = request
 
-        add_url("service_name", "name", "url", "WORKING")
+        result = mock.Mock()
+        result.getcode.return_value = 201
+        urlopen.return_value = result
+
+        add_url("service_name", "name", "http://example.com/hc", "WORKING")
 
         Request.assert_called_with(
-            'POST',
             self.target + 'services/service_name/proxy/name?callback=/resources/name/url',
-            data=json.dumps({'url': 'url',
-                             'expected_string': 'WORKING'})
         )
+        request.add_data.assert_called_with(json.dumps({'url': 'http://example.com/hc',
+                                                        'expected_string': 'WORKING'}))
+        self.assertEqual(request.get_method(), 'POST')
 
         calls = [
             mock.call("Authorization", "bearer {}".format(self.token)),
@@ -74,20 +82,24 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_add_url_with_comment_args(self, Request, urlopen):
         request = mock.Mock()
         Request.return_value = request
 
-        add_url("service_name", "name", "url", comment="http://test.com")
+        result = mock.Mock()
+        result.getcode.return_value = 201
+        urlopen.return_value = result
+
+        add_url("service_name", "name", "http://example.com/hc", comment="http://test.com")
 
         Request.assert_called_with(
-            'POST',
             self.target + 'services/service_name/proxy/name?callback=/resources/name/url',
-            data=json.dumps({'url': 'url',
-                             'comment': 'http://test.com'})
         )
+        request.add_data.assert_called_with(json.dumps({'url': 'http://example.com/hc',
+                                                        'comment': 'http://test.com'}))
+        self.assertEqual(request.get_method(), 'POST')
 
         calls = [
             mock.call("Authorization", "bearer {}".format(self.token)),
@@ -97,7 +109,7 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_list_urls(self, Request, urlopen):
         request = mock.Mock()
@@ -105,15 +117,16 @@ class PluginTest(unittest.TestCase):
 
         response = mock.Mock()
         response.read.return_value = json.dumps([['http://test.com', ""]])
+        response.getcode.return_value = 200
         urlopen.return_value = response
 
         list_urls("service_name", "name")
 
         Request.assert_called_with(
-            'GET',
             self.target + 'services/service_name/proxy/name?callback=/resources/name/url',
-            data=''
         )
+        request.add_data.assert_not_called()
+        self.assertEqual(request.get_method(), 'GET')
 
         calls = [
             mock.call("Authorization", "bearer {}".format(self.token)),
@@ -122,19 +135,24 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_remove_url(self, Request, urlopen):
         request = mock.Mock()
         Request.return_value = request
 
+        result = mock.Mock()
+        result.getcode.return_value = 204
+        urlopen.return_value = result
+
         remove_url("service_name", "name", "url")
 
         Request.assert_called_with(
-            'DELETE',
             self.target + 'services/service_name/proxy/name?callback=/resources/name/url',
-            data=json.dumps({"url": "url"}),
         )
+        request.add_data.assert_called_with(json.dumps({"url": "url"}))
+        self.assertEqual(request.get_method(), 'DELETE')
+
         calls = [
             mock.call("Authorization", "bearer " + self.token),
             mock.call("Content-Type", "application/json"),
@@ -142,19 +160,23 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_add_watcher(self, Request, urlopen):
         request = mock.Mock()
         Request.return_value = request
 
+        result = mock.Mock()
+        result.getcode.return_value = 201
+        urlopen.return_value = result
+
         add_watcher("service_name", "name", "watcher@watcher.com")
 
         Request.assert_called_with(
-            'POST',
             self.target + 'services/service_name/proxy/name?callback=/resources/name/watcher',
-            data=json.dumps({'watcher': 'watcher@watcher.com'})
         )
+        request.add_data.assert_called_with(json.dumps({'watcher': 'watcher@watcher.com'}))
+        self.assertEqual(request.get_method(), 'POST')
 
         calls = [
             mock.call("Authorization", "bearer " + self.token),
@@ -164,19 +186,23 @@ class PluginTest(unittest.TestCase):
         request.add_header.has_calls(calls)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_add_watcher_with_password(self, Request, urlopen):
         request = mock.Mock()
         Request.return_value = request
 
+        result = mock.Mock()
+        result.getcode.return_value = 201
+        urlopen.return_value = result
+
         add_watcher("service_name", "name", "watcher@watcher.com", "teste")
 
         Request.assert_called_with(
-            'POST',
             self.target + 'services/service_name/proxy/name?callback=/resources/name/watcher',
-            data=json.dumps({'watcher': 'watcher@watcher.com', 'password': 'teste'})
         )
+        request.add_data.assert_called_with(json.dumps({'watcher': 'watcher@watcher.com', 'password': 'teste'}))
+        self.assertEqual(request.get_method(), 'POST')
 
         calls = [
             mock.call("Authorization", "bearer " + self.token),
@@ -186,25 +212,29 @@ class PluginTest(unittest.TestCase):
         request.add_header.has_calls(calls)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_remove_watcher(self, Request, urlopen):
         request = mock.Mock()
         Request.return_value = request
 
+        result = mock.Mock()
+        result.getcode.return_value = 204
+        urlopen.return_value = result
+
         remove_watcher("service_name", "name", "watcher@watcher.com")
 
         uri = 'services/service_name/proxy/name?callback=/resources/name/watcher/watcher@watcher.com'
         Request.assert_called_with(
-            'DELETE',
             self.target + uri,
-            data=None,
         )
+        request.add_data.assert_not_called()
+        self.assertEqual(request.get_method(), 'DELETE')
         request.add_header.assert_called_with("Authorization",
                                               "bearer " + self.token)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_list_watchers(self, Request, urlopen):
         request = mock.Mock()
@@ -212,15 +242,16 @@ class PluginTest(unittest.TestCase):
 
         response = mock.Mock()
         response.read.return_value = json.dumps(['bla@test.com'])
+        response.getcode.return_value = 200
         urlopen.return_value = response
 
         list_watchers("service_name", "name")
 
         Request.assert_called_with(
-            'GET',
             self.target + 'services/service_name/proxy/name?callback=/resources/name/watcher',
-            data=''
         )
+        request.add_data.assert_not_called()
+        self.assertEqual(request.get_method(), 'GET')
 
         calls = [
             mock.call("Authorization", "bearer {}".format(self.token)),
@@ -229,19 +260,23 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_add_group(self, Request, urlopen):
         request = mock.Mock()
         Request.return_value = request
 
+        result = mock.Mock()
+        result.getcode.return_value = 201
+        urlopen.return_value = result
+
         add_group("service_name", "name", "group")
 
         Request.assert_called_with(
-            'POST',
             self.target + 'services/service_name/proxy/name?callback=/resources/name/groups',
-            data=json.dumps({'group': 'group'})
         )
+        request.add_data.assert_called_with(json.dumps({"group": "group"}))
+        self.assertEqual(request.get_method(), 'POST')
 
         calls = [
             mock.call("Authorization", "bearer " + self.token),
@@ -251,20 +286,25 @@ class PluginTest(unittest.TestCase):
         request.add_header.has_calls(calls)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_remove_group(self, Request, urlopen):
         request = mock.Mock()
         Request.return_value = request
 
+        result = mock.Mock()
+        result.getcode.return_value = 204
+        urlopen.return_value = result
+
         remove_group("service_name", "name", "group")
 
         uri = 'services/service_name/proxy/name?callback=/resources/name/groups'
         Request.assert_called_with(
-            'DELETE',
             self.target + uri,
-            data=json.dumps({"group": "group"}),
         )
+        request.add_data.assert_called_with(json.dumps({"group": "group"}))
+        self.assertEqual(request.get_method(), 'DELETE')
+
         calls = [
             mock.call("Authorization", "bearer " + self.token),
             mock.call("Content-Type", "application/json"),
@@ -272,7 +312,7 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_list_groups(self, Request, urlopen):
         request = mock.Mock()
@@ -280,15 +320,16 @@ class PluginTest(unittest.TestCase):
 
         response = mock.Mock()
         response.read.return_value = json.dumps(['group'])
+        response.getcode.return_value = 200
         urlopen.return_value = response
 
         list_groups("service_name", "name")
 
         Request.assert_called_with(
-            'GET',
             self.target + 'services/service_name/proxy/name?callback=/resources/name/groups',
-            data=''
         )
+        request.add_data.assert_not_called()
+        self.assertEqual(request.get_method(), 'GET')
 
         calls = [
             mock.call("Authorization", "bearer {}".format(self.token)),
@@ -297,7 +338,7 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_list_service_groups(self, Request, urlopen):
         request = mock.Mock()
@@ -305,15 +346,16 @@ class PluginTest(unittest.TestCase):
 
         response = mock.Mock()
         response.read.return_value = json.dumps(['group', 'othergroup'])
+        response.getcode.return_value = 200
         urlopen.return_value = response
 
-        list_service_groups("service_name")
+        list_service_groups("service_name", "name")
 
         Request.assert_called_with(
-            'GET',
-            self.target + 'services/proxy/service/service_name?callback=/resources/groups',
-            data=''
+            self.target + 'services/service_name/proxy/name?callback=/resources/name/servicegroups',
         )
+        request.add_data.assert_not_called()
+        self.assertEqual(request.get_method(), 'GET')
 
         calls = [
             mock.call("Authorization", "bearer {}".format(self.token)),
@@ -322,7 +364,7 @@ class PluginTest(unittest.TestCase):
         self.assertEqual(calls, request.add_header.call_args_list)
         urlopen.assert_called_with(request, timeout=30)
 
-    @mock.patch("urllib2.urlopen")
+    @mock.patch("healthcheck.plugin.urlopen")
     @mock.patch("healthcheck.plugin.Request")
     def test_list_service_groups_keyword(self, Request, urlopen):
         request = mock.Mock()
@@ -330,15 +372,16 @@ class PluginTest(unittest.TestCase):
 
         response = mock.Mock()
         response.read.return_value = json.dumps(['group', 'othergroup'])
+        response.getcode.return_value = 200
         urlopen.return_value = response
 
-        list_service_groups("service_name", "other")
+        list_service_groups("service_name", "name", "other")
 
         Request.assert_called_with(
-            'GET',
-            self.target + 'services/proxy/service/service_name?callback=/resources/groups?keyword=other',
-            data=''
+            self.target + 'services/service_name/proxy/name?callback=/resources/name/servicegroups?keyword=other',
         )
+        request.add_data.assert_not_called()
+        self.assertEqual(request.get_method(), 'GET')
 
         calls = [
             mock.call("Authorization", "bearer {}".format(self.token)),
