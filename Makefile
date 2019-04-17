@@ -12,7 +12,7 @@ clean:
 	@find . -name "*.pyc" -delete
 
 test: test-deps clean
-	@PYTHONPATH=. py.test -s --cov-report term-missing --cov .
+	@PYTHONPATH=. py.test --ignore=lib --ignore=lib64 -s --cov-report term-missing --cov .
 	@flake8 --exclude=lib,lib64,dist --max-line-length 150 .
 
 run: deps
