@@ -90,6 +90,16 @@ def remove_url(name):
 @auth.required
 def list_urls(name):
     urls = get_manager().list_urls(name)
+
+    if request.headers.get("accept") == "application/json":
+        return json.dumps([
+            {
+                "url": r[0],
+                "comment": r[1],
+            }
+            for r in urls
+        ]), 200
+
     table_urls = [["Url", "Comment"]]
     table_urls.extend(urls)
     table = AsciiTable(table_urls)

@@ -85,6 +85,21 @@ class APITestCase(unittest.TestCase):
             resp.data
         )
 
+    def test_list_urls_json(self):
+        self.manager.add_url("hc", "http://bla.com")
+        resp = self.api.get(
+            "/resources/hc/url",
+            headers={
+                "Accept": "application/json",
+            }
+        )
+        self.assertEqual(200, resp.status_code)
+        data = json.loads(resp.data)
+        self.assertEqual(
+            [{"url": "http://bla.com", "comment": ""}],
+            data
+        )
+
     def test_remove_url(self):
         self.manager.add_url("hc", "http://bla.com/")
         resp = self.api.delete("/resources/hc/url",
