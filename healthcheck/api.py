@@ -57,6 +57,11 @@ def get_manager():
     raise ValueError("{0} is not a valid manager".format(manager))
 
 
+@app.route("/", methods=["GET"])
+def index():
+    return "github.com/tsuru/healthcheck-as-a-service is running", 200
+
+
 @app.route("/resources/<name>/url", methods=["POST"])
 @auth.required
 def add_url(name):
