@@ -144,7 +144,7 @@ def list_urls(service_name, name):
     headers = {"Content-Type": "application/json"}
     result = proxy_request(service_name, name, "GET", url, "", headers)
     if result.getcode() == 200:
-        urls = result.read()
+        urls = result.read().decode('utf-8')
         sys.stdout.write(urls + "\n")
     else:
         msg = result.read().decode('utf-8').rstrip("\n")
@@ -222,7 +222,7 @@ def list_watchers(service_name, name):
     headers = {"Content-Type": "application/json"}
     result = proxy_request(service_name, name, "GET", url, "", headers)
     if result.getcode() == 200:
-        watchers_json = result.read()
+        watchers_json = result.read().decode('utf-8')
         watchers = json.loads(watchers_json)
         for watcher in watchers:
             sys.stdout.write(watcher + "\n")
@@ -254,7 +254,7 @@ def list_service_groups(service_name, name, keyword=None):
     headers = {"Content-Type": "application/json"}
     result = proxy_request(service_name, name, "GET", url, "", headers)
     if result.getcode() == 200:
-        groups_json = result.read()
+        groups_json = result.read().decode('utf-8')
         groups = json.loads(groups_json)
         for group in groups:
             sys.stdout.write(group + "\n")
@@ -330,7 +330,7 @@ def list_groups(service_name, name):
     headers = {"Content-Type": "application/json"}
     result = proxy_request(service_name, name, "GET", url, "", headers)
     if result.getcode() == 200:
-        groups_json = result.read()
+        groups_json = result.read().decode('utf-8')
         groups = json.loads(groups_json)
         for group in groups:
             sys.stdout.write(group + "\n")
