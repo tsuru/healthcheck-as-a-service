@@ -1,0 +1,28 @@
+# This workflows will upload a Python Package using Twine when a release is created
+# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:4
+        ports:
+        - 27017:27017
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '2.7.x'
+    - name: Test
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+        make test-deps
+        make test
