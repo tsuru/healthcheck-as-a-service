@@ -45,7 +45,7 @@ This project is a http API to abstract healthcheck operations, like verify if a 
 
 ## installing healthcheck tsuru plugin
 
-    $ tsuru plugin-install hc <API-URL>/plugin
+    $ tsuru plugin-install hc https://raw.githubusercontent.com/tsuru/healthcheck-as-a-service/master/healthcheck/plugin.py
 
 ## using healthcheck tsuru plugin
 
