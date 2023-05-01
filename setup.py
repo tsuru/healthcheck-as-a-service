@@ -20,5 +20,5 @@ setup(
     ],
     packages=find_packages(exclude=["tests"]),
     include_package_data=True,
-    install_requires=["Flask==1.0.2", "pyzabbix==0.7.4", "pymongo==3.4.0"],
+    install_requires=["Flask==2.3.2", "pyzabbix==0.7.4", "pymongo==3.4.0"],
 )
